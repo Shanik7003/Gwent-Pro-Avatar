@@ -72,11 +72,11 @@
     <Compile Include="Assets/API/obj/Debug/net8.0/API.AssemblyInfo.cs" />
     <Compile Include="Assets/API/Engine.cs" />
     <Compile Include="Assets/Scripts/UI/SceneLoader.cs" />
+    <Compile Include="Assets/Scripts/UI/HoverEffect.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerDisplay.cs" />
     <Compile Include="Assets/Scripts/Managers/PlayerManager.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManagerWrapper.cs" />
     <Compile Include="Assets/Scripts/Managers/BoardManager.cs" />
-    <Compile Include="Assets/Scripts/Managers/GameController.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManager.cs" />
     <Compile Include="Assets/Scripts/UI/CardDisplay.cs" />
     <Compile Include="Assets/Scripts/UI/CardZoom.cs" />

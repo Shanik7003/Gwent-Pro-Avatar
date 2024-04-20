@@ -7,21 +7,22 @@ using Unity.Properties;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
-
 public class PlayerManager : MonoBehaviour
 {
     public GameObject playerPrefab;
     private PlayerData newPlayerData;
-    public RectTransform Player1Space;
-    public RectTransform Player2Space;
+    public GameObject Player1;
+    public GameObject Player2;
     public PlayerFactory playerFactory;
+    public static PlayerManager Instance;
 
     void Start()
     {
         GeneratePlayerData(Game.GameInstance.Player1);
-        GeneratePlayer(Player1Space);
+        GeneratePlayer(Player1.transform );
         GeneratePlayerData(Game.GameInstance.Player2);
-        GeneratePlayer(Player2Space);
+        GeneratePlayer(Player2.transform);
+        Instance = this;
     }
     void Update()
     {
@@ -37,7 +38,6 @@ public class PlayerManager : MonoBehaviour
             newPlayerData = playerFactory.CreatePlayerData(player);
         
     }
-    //esto era void 
     void GeneratePlayer(Transform transform)//este metodo podria ser void 
     {
             GameObject newPlayer = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, transform);
@@ -54,9 +54,9 @@ public class PlayerManager : MonoBehaviour
             {
                 Debug.LogError("Componente PlayerDisplay o datos de player faltantes.");
             }
-    }
-   
+      }   
 }
+
 // using UnityEngine;
 // using UnityEngine.UI;
 // using TMPro;
@@ -65,8 +65,8 @@ public class PlayerManager : MonoBehaviour
 // public class PlayerManager : MonoBehaviour
 // {
 //     public GameObject playerPrefab;
-//     public Transform Player1Space;
-//     public Transform Player2Space;
+//     public Transform Player1;
+//     public Transform Player2;
 //     public PlayerFactory playerFactory;
 
 //     private PlayerData player1Data;

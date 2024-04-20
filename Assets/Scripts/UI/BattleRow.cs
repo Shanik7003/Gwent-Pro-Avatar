@@ -26,6 +26,8 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par 
+                ActivateCard(card);
+                card.GetComponent<Draggable>().enabled = false;
                 Debug.Log($"Carta colocada en el board del Engine del jugador {cardDisplay.cardData.owner.Name} en la fila {position}");
                 Debug.Log("Carta colocada correctamente en el BattleField de la UI" + transform.name);
                 Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name}con ID={cardDisplay.cardData.Card.player.Id} ======== {cardDisplay.cardData.Card.player.Points}");
@@ -77,60 +79,74 @@ public class BattleRow : MonoBehaviour, IDropHandler
     //     Debug.Log("nombre de la carta del engine que moviste:    " + cardDisplay.cardData.name);
     //     cardDisplay.cardData.Card.player.Board.rows[(int)position].Add( cardDisplay.cardData.Card); //recordar la def  (public List<Card>[] rows = new List<Card>[3];)     
     // }
-  private void PlaceCardinBoardEngine(Draggable card)
-{
-    CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
-    Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name}con ID={cardDisplay.cardData.Card.player.Id} ANTES DE SUMARLE LOS PUNTOS DE ESTA CARTA ======== {cardDisplay.cardData.Card.player.Points}");
-    #region Debug
-    if (cardDisplay == null)
+    public void PlaceCardinBoardEngine(Draggable card)// coloca la carta que el usuario coloco en una fila de batalla en el board del engine y ademas le suma lso puntos al jugador del engine  
     {
-        Debug.LogError("cardDisplay es null");
-        return;
+        CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
+        Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name}con ID={cardDisplay.cardData.Card.player.Id} ANTES DE SUMARLE LOS PUNTOS DE ESTA CARTA ======== {cardDisplay.cardData.Card.player.Points}");
+        #region Debug
+        if (cardDisplay == null)
+        {
+            Debug.LogError("cardDisplay es null");
+            return;
+        }
+        if (cardDisplay.cardData == null)
+        {
+            Debug.LogError("cardData es null");
+            return;
+        }
+        if (cardDisplay.cardData.Card == null)
+        {
+            Debug.LogError("Card es null");
+            return;
+        }
+        if (cardDisplay.cardData.Card.player == null)
+        {
+            Debug.LogError("Player es null");
+            return;
+        }
+        if (cardDisplay.cardData.Card.player.Board == null)
+        {
+            Debug.LogError("Board es null");
+            return;
+        }
+        if (cardDisplay.cardData.Card.player.Board.rows == null)
+        {
+            Debug.LogError("rows es null");
+            return;
+        }
+        if (cardDisplay.cardData.Card.player.Board.rows.Length <= (int)position)
+        {
+            Debug.LogError("El arreglo rows no tiene un índice para 'position'");
+            return;
+        }
+        if (cardDisplay.cardData.Card.player.Board.rows[(int)position] == null)
+        {
+            Debug.LogError("La lista en la posición indicada es null");
+            return;
+        }   
+        #endregion
+        cardDisplay.cardData.Card.player.Board.rows[(int)position].Add(cardDisplay.cardData.Card); // añade la carta al board del jugador del engine
+        cardDisplay.cardData.Card.player.Points += cardDisplay.cardData.Card.points; //incrementa los puntos del jugador
+        Debug.Log($"Carta colocada en el board del Engine del jugador {cardDisplay.cardData.owner.Name} en la fila {position}");
+        Debug.Log("Carta colocada correctamente en el BattleField de la UI" + transform.name);
+        Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name} con ID={cardDisplay.cardData.Card.player.Id} ======== {cardDisplay.cardData.Card.points}");
+        Debug.Log("nombre de la carta del engine que moviste:    " + cardDisplay.cardData.name);
+        //Debug.Log($"puntos de {cardDisplay.cardData.owner.Name} ======== {cardDisplay.cardData.Card.points}");
     }
-    if (cardDisplay.cardData == null)
+    public void ActivateCard(Draggable card)
     {
-        Debug.LogError("cardData es null");
-        return;
+        //aqui podria llamr a PlaceCardinBoardEngine para que todo se haga en una sola funcion 
+        //CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
+        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
+        {
+            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+        }
+        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
+        {
+            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        }
     }
-    if (cardDisplay.cardData.Card == null)
-    {
-        Debug.LogError("Card es null");
-        return;
-    }
-    if (cardDisplay.cardData.Card.player == null)
-    {
-        Debug.LogError("Player es null");
-        return;
-    }
-    if (cardDisplay.cardData.Card.player.Board == null)
-    {
-        Debug.LogError("Board es null");
-        return;
-    }
-    if (cardDisplay.cardData.Card.player.Board.rows == null)
-    {
-        Debug.LogError("rows es null");
-        return;
-    }
-    if (cardDisplay.cardData.Card.player.Board.rows.Length <= (int)position)
-    {
-        Debug.LogError("El arreglo rows no tiene un índice para 'position'");
-        return;
-    }
-    if (cardDisplay.cardData.Card.player.Board.rows[(int)position] == null)
-    {
-        Debug.LogError("La lista en la posición indicada es null");
-        return;
-    }   
-    #endregion
-    cardDisplay.cardData.Card.player.Board.rows[(int)position].Add(cardDisplay.cardData.Card); // añade la carta al board del jugador del engine
-    cardDisplay.cardData.Card.player.Points += cardDisplay.cardData.Card.points; //incrementa los puntos del jugador
-    Debug.Log($"Carta colocada en el board del Engine del jugador {cardDisplay.cardData.owner.Name} en la fila {position}");
-    Debug.Log("Carta colocada correctamente en el BattleField de la UI" + transform.name);
-    Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name}con ID={cardDisplay.cardData.Card.player.Id} ======== {cardDisplay.cardData.Card.points}");
-    Debug.Log("nombre de la carta del engine que moviste:    " + cardDisplay.cardData.name);
-    //Debug.Log($"puntos de {cardDisplay.cardData.owner.Name} ======== {cardDisplay.cardData.Card.points}");
-}
+
 
     private bool IsCardInHand(Draggable card)//esta funcion ya no la uso al no instanciar el deck completo en el boardpero la dejo aqui por si acaso
     {

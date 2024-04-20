@@ -156,7 +156,6 @@ namespace Engine
         public class Card
         {
             public string name{get;private set;}
-
             public string description{get;private set;}
             public Position position{get;private set;}
             public int points{get;private set;}

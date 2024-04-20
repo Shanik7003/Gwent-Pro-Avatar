@@ -34,49 +34,22 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
             transform.position = Input.mousePosition;
         }
     }
-   // viejo$$$$$$
-    // public void OnEndDrag(PointerEventData eventData)
-    // {
-    //     Debug.Log("VALORES EN OnEndDrag---------" + $"Returning to original parent: {originalParent.name} at position {startPosition}");
-    //     if (transform.parent == transform.root )  // Si no ha sido reasignado a otra fila
-    //     {
-    //         Debug.Log("Entre al if en OnEndDrag");
-    //         transform.position = startPosition;
-    //         transform.SetParent(originalParent);  // Devuelve a la posición original
-    //     }
-
-    //     GetComponent<CanvasGroup>().blocksRaycasts = true;  // Restablece esto para permitir la detección de raycast nuevamente
-    // }
-
-
-    // public void OnEndDrag(PointerEventData eventData)
-    // {
-    //     BattleRow battleRow = transform.parent.GetComponent<BattleRow>();
-    //     if (transform.parent == transform.root || (battleRow != null && !battleRow.IsDropAllowed(this)))  // Si no ha sido reasignado a otra fila
-    //     {
-    //         Debug.Log("Entre al if de OnEndDrag");
-    //         Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
-    //         Debug.Log($"originalParent:  {originalParent.name} padre actual: {transform.parent.name}" );
-    //         transform.position = startPosition;
-    //         transform.SetParent(originalParent);  // Devuelve a la posición original
-    //     }
-    //     GetComponent<CanvasGroup>().blocksRaycasts = true;  // Restablece esto para permitir la detección de raycast nuevamente
-    // }
+  
     public void OnEndDrag(PointerEventData eventData)
-{
-    if (!dropSuccess)  // Si el drop no fue exitoso
     {
-        Debug.Log("No se completó el drop correctamente. Regresando a la posición y padre originales.");
-        Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
-        Debug.Log($"originalParent:  {originalParent.name} padre actual: {transform.parent.name}" );
-        transform.position = startPosition;
-        transform.SetParent(originalParent);
-        Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
+        if (!dropSuccess)  // Si el drop no fue exitoso
+        {
+            Debug.Log("No se completó el drop correctamente. Regresando a la posición y padre originales.");
+            Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
+            Debug.Log($"originalParent:  {originalParent.name} padre actual: {transform.parent.name}" );
+            transform.position = startPosition;
+            transform.SetParent(originalParent);
+            Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
 
+        }
+        dropSuccess = false;  // Resetea el estado para el próximo drag
+        GetComponent<CanvasGroup>().blocksRaycasts = true;  // Reactiva el raycast
     }
-    dropSuccess = false;  // Resetea el estado para el próximo drag
-    GetComponent<CanvasGroup>().blocksRaycasts = true;  // Reactiva el raycast
-}
 
 
 }
