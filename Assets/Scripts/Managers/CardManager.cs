@@ -8,6 +8,30 @@ using UnityEngine.Pool;
 
 public class CardManager : MonoBehaviour
 {
+    private static CardManager _instance;
+    //Constructor privado para evitar instanciación externa
+    private CardManager() 
+    {
+        cardFactory =new();
+    }
+
+    // // Propiedad pública para acceder a la instancia
+    public static CardManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                GameObject singletonObject = new GameObject("CardManager");
+                _instance = singletonObject.AddComponent<CardManager>();
+                Debug.Log("Imprimiendo _instance.cardFactory =>"+_instance.cardFactory);
+                _instance.cardFactory.AddComponent<CardFactory>();
+                Debug.Log("Imprimiendo _instance.cardFactory =>"+_instance.cardFactory);
+            }
+            return _instance;
+        }
+    }
+    public int frame = 0;
     public GameObject cardPrefab;     // Referencia al prefab de la carta
     public CardFactory cardFactory;   // Referencia al factory que convierte datos del motor en CardData
     private List<CardData> cardDatas = new(); // Lista para almacenar CardData generados
@@ -19,12 +43,12 @@ public class CardManager : MonoBehaviour
 
     void Start()
     {
-        List<UnitCard> engineCards1 = GetCardsFromEngine(); // toma las cartas del deck del jugador1
-        GenerateCardData(engineCards1);//convierte las cards en cardData
-        //GenerateCards(player1DeckHolder); // no tengo que instanciar el Deck completo 
-        List<UnitCard> engineCards2 = GetCardsFromEngine(); // toma las cartas del deck del jugador2
-        GenerateCardData(engineCards2);//convierte las cards en cardData
-        //GenerateCards(player2DeckHolder);
+        // List<Card> EngineCards1 = GetCardsFromEngine(); // guarda las cartas del deck del jugador1
+        // GenerateCardData(EngineCards1);//convierte las cards en cardData
+        // //GenerateCards(player1DeckHolder); // no tengo que instanciar el Deck completo 
+        // List<Card> EngineCards2 = GetCardsFromEngine(); // guarda las cartas del deck del jugador2
+        // GenerateCardData(EngineCards2);//convierte las cards en cardData
+        // //GenerateCards(player2DeckHolder); // no tengo que instanciar el deck completo
 
         //renderizando las cartas de las Hands
         GenerateCardData(Game.GameInstance.Player1.Hand);
@@ -34,15 +58,37 @@ public class CardManager : MonoBehaviour
         
 
     }
-
-    void GenerateCardData(List<UnitCard> collection)
+    void Update()
     {
+        frame++;
+    }
+    public void InstanciateCard(Card card)//metodo para instanciar una sola carta, tengo que hacer uno que instancie n cartas 
+    {
+        List<Card> SingleCard = new(){card};
+        GenerateCardData(SingleCard);
+        if (card.player == Game.GameInstance.Player1)
+        {
+            Debug.Log("entre a InstanciateCard");
+            GenerateCards(player1HandRow);
+        }
+        if (card.player == Game.GameInstance.Player2)
+        {
+            GenerateCards(player2HandRow);
+        }
+    }
+    
+
+    public  void GenerateCardData(List<Card> collection)
+    {
+        Debug.Log(frame);
         cardDatas = new List<CardData>();
         foreach (var card in collection)
         {
              Debug.Log("estoy generando CardDatas");
             // Asigna una imagen apropiada aquí si es necesario
             //Sprite cardImage = Resources.Load<Sprite>("path/to/sprite/" + card.name);
+            Debug.Log("Imprimiendo this.............." + cardFactory);
+
             if (cardFactory == null)
             {
                 Debug.LogError("CardFactory reference is not set in the inspector!");
@@ -53,7 +99,7 @@ public class CardManager : MonoBehaviour
         }
     }
 
-    List<CardDisplay> GenerateCards(Transform transform)//este metodo podria ser void 
+    public  List<CardDisplay> GenerateCards(Transform transform)//este metodo podria ser void 
     {
         List<CardDisplay> deck = new List<CardDisplay>();
         foreach (CardData card in cardDatas)
@@ -77,7 +123,7 @@ public class CardManager : MonoBehaviour
     }
 
     // Método para obtener cartas desde el motor, esto es un ejemplo genérico
-    private List<UnitCard> GetCardsFromEngine()
+    private List<Card> GetCardsFromEngine()
     {
         if (P1CardsGenerated)
         {
@@ -92,25 +138,39 @@ public class CardManager : MonoBehaviour
             return Game.GameInstance.Player1.Faction.Deck;
         }
     }
-   public static bool CanPlaceCard(Card card, BattleField battleField)
-{
-    Debug.Log("Entre al Metodo CanPlaceCard");
-    // Verify if the card's player is the owner of the battlefield and it's their turn
-    return card.player == TurnManager.Instance.GetCurrentPlayer() && card.player == battleField.Owner;
-}
+    public static bool CanPlaceCard(Card card, BattleField battleField)
+    {
+        Debug.Log("Entre al Metodo CanPlaceCard");
+        // Verify if the card's player is the owner of the battlefield and it's their turn
+        return card.player == TurnManager.Instance.GetCurrentPlayer() && card.player == battleField.Owner;
+    }
 
-public void PlaceCard(Card card, Transform row, BattleField battleField)
-{
-    if (CanPlaceCard(card, battleField))
+    public void PlaceCard(Card card, Transform row, BattleField battleField)
     {
-        // Logic to add card to the row
-        Debug.Log("Card placed successfully.");
+        if (CanPlaceCard(card, battleField))
+        {
+            // Logic to add card to the row
+            Debug.Log("Card placed successfully.");
+        }
+        else
+        {
+            Debug.Log("You cannot place this card now or here.");
+        }
     }
-    else
+
+    public void UICardTheft(Player player) //robar una carta 
     {
-        Debug.Log("You cannot place this card now or here.");
+        System.Random random = new();
+       //preferiria poner aqui en random para que el indice de la crata que voy a instanciar fuese desde 0 a deck.Count pero no me deja crear una variable random no se porque???
+        if (player==Game.GameInstance.Player1)//hay que hacer algo para que maneje el momento en el que se quede sin cartas el deck
+        {
+            int index = random.Next(0,Game.GameInstance.Player1.Faction.Deck.Count);
+            InstanciateCard( Game.GameInstance.Player1.Faction.Deck[index]);
+            Game.GameInstance.Player1.Hand.Add(Game.GameInstance.Player1.Faction.Deck[index]);
+            Game.GameInstance.Player1.Faction.Deck.Remove(Game.GameInstance.Player1.Faction.Deck[index]);
+            //recuerda remover la carta del deck cuando la instancies y ademas sacarla del deck y ponerla en la mano del engine del jugador 
+        }
     }
-}
 
 
 }

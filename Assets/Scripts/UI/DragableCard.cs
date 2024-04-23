@@ -10,9 +10,15 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     public CardData cardData;  // Referencia a sus propios datos
     public BattleField currentBattleField;  // Referencia al campo de batalla donde actualmente se encuentra
     public bool dropSuccess = false;  // Nuevo estado para rastrear si el drop fue exitoso
+    public bool isDraggable = true;
     
     public void OnBeginDrag(PointerEventData eventData)
     {
+        if (!isDraggable)
+        {
+            return;
+        }
+           
         startPosition = transform.position;
         originalParent = transform.parent;
         transform.SetParent(transform.root);  // Esto es para asegurar que no esté bloqueado por otros elementos UI.
@@ -21,6 +27,10 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     }
     public void OnDrag(PointerEventData eventData)
     {
+        if (!isDraggable)
+        {
+            return;
+        }
         if (eventData.pressEventCamera != null)
         {
             Vector3 screenPoint = Input.mousePosition;
@@ -37,6 +47,10 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
   
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!isDraggable)
+        {
+            return;
+        }
         if (!dropSuccess)  // Si el drop no fue exitoso
         {
             Debug.Log("No se completó el drop correctamente. Regresando a la posición y padre originales.");

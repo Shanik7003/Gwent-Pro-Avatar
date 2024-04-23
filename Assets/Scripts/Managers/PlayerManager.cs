@@ -42,7 +42,6 @@ public class PlayerManager : MonoBehaviour
     {
             GameObject newPlayer = Instantiate(playerPrefab, Vector3.zero, Quaternion.identity, transform);
             newPlayer.transform.localPosition = Vector3.zero; // Ajusta según necesites
-            Debug.LogAssertion(newPlayer.name);
             PlayerDisplay display = newPlayer.GetComponent<PlayerDisplay>();
             if (display != null && newPlayer != null)
             {

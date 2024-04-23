@@ -281,7 +281,6 @@ GameObject:
   - component: {fileID: 4205706291267702271}
   - component: {fileID: -6806426943041341117}
   - component: {fileID: 2139775535182453724}
-  - component: {fileID: 8315579958550762572}
   - component: {fileID: 5906188037384084483}
   m_Layer: 5
   m_Name: 'Card '
@@ -416,19 +415,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   originalParent: {fileID: 0}
---- !u!114 &8315579958550762572
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3853067402353832310}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7c69eb3053e549988dcf4bf603df996, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  zoomFactor: 5
+  startPosition: {x: 0, y: 0, z: 0}
+  cardData: {fileID: 0}
+  currentBattleField: {fileID: 0}
+  dropSuccess: 0
 --- !u!225 &5906188037384084483
 CanvasGroup:
   m_ObjectHideFlags: 0

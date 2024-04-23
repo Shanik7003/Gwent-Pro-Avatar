@@ -22,12 +22,14 @@ public class BattleRow : MonoBehaviour, IDropHandler
             Debug.Log("Intentando colocar la carta en BattleRow");
             if (IsDropAllowed(card))
             {
+                card.GetComponent<CanvasGroup>().blocksRaycasts = true;// poniendo el componente canvas group y el blockraycast a true para que no inetrfiera con la visualizacion
                 card.transform.SetParent(transform);
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par 
                 ActivateCard(card);
-                card.GetComponent<Draggable>().enabled = false;
+                FreeHability(card);
+                card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
                 Debug.Log($"Carta colocada en el board del Engine del jugador {cardDisplay.cardData.owner.Name} en la fila {position}");
                 Debug.Log("Carta colocada correctamente en el BattleField de la UI" + transform.name);
                 Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name}con ID={cardDisplay.cardData.Card.player.Id} ======== {cardDisplay.cardData.Card.player.Points}");
@@ -144,6 +146,27 @@ public class BattleRow : MonoBehaviour, IDropHandler
         if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
         {
             PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        }
+    }
+    public void FreeHability(Draggable card)
+    {
+        Debug.Log("Entre a FreeHability!!!!!!!!!!!!!!!!!!!!!!!!");
+        CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
+        if (cardDisplay.cardData.Card.hability == Habilities.CardTheft)
+        {
+            Debug.Log("Entre al if de FreeHability");
+            if(CardManager.Instance == null)
+            {
+                Debug.Log("CardManager.Instance es null");
+            }
+            Debug.Log( "el nombre de la carta que puse en el board es:        "+ cardDisplay.cardData.Card.name);
+            if(cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
+            {
+                Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
+                CardManager.Instance.UICardTheft(Game.GameInstance.Player1);
+            }
+            
+          
         }
     }
 

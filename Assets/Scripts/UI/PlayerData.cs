@@ -11,5 +11,5 @@ public class PlayerData: ScriptableObject
     public Faction Faction;
     // public Board Board;
     public BattleField BattleField;
-    public List<UnitCard> Hand{get;set;}
+    public List<Card> Hand{get;set;}
 }
