@@ -22,6 +22,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void UpdateCard()
     {
+        Debug.Log("IMPRIMIENDO CARdDATA ... => " + cardData);
         nameText.text = cardData.cardName;
         descriptionText.text = cardData.description;
         points.text = cardData.points.ToString();

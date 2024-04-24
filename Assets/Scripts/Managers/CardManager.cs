@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Engine;
@@ -5,6 +6,7 @@ using Unity.Properties;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.UI;
 
 public class CardManager : MonoBehaviour
 {
@@ -49,9 +51,9 @@ public class CardManager : MonoBehaviour
 
         //renderizando las cartas de las Hands
         GenerateCardData(Game.GameInstance.Player1.Hand);
-        GenerateCards(player1HandRow);
+        StartCoroutine(GenerateCards(player1HandRow,player1DeckHolder));
         GenerateCardData(Game.GameInstance.Player2.Hand);
-        GenerateCards(player2HandRow);
+        StartCoroutine(GenerateCards(player2HandRow,player2DeckHolder));
         
 
     }
@@ -66,13 +68,15 @@ public class CardManager : MonoBehaviour
         if (card.player == Game.GameInstance.Player1)
         {
             Debug.Log("entre a InstanciateCard");
-            GenerateCards(player1HandRow);
+            StartCoroutine(GenerateCards(player1HandRow,player1DeckHolder));
         }
         if (card.player == Game.GameInstance.Player2)
         {
-            GenerateCards(player2HandRow);
+            StartCoroutine(GenerateCards(player2HandRow,player2DeckHolder));
         }
     }
+
+
     
 
     public  void GenerateCardData(List<Card> collection)
@@ -95,29 +99,67 @@ public class CardManager : MonoBehaviour
             cardDatas.Add(newCardData);
         }
     }
+//original GenerateCards
+    // public  List<CardDisplay> GenerateCards(Transform transform)//este metodo podria ser void 
+    // {
+    //     List<CardDisplay> deck = new List<CardDisplay>();
+    //     foreach (CardData card in cardDatas)
+    //     {
+    //         GameObject newCard = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity, transform);
+    //         newCard.transform.localPosition = Vector3.zero; // Ajusta según necesites
+    //         CardDisplay display = newCard.GetComponent<CardDisplay>();
+    //         if (display != null && card != null)
+    //         {
+    //             display.cardData = card;
+    //             display.UpdateCard();
+    //             deck.Add(display);
+    //             // Debug.Log("Carta creada: " + card.cardName);
+    //         }
+    //         else
+    //         {
+    //             Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
+    //         }
+    //     }
+    //     return deck;
+    // }
 
-    public  List<CardDisplay> GenerateCards(Transform transform)//este metodo podria ser void 
+public IEnumerator GenerateCards(Transform handTransform, Transform deckTransform)
+{
+    foreach (CardData card in cardDatas)
     {
-        List<CardDisplay> deck = new List<CardDisplay>();
-        foreach (CardData card in cardDatas)
+        GameObject newCard = Instantiate(cardPrefab, deckTransform.position, Quaternion.identity, handTransform);
+        CardDisplay display = newCard.GetComponent<CardDisplay>();
+        if (display != null && card != null)
         {
-            GameObject newCard = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity, transform);
-            newCard.transform.localPosition = Vector3.zero; // Ajusta según necesites
-            CardDisplay display = newCard.GetComponent<CardDisplay>();
-            if (display != null && card != null)
-            {
-                display.cardData = card;
-                display.UpdateCard();
-                deck.Add(display);
-                // Debug.Log("Carta creada: " + card.cardName);
-            }
-            else
-            {
-                Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
-            }
+            display.cardData = card;
+            display.UpdateCard();
+            yield return StartCoroutine(MoveCard(newCard.transform, handTransform.position,handTransform));
         }
-        return deck;
+        else
+        {
+            Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
+        }
     }
+}
+
+IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform parentTransform)
+{
+    float timeToMove = 0.5f; // Duración de la animación en segundos
+    float elapsedTime = 0;
+    Vector3 startPosition = cardTransform.position;
+
+    while (elapsedTime < timeToMove)
+    {
+        cardTransform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / timeToMove));
+        elapsedTime += Time.deltaTime;
+        yield return null;
+    }
+
+      cardTransform.position = targetPosition;
+       LayoutRebuilder.ForceRebuildLayoutImmediate(parentTransform.GetComponent<RectTransform>());
+}
+      // Asegúrate de que la carta está como hija del contenedor correcto
+
 
     // Método para obtener cartas desde el motor, esto es un ejemplo genérico
     private List<Card> GetCardsFromEngine()
