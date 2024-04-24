@@ -22,11 +22,8 @@ public class CardManager : MonoBehaviour
         {
             if (_instance == null)
             {
-                GameObject singletonObject = new GameObject("CardManager");
-                _instance = singletonObject.AddComponent<CardManager>();
-                Debug.Log("Imprimiendo _instance.cardFactory =>"+_instance.cardFactory);
-                _instance.cardFactory.AddComponent<CardFactory>();
-                Debug.Log("Imprimiendo _instance.cardFactory =>"+_instance.cardFactory);
+                _instance = GameObject.Find("CardManager").GetComponentInChildren<CardManager>();
+                Debug.Log("imprimirndo _instance.cardFactory LA DEFINITIVA =====> "+_instance.cardFactory);
             }
             return _instance;
         }
