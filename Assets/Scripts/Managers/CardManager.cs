@@ -199,15 +199,41 @@ IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform p
 
     public void UICardTheft(Player player) //robar una carta 
     {
-        System.Random random = new();
-       //preferiria poner aqui en random para que el indice de la crata que voy a instanciar fuese desde 0 a deck.Count pero no me deja crear una variable random no se porque???
+        Card stolenCard = Card.CardTheft(player);
         if (player==Game.GameInstance.Player1)//hay que hacer algo para que maneje el momento en el que se quede sin cartas el deck
         {
-            int index = random.Next(0,Game.GameInstance.Player1.Faction.Deck.Count);
-            InstanciateCard( Game.GameInstance.Player1.Faction.Deck[index]);
-            Game.GameInstance.Player1.Hand.Add(Game.GameInstance.Player1.Faction.Deck[index]);
-            Game.GameInstance.Player1.Faction.Deck.Remove(Game.GameInstance.Player1.Faction.Deck[index]);
-            //recuerda remover la carta del deck cuando la instancies y ademas sacarla del deck y ponerla en la mano del engine del jugador 
+           
+            InstanciateCard( stolenCard); //instancia la carta en la mano visualmente
+            // Game.GameInstance.Player1.Hand.Add(Game.GameInstance.Player1.Faction.Deck[index]);//añade la carta a la mano del engine
+            // Game.GameInstance.Player1.Faction.Deck.Remove(Game.GameInstance.Player1.Faction.Deck[index]);//saca la carta del deck
+        }
+         if (player==Game.GameInstance.Player2)//hay que hacer algo para que maneje el momento en el que se quede sin cartas el deck
+        {
+            // int index = random.Next(0,Game.GameInstance.Player2.Faction.Deck.Count);
+            InstanciateCard( stolenCard); //instancia la carta en la mano visualmente
+            // Game.GameInstance.Player2.Hand.Add(Game.GameInstance.Player2.Faction.Deck[index]);//añade la carta a la mano del engine
+            // Game.GameInstance.Player2.Faction.Deck.Remove(Game.GameInstance.Player2.Faction.Deck[index]);//saca la carta del deck
+        }
+    }
+    public void UIIncreaseMyRow(Draggable card)
+    {
+        CardDisplay newCardDisplay = card.GetComponent<CardDisplay>();
+        Debug.Log("blalblablablablbalbla     " + newCardDisplay.cardData.Card.player.Board.rows[(int)newCardDisplay.cardData.Card.position].Count);
+        Debug.Log("indice en UIIncreaseRow     " + (int)newCardDisplay.cardData.Card.position);
+        newCardDisplay.cardData.Card.IncreaseMyRow(newCardDisplay.cardData.Card);//llamando a esta funcion para que haga lo que tiene que hacer en el engine
+        Debug.Log("EL VACIO => "+ newCardDisplay.cardData.Card.player.Name);
+        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
+        {    
+            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+        }
+        else
+        {
+            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        }
+        foreach (var item in card.GetComponentInParent<BattleRow>().row)
+        {
+           item.cardData.points = item.cardData.Card.points;
+           item.UpdateCard();//muestra los puntos actualizados en la interfaz
         }
     }
 

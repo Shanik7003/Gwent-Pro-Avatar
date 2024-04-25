@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Tracing;
+using UnityEditor.AssetImporters;
 
 namespace Engine
 {
@@ -38,87 +39,87 @@ namespace Engine
         public static Card waterCard2 = new ("Pakku",  "Water Bender",Position.M,2,null,Habilities.CardTheft);
         public static Card waterCard3 = new ("Hama",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
         public static Card waterCard4 = new ("Yue",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard5 = new ("Kya",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard6 = new ("Ming-Hua",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard5 = new ("Avatar Kuruk",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard6 = new ("Hakoda",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
         public static Card waterCard7 = new ("Korra",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
         public static Card waterCard8 = new ("Tonraq",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard9 = new ("Eska",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard10 = new ("Desna",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard9 = new ("Cocky Sokka",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard10 = new ("Fighter Katara",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
         public static Card waterCard11 = new ("Unalaq",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard12 = new ("Tarrlok",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard13 = new ("Hu",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard14 = new ("Thod",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard15 = new ("Vachir",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard16 = new ("Shirshu",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard17 = new ("Admiral Zhao",  "Fire Bender",Position.R,20,null,Habilities.CardTheft);
-        public static Card waterCard18 = new ("June",   "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard19 = new ("Song",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard20 = new ("Bato",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard21 = new ("Pipsqueak",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard22 = new ("The Duke",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard23 = new ("Tyro",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard24 = new ("The Painted Lady",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
-        public static Card waterCard25 = new ("Tui and La",  "Spirit", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard12 = new ("Spirits",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard13 = new ("Katara",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard14 = new ("Spirits",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard15 = new ("Sokka",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard16 = new ("Yue",  "Water Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard17 = new ("Fighter Katara",  "Fire Bender",Position.R,20,null,Habilities.CardTheft);
+        public static Card waterCard18 = new ("Naga",   "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard19 = new ("Katara",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard20 = new ("Avatar Kuruk",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard21 = new ("Naga",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard22 = new ("Naga",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard23 = new ("Spirits",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard24 = new ("Avatar Kuruk",  "Non-bender", Position.S,57,null,Habilities.CardTheft);
+        public static Card waterCard25 = new ("The Painted Lady",  "Spirit", Position.S,57,null,Habilities.CardTheft);
         public static List<Card> WaterDeck = new() { waterCard2, waterCard3, waterCard4, waterCard5, waterCard6, waterCard7, waterCard8, waterCard9, waterCard10, waterCard11, waterCard12, waterCard13, waterCard14, waterCard15, waterCard16, waterCard17, waterCard18, waterCard19, waterCard20, waterCard21, waterCard22, waterCard23, waterCard24, waterCard25};
         public static readonly WaterTribe  WaterTribe = new(WaterDeck,waterLeader);
         #endregion
 
         #region AirNomads
         public static Card airLeader = new Card ("Aang", "Air Bender",Position.Leaderposition, 0,null);
-        public static Card airCard2 = new ("Gyatso", "Air Bender",Position.M,35,null);
+        public static Card airCard2 = new ("Monk Gyatso", "Air Bender",Position.M,35,null);
         public static Card airCard3 = new ("Tenzin", "Air Bender",Position.M,35,null);
-        public static Card airCard4 = new ("Jinora", "Air Bender",Position.M,35,null);
-        public static Card airCard5 = new ("Ikki", "Air Bender",Position.M,35,null);
-        public static Card airCard6 = new ("Meelo", "Air Bender",Position.M,35,null);
-        public static Card airCard7 = new ("Opal", "Air Bender",Position.M,35,null);
-        public static Card airCard8 = new ("Kai", "Air Bender",Position.M,35,null);
-        public static Card airCard9 = new ("Rohan", "Air Bender",Position.M,35,null);
-        public static Card airCard10 = new ("Tashi", "Air Bender",Position.M,35,null);
+        public static Card airCard4 = new ("Tenzin", "Air Bender",Position.M,35,null);
+        public static Card airCard5 = new ("Appa", "Air Bender",Position.M,35,null);
+        public static Card airCard6 = new ("Appa", "Air Bender",Position.M,35,null);
+        public static Card airCard7 = new ("Appa", "Air Bender",Position.M,35,null);
+        public static Card airCard8 = new ("Appa", "Air Bender",Position.M,35,null);
+        public static Card airCard9 = new ("Aang", "Air Bender",Position.M,35,null);
+        public static Card airCard10 = new ("Aang", "Air Bender",Position.M,35,null);
         public static Card airCard11 = new ("Avatar Yangchen", "Air Bender",Position.M,35,null);
-        public static Card airCard12 = new ("Yanchen", "Air Bender",Position.M,35,null);
+        public static Card airCard12 = new ("Monk Gyatso", "Air Bender",Position.M,35,null);
         public static Card airCard13 = new ("Roku", "Air Bender",Position.M,35,null);
         public static Card airCard14 = new ("Kyoshi", "Air Bender",Position.M,35,null);
-        public static Card airCard15 = new ("Kuruk", "Air Bender",Position.M,35,null);
-        public static Card airCard16 = new ("Avatar Wan", "Fire Bender",Position.M,35,null);
-        public static Card airCard17 = new ("Avatar Korra", "Water Bender",Position.M,35,null);
+        public static Card airCard15 = new ("Momo", "Air Bender",Position.M,35,null);
+        public static Card airCard16 = new ("Momo", "Fire Bender",Position.M,35,null);
+        public static Card airCard17 = new ("Korra", "Water Bender",Position.M,35,null);
         public static Card airCard18 = new ("Appa", "Sky Bison",Position.M,35,null);
-        public static Card airCard19 = new ("Momos", "Flying Lemur",Position.M,35,null);
-        public static Card airCard20 = new ("Hawky", "Messenger Hawk",Position.M,35,null);
-        public static Card airCard21 = new ("Flying Boar", "Non-bender",Position.M,35,null);
-        public static Card airCard22 = new ("Wan Shi Tong", "Spirit",Position.M,35,null);
-        public static Card airCard23 = new ("The Lion Turtle", "Spirit",Position.M,35,null);
-        public static Card airCard24 = new ("Lemur", "Non-bender",Position.M,35,null);
-        public static Card airCard25 = new ("Bosco", "Bear",Position.M,35,null);
+        public static Card airCard19 = new ("Momo", "Flying Lemur",Position.M,35,null);
+        public static Card airCard20 = new ("Momo", "Messenger Hawk",Position.M,35,null);
+        public static Card airCard21 = new ("Momo", "Non-bender",Position.M,35,null);
+        public static Card airCard22 = new ("Tenzin", "Spirit",Position.M,35,null);
+        public static Card airCard23 = new ("Tenzin", "Spirit",Position.M,35,null);
+        public static Card airCard24 = new ("Tenzin", "Non-bender",Position.M,35,null);
+        public static Card airCard25 = new ("Tenzin", "Bear",Position.M,35,null);
         public static List<Card> AirDeck = new(){airCard2, airCard3, airCard4, airCard5, airCard6, airCard7, airCard8, airCard9, airCard10, airCard11, airCard12, airCard13, airCard14, airCard15, airCard16, airCard17, airCard18, airCard19, airCard20, airCard21, airCard22, airCard23, airCard24, airCard25};
         public static readonly AirNomads AirNomads = new(AirDeck,airLeader);
         #endregion
 
         #region FireNation
-        public static Card fireLeader = new Card("Zuko", "Fire Bender",Position.Leaderposition,0,null);
-        public static Card fireCard2 = new ("Azula", "Fire Bender",Position.S,56,null);
-        public static Card fireCard3 = new ("Iroh", "Fire Bender",Position.S,56,null);
-        public static Card fireCard4 = new ("Ozai", "Fire Bender",Position.S,56,null);
-        public static Card fireCard5 = new ("Mai", "Non-bender",Position.S,56,null);
-        public static Card fireCard6 = new ("Ty Lee", "Non-bender",Position.S,56,null);
-        public static Card fireCard7 = new ("Zhao", "Non-bender",Position.S,56,null);
-        public static Card fireCard8 = new ("Ran and Shaw", "Fire Lion Turtle",Position.S,56,null);
-        public static Card fireCard9 = new ("Combustion Man", "Fire Bender",Position.S,56,null);
-        public static Card fireCard10 = new ("Lo and Li", "Non-bender",Position.S,56,null);
-        public static Card fireCard11 = new ("Jeong Jeong", "Fire Bender",Position.S,56,null);
-        public static Card fireCard12 = new ("Sozin", "Fire Bender",Position.S,56,null);
-        public static Card fireCard13 = new ("Azulon", "Fire Bender",Position.S,56,null);
-        public static Card fireCard14 = new ("Shyu", "Non-bender",Position.S,56,null);
-        public static Card fireCard15 = new ("Fire Lord Sozin", "Fire Bender",Position.S,56,null);
-        public static Card fireCard16 = new ("Fire Lord Azulon", "Fire Bender",Position.S,56,null);
-        public static Card fireCard17 = new ("Fire Lord Zuko", "Fire Bender",Position.S,56,null);
-        public static Card fireCard18 = new ("Fire Lord Ozai", "Fire Bender",Position.S,56,null);
-        public static Card fireCard19 = new ("Fire Lord Iroh", "Fire Bender",Position.S,56,null);
-        public static Card fireCard20 = new ("Fire Lord Azula", "Fire Bender",Position.S,56,null);
-        public static Card fireCard21 = new ("Fire Lord Sozin", "Fire Bender",Position.S,56,null);
-        public static Card fireCard22 = new ("Izumi", "Fire Bender",Position.S,56,null);
-        public static Card fireCard23 = new ("Fire Lord Azulon", "Fire Bender",Position.S,56,null);
-        public static Card fireCard24 = new ("Azulon", "Fire Bender",Position.S,56,null);
-        public static Card fireCard25 = new ("Iroh II", "Fire Bender",Position.S,56,null);
+        public static Card fireLeader = new Card("Zuko", "Fire Bender",Position.Leaderposition,0,null,Habilities.IncreaseMyRow);
+        public static Card fireCard2 = new ("Azula", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard3 = new ("Iroh", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard4 = new ("Piandao", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard5 = new ("Azula", "Non-bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard6 = new ("Azula", "Non-bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard7 = new ("Zhao", "Non-bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard8 = new ("Azula", "Fire Lion Turtle",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard9 = new ("Combustion Man", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard10 = new ("Princess Azula", "Non-bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard11 = new ("Jeong Jeong", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard12 = new ("Zhao", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard13 = new ("Azulon", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard14 = new ("Roku", "Non-bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard15 = new ("Fire Lord Ozai", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard16 = new ("Fire Lord Ozai", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard17 = new ("Fire Lord Zuko", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard18 = new ("Fire Lord Ozai", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard19 = new ("Fire Lord Iroh", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard20 = new ("Fire Lord Azula", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard21 = new ("Espiritu Azul", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard22 = new ("Iroh", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard23 = new ("Piandao", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard24 = new ("Piandao", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
+        public static Card fireCard25 = new ("Iroh", "Fire Bender",Position.S,56,null,Habilities.IncreaseMyRow);
         public static List<Card> FireDeck = new(){fireCard2, fireCard3, fireCard4, fireCard5, fireCard6, fireCard7, fireCard8, fireCard9, fireCard10, fireCard11, fireCard12, fireCard13, fireCard14, fireCard15, fireCard16, fireCard17, fireCard18, fireCard19, fireCard20, fireCard21, fireCard22, fireCard23, fireCard24, fireCard25};
        
         public static readonly FireNation FireNation = new(FireDeck,fireLeader);
@@ -126,28 +127,28 @@ namespace Engine
 
         #region Earth Kingdom
         public static Card earthLeader = new Card("Toph", "Earth Bender",Position.Leaderposition,0,null);
-        public static Card earthCard2 = new ("King Bumi", "Earth Bender",Position.R,43,null);
+        public static Card earthCard2 = new ("Bumi", "Earth Bender",Position.R,43,null);
         public static Card earthCard3 = new ("Lin Beifong", "Metal Bender",Position.R,43,null);
-        public static Card earthCard4 = new ("Suyin Beifong", "Metal Bender",Position.R,43,null);
+        public static Card earthCard4 = new ("Toph", "Metal Bender",Position.R,43,null);
         public static Card earthCard5 = new ("Wei", "Earth Bender",Position.R,43,null);
         public static Card earthCard6 = new ("Wing", "Earth Bender",Position.R,43,null);
         public static Card earthCard7 = new ("Huan", "Earth Bender",Position.R,43,null);
         public static Card earthCard8 = new ("Kuvira", "Earth Bender",Position.R,43,null);
         public static Card earthCard9 = new ("Ghazan", "Lavabender",Position.R,43,null);
         public static Card earthCard10 = new ("Ming-Hua", "Water Bender",Position.R,43,null);
-        public static Card earthCard11 = new ("P\'Li", "Combustion Bender",Position.R,43,null);
+        public static Card earthCard11 = new ("Earth King", "Combustion Bender",Position.R,43,null);
         public static Card earthCard12 = new ("Avatar Kyoshi", "Earth Bender",Position.R,43,null);
-        public static Card earthCard13 = new ("Avatar Yangchen", "Air Bender",Position.R,43,null);
-        public static Card earthCard14 = new ("Avatar Kuruk", "Water Bender",Position.R,43,null);
-        public static Card earthCard15 = new ("Avatar Roku", "Fire Bender",Position.R,43,null);
-        public static Card earthCard16 = new ("Avatar Wan", "Fire Bender",Position.R,43,null);
-        public static Card earthCard17 = new ("Avatar Korra", "Water Bender",Position.R,43,null);
-        public static Card earthCard18 = new ("Avatar Aang", "Air Bender",Position.R,43,null);
-        public static Card earthCard19 = new ("Bosco", "Bear",Position.R,43,null);
-        public static Card earthCard20 = new ("The Lion Turtle", "Spirit",Position.R,43,null);
-        public static Card earthCard21 = new ("Wan Shi Tong", "Spirit",Position.R,43,null);
-        public static Card earthCard22 = new ("Hayao", "Non-bender",Position.R,43,null);
-        public static Card earthCard23 = new ("Bolin", "Earth Bender",Position.R,43,null);
+        public static Card earthCard13 = new ("Avatar Kyoshi", "Air Bender",Position.R,43,null);
+        public static Card earthCard14 = new ("Avatar Kyoshi", "Water Bender",Position.R,43,null);
+        public static Card earthCard15 = new ("Long Feng", "Fire Bender",Position.R,43,null);
+        public static Card earthCard16 = new ("Long Feng", "Fire Bender",Position.R,43,null);
+        public static Card earthCard17 = new ("Korra", "Water Bender",Position.R,43,null);
+        public static Card earthCard18 = new ("Aang", "Air Bender",Position.R,43,null);
+        public static Card earthCard19 = new ("Bumi", "Bear",Position.R,43,null);
+        public static Card earthCard20 = new ("Bumi", "Spirit",Position.R,43,null);
+        public static Card earthCard21 = new ("Bumi", "Spirit",Position.R,43,null);
+        public static Card earthCard22 = new ("Tejones Topo", "Non-bender",Position.R,43,null);
+        public static Card earthCard23 = new ("Tejones Topo", "Earth Bender",Position.R,43,null);
         public static Card earthCard24 = new ("Wei", "Earth Bender",Position.R,43,null);
         public static Card earthCard25 = new ("Wing", "Earth Bender",Position.R,43,null);
         public static List<Card> EarthDeck = new(){earthCard2, earthCard3, earthCard4, earthCard5, earthCard6, earthCard7, earthCard8, earthCard9, earthCard10, earthCard11, earthCard12, earthCard13, earthCard14, earthCard15, earthCard16, earthCard17, earthCard18, earthCard19, earthCard20, earthCard21, earthCard22, earthCard23, earthCard24, earthCard25};
@@ -158,8 +159,8 @@ namespace Engine
         {
             public string name{get;private set;}
             public string description{get;private set;}
-            public Position position{get;private set;}
-            public int points{get;private set;}
+            public Position position{get; set;}
+            public int points{get; set;}
             public Player player{get;set;}
             public Habilities hability{get; private set;}
 
@@ -183,26 +184,25 @@ namespace Engine
 
             }
               #region Habilidades de las Unidades
-            public static void CardTheft(Card card) //robar una carta 
+            public static Card CardTheft(Player player) //robar una carta 
             {
                 Random random = new Random();
-                Card stolenCard = card.player.Faction.Deck[random.Next(1,24)];
-                card.player.Hand.Add(stolenCard);
+                Card stolenCard = player.Faction.Deck[random.Next(1,player.Faction.Deck.Count)];
+                player.Hand.Add(stolenCard);
+                player.Faction.Deck.Remove(stolenCard);
+                return stolenCard;
             }
-            // public static void IncreaseMyRow(Card card)
-            // {
-            //     int row = (int)card.position;
-            //     int count = 0;//para saber cuantas cartas hay en esa fila 
-            //     for (int i = 0; i < card.player.Board.board.GetLength(1); i++)//9 porq esa es la medida de la fila, tengo que busacr una mejor forma de poner esto
-            //     {
-            //         if (card.player.Board.board[row,i] != null)
-            //         {
-            //             card.player.Board.board[row,i].points += 5;
-            //             count++;
-            //         }
-            //     }
-            //     card.player.Points += count * 5; //+5 por cada carta 
-            // }
+            public  void IncreaseMyRow(Card card)
+            {
+                int row = (int)card.position;
+                int count = 0; //para saber cuantas cartas hay en esa fila 
+                foreach (var item in card.player.Board.rows[row])
+                {
+                    item.points += 5;//sumale 5 ptos a cada carta
+                    count ++;
+                }
+                card.player.Points += count * 5; //+5 por cada carta 
+            }
             // public static void EliminateMostPowerful(Card card)
             // {
             //     Card powerfull = new("blabla","blabla",Position.MRS,0,card.player,card.enemy);
@@ -376,7 +376,8 @@ namespace Engine
         }
         public enum Habilities
         {
-            #region  = 0,
+            #region 
+            IncreaseMyRow = 0,
             EliminateMostPowerful = 1,
             EliminateLeastPowerful = 2,
             MultiPoints = 3,

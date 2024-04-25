@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Engine;
@@ -11,6 +12,7 @@ public enum Owner {
 }
 public class BattleRow : MonoBehaviour, IDropHandler
 {
+    public List<CardDisplay> row;
     public Owner rowOwner;  // Propietario de la fila (Player1 o Player2)
     public Position position;
     public void OnDrop(PointerEventData eventData)
@@ -26,8 +28,10 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.transform.SetParent(transform);
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
+                row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par 
-                ActivateCard(card);
+                cardDisplay.cardData.Card.position = card.GetComponentInParent<BattleRow>().position;//una vez la carta esta puesta en una fila setear su posicion para que sea la posicion de esa fila 
+                UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
                 FreeHability(card);
                 card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
                 Debug.Log($"Carta colocada en el board del Engine del jugador {cardDisplay.cardData.owner.Name} en la fila {position}");
@@ -127,18 +131,15 @@ public class BattleRow : MonoBehaviour, IDropHandler
             return;
         }   
         #endregion
-        cardDisplay.cardData.Card.player.Board.rows[(int)position].Add(cardDisplay.cardData.Card); // añade la carta al board del jugador del engine
+        cardDisplay.cardData.Card.player.Board.rows[(int)card.GetComponentInParent<BattleRow>().position].Add(cardDisplay.cardData.Card); // añade la carta al board del jugador del engine
+        Debug.Log($"CANTIDAD DE CARTAS QUE HAY EN LA FILA {position} DEL ENGINE.  "+cardDisplay.cardData.Card.player.Board.rows[(int)position].Count);
+        Debug.Log("indice en PlaceCardinBoardEngine.            " + (int)card.GetComponentInParent<BattleRow>().position);
         cardDisplay.cardData.Card.player.Points += cardDisplay.cardData.Card.points; //incrementa los puntos del jugador
-        Debug.Log($"Carta colocada en el board del Engine del jugador {cardDisplay.cardData.owner.Name} en la fila {position}");
-        Debug.Log("Carta colocada correctamente en el BattleField de la UI" + transform.name);
-        Debug.Log($"puntos de {cardDisplay.cardData.Card.player.Name} con ID={cardDisplay.cardData.Card.player.Id} ======== {cardDisplay.cardData.Card.points}");
-        Debug.Log("nombre de la carta del engine que moviste:    " + cardDisplay.cardData.name);
-        //Debug.Log($"puntos de {cardDisplay.cardData.owner.Name} ======== {cardDisplay.cardData.Card.points}");
+        Debug.Log("los puntos del jugador son =>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>  " + cardDisplay.cardData.Card.player.Points);
+        Debug.Log("los puntos del jugador son =>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>=>  " + PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points);
     }
-    public void ActivateCard(Draggable card)
+    public void UpdatePlayerDisplay(Draggable card)//actualiza los puntos de los jugadores visuales
     {
-        //aqui podria llamr a PlaceCardinBoardEngine para que todo se haga en una sola funcion 
-        //CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
         {
             PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
@@ -154,19 +155,20 @@ public class BattleRow : MonoBehaviour, IDropHandler
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay.cardData.Card.hability == Habilities.CardTheft)
         {
-            Debug.Log("Entre al if de FreeHability");
-            if(CardManager.Instance == null)
-            {
-                Debug.Log("CardManager.Instance es null");
-            }
-            Debug.Log( "el nombre de la carta que puse en el board es:        "+ cardDisplay.cardData.Card.name);
             if(cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
             {
                 Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
                 CardManager.Instance.UICardTheft(Game.GameInstance.Player1);
             }
-            
-          
+            if(cardDisplay.cardData.Card.player == Game.GameInstance.Player2)
+            {
+                Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
+                CardManager.Instance.UICardTheft(Game.GameInstance.Player2);
+            }
+        }
+        if (cardDisplay.cardData.Card.hability == Habilities.IncreaseMyRow)
+        {
+            CardManager.Instance.UIIncreaseMyRow(card);
         }
     }
 

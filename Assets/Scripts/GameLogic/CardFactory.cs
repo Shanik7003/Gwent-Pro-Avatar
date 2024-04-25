@@ -11,6 +11,7 @@ public class CardFactory : MonoBehaviour
         cardData.owner = card.player;
         cardData.Card = card; // que cada cardData sepa quien es su carta gemela en el engine
         // Configurar aquí más propiedades si son necesarias
+         cardData.cardImage = Resources.Load<Sprite>("CardImages/" + card.name.Replace(" ", "_"));
         return cardData;
     }
 }
