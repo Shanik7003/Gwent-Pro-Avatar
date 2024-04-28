@@ -47,14 +47,14 @@ namespace Engine
         public static Card waterCard8 = new ("Tonraq",  "Water Bender",Position.R,3,null,Habilities.CardTheft,8);
         public static Card waterCard9 = new ("Cocky Sokka",  "Water Bender",Position.R,3,null,Habilities.CardTheft,9);
         public static Card waterCard10 = new ("Fighter Katara",  "Water Bender",Position.R,2,null,Habilities.CardTheft,10);
-        public static Card waterCard11 = new ("Eclipse",  "Water Bender",2,null,Habilities.CardTheft,11,CardType.IncreaseCard);
+        public static Card waterCard11 = new ("Eclipse",  "Water Bender",2,null,Habilities.IncreaseMyRow,11,CardType.IncreaseCard);
         public static Card waterCard12 = new ("Spirits",  "MultiPoints",Position.R,4,null,Habilities.MultiPoints,12);
         public static Card waterCard13 = new ("Katara",  "Water Bender",Position.R,2,null,Habilities.CardTheft,13);
         public static Card waterCard14 = new ("Spirits",  "Water Bender",Position.R,2,null,Habilities.CardTheft,14);
-        public static Card waterCard15 = new ("Sozin Comet",  "Water Bender",4,null,Habilities.CardTheft,15,CardType.IncreaseCard);
-        public static Card waterCard16 = new ("Sozin Comet",  "Water Bender",4,null,Habilities.CardTheft,16,CardType.IncreaseCard);
-        public static Card waterCard17 = new ("Eclipse",  "Fire Bender",2,null,Habilities.CardTheft,17,CardType.IncreaseCard);
-        public static Card waterCard18 = new ("Sozin Comet",   "Non-bender", Position.S,1,null,Habilities.CardTheft,18);
+        public static Card waterCard15 = new ("Sozin Comet",  "Water Bender",4,null,Habilities.IncreaseMyRow,15,CardType.IncreaseCard);
+        public static Card waterCard16 = new ("Sozin Comet",  "Water Bender",4,null,Habilities.IncreaseMyRow,16,CardType.IncreaseCard);
+        public static Card waterCard17 = new ("Eclipse",  "Fire Bender",2,null,Habilities.IncreaseMyRow,17,CardType.IncreaseCard);
+        public static Card waterCard18 = new ("Sozin Comet",   "Non-bender",1,null,Habilities.IncreaseMyRow,18,CardType.IncreaseCard);
         public static Card waterCard19 = new ("Katara",  "Non-bender", Position.S,1,null,Habilities.CardTheft,19);
         public static Card waterCard20 = new ("Spirits",  "MultiPoints", Position.S,1,null,Habilities.MultiPoints,2);
         public static Card waterCard21 = new ("Spirits",  "MultiPoints", Position.S,1,null,Habilities.MultiPoints,21);
@@ -240,8 +240,12 @@ namespace Engine
                 int count = 0; //para saber cuantas cartas hay en esa fila 
                 foreach (var item in card.player.Board.rows[row])
                 {
-                    item.points += card.points;//sumale 5 ptos a cada carta
-                    count ++;
+                    if (item.ID != card.ID)//para que no pueda contar la propia carta de aumento
+                    {
+                        item.points += card.points;//sumale 5 ptos a cada carta
+                        count ++;
+                    }
+                   
                 }
                 card.player.Points += count * card.points; //+5 por cada carta 
             }

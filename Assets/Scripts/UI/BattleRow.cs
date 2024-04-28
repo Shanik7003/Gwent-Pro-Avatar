@@ -22,6 +22,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
     public Owner rowOwner;  // Propietario de la fila (Player1 o Player2)
     public CombatRow CombatRow;
     public bool IncreasePlace;
+    
     public void OnDrop(PointerEventData eventData)
     { 
         Draggable card = eventData.pointerDrag.GetComponent<Draggable>();
@@ -35,7 +36,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.transform.SetParent(transform);
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
-                ExistPasiveIncrease(card);
+                ExistPasiveIncrease(cardDisplay);
                 row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
                 UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
@@ -51,129 +52,18 @@ public class BattleRow : MonoBehaviour, IDropHandler
             }
         }
     }
-    public void  ExistPasiveIncrease(Draggable card)
+    public void  ExistPasiveIncrease(CardDisplay cardDisplay)
     {
-        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
+        foreach (var item in cardDisplay.cardData.Card.player.Board.rows[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow])
         {
-            if(card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
+            if (item.CardType == CardType.IncreaseCard && item.ID != cardDisplay.cardData.Card.ID)//verifica en el engine si la fila posee alguna carta de aumento
             {
-                if(GameObject.Find("AM1").GetComponentInChildren<CardDisplay>().name != null)//si existe un aumento puesto en esa fila(necesito una mejor forma de comprobar si un GameObject tiene un hijo)
-                {
-                    int SumPoints = GameObject.Find("AM1").GetComponentInChildren<CardDisplay>().cardData.points;//esta es la carta que esta efectuando el incremento(sus puntos)
-                    card.GetComponent<CardDisplay>().cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                    card.GetComponent<CardDisplay>().UpdateCard();//actualiza los puntos visuales de la carta
-                    card.GetComponent<CardDisplay>().cardData.Card.points += SumPoints;//actualiza la carta del engine 
-                    //actualiza a los jugadores
-                    if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
-                    {    
-                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                    }
-                    else
-                    {
-                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-                    }
-                }
-            }
-             if(card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.R)
-            {
-                if(GameObject.Find("AR1").GetComponentInChildren<CardDisplay>().name != null)//si existe un aumento puesto en esa fila(necesito una mejor forma de comprobar si un GameObject tiene un hijo)
-                {
-                    int SumPoints = GameObject.Find("AR1").GetComponentInChildren<CardDisplay>().cardData.points;//esta es la carta que esta efectuando el incremento(sus puntos)
-                    card.GetComponent<CardDisplay>().cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                    card.GetComponent<CardDisplay>().UpdateCard();//actualiza los puntos visuales de la carta
-                    card.GetComponent<CardDisplay>().cardData.Card.points += SumPoints;
-                    //actualiza a los jugadores
-                    if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
-                    {    
-                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                    }
-                    else
-                    {
-                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-                    }
-                }
-            }
-             if(card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.S)
-            {
-                if(GameObject.Find("AS1").GetComponentInChildren<CardDisplay>().name != null)//si existe un aumento puesto en esa fila(necesito una mejor forma de comprobar si un GameObject tiene un hijo)
-                {
-                    int SumPoints = GameObject.Find("AS1").GetComponentInChildren<CardDisplay>().cardData.points;//esta es la carta que esta efectuando el incremento(sus puntos)
-                    card.GetComponent<CardDisplay>().cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                    card.GetComponent<CardDisplay>().UpdateCard();//actualiza los puntos visuales de la carta
-                    card.GetComponent<CardDisplay>().cardData.Card.points += SumPoints;
-                    //actualiza a los jugadores
-                    if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
-                    {    
-                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                    }
-                    else
-                    {
-                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-                    }
-                }
+                int SumPoints = item.points;
+                cardDisplay.cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
+                cardDisplay.UpdateCard();//actualiza los puntos visuales de la carta
+                cardDisplay.cardData.Card.points += SumPoints;//actualiza la carta del engine 
             }
         }
-        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
-        {
-            if(card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
-            {
-                if(GameObject.Find("AM2").GetComponentInChildren<CardDisplay>().name != null)//si existe un aumento puesto en esa fila(necesito una mejor forma de comprobar si un GameObject tiene un hijo)
-                {
-                    int SumPoints = GameObject.Find("AM2").GetComponentInChildren<CardDisplay>().cardData.points;//esta es la carta que esta efectuando el incremento(sus puntos)
-                    card.GetComponent<CardDisplay>().cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                    card.GetComponent<CardDisplay>().UpdateCard();//actualiza los puntos visuales de la carta
-                    card.GetComponent<CardDisplay>().cardData.Card.points += SumPoints;
-                    //actualiza a los jugadores
-                    if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
-                    {    
-                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                    }
-                    else
-                    {
-                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-                    }
-                }
-            }
-             if(card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.R)
-            {
-                if(GameObject.Find("AR2").GetComponentInChildren<CardDisplay>().name != null)//si existe un aumento puesto en esa fila(necesito una mejor forma de comprobar si un GameObject tiene un hijo)
-                {
-                    int SumPoints = GameObject.Find("AR2").GetComponentInChildren<CardDisplay>().cardData.points;//esta es la carta que esta efectuando el incremento(sus puntos)
-                    card.GetComponent<CardDisplay>().cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                    card.GetComponent<CardDisplay>().UpdateCard();//actualiza los puntos visuales de la carta
-                    card.GetComponent<CardDisplay>().cardData.Card.points += SumPoints;
-                    //actualiza a los jugadores
-                    if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
-                    {    
-                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                    }
-                    else
-                    {
-                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-                    }
-                }
-            }
-             if(card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.S)
-            {
-                if(GameObject.Find("AS2").GetComponentInChildren<CardDisplay>().name != null)//si existe un aumento puesto en esa fila(necesito una mejor forma de comprobar si un GameObject tiene un hijo)
-                {
-                    int SumPoints = GameObject.Find("AS2").GetComponentInChildren<CardDisplay>().cardData.points;//esta es la carta que esta efectuando el incremento(sus puntos)
-                    card.GetComponent<CardDisplay>().cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                    card.GetComponent<CardDisplay>().UpdateCard();//actualiza los puntos visuales de la carta
-                    card.GetComponent<CardDisplay>().cardData.Card.points += SumPoints;
-                    //actualiza a los jugadores
-                    if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
-                    {    
-                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                    }
-                    else
-                    {
-                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-                    }
-                }
-            }
-        }
-     
     }
 
     public bool IsDropAllowed(Draggable card)

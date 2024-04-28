@@ -210,11 +210,93 @@ public class CardManager : MonoBehaviour
         {
             PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
         }
-        foreach (var item in card.GetComponentInParent<BattleRow>().row)//por cada carta de la lista de CardDisplay de la fila de la interfaz, actualiza sus puntos 
+        if (!card.GetComponentInParent<BattleRow>().IncreasePlace )//si no es un increaseplace
         {
-           item.cardData.points = item.cardData.Card.points;
-           item.UpdateCard();//muestra los puntos actualizados en la interfaz
+            foreach (var item in card.GetComponentInParent<BattleRow>().row)//por cada carta de la lista de CardDisplay de la fila de la interfaz, actualiza sus puntos 
+            {
+            item.cardData.points = item.cardData.Card.points;
+            item.UpdateCard();//muestra los puntos actualizados en la interfaz
+            }
+            
         }
+        //si la carta si esta en un IncreasePlace como iterar por la lista row de la fila ?????
+        if (card.GetComponentInParent<BattleRow>().IncreasePlace)
+        {
+            if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
+            {
+                if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
+                {
+                    foreach(var item in GameObject.Find("M1").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+                if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.R)
+                {
+                    foreach(var item in GameObject.Find("R1").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+                 if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.S)
+                {
+                    foreach(var item in GameObject.Find("S1").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+            }  
+              if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
+            {
+                if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
+                {
+                    foreach(var item in GameObject.Find("M2").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+                if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.R)
+                {
+                    foreach(var item in GameObject.Find("R2").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+                 if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.S)
+                {
+                    foreach(var item in GameObject.Find("S2").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+            } 
+        }
+        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
+        {
+            if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
+            {
+                foreach(var item in GameObject.Find("M1").GetComponent<BattleRow>().row)
+                {
+                    item.cardData.points = item.cardData.Card.points;
+                    item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                }
+            }
+              if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
+            {
+                foreach(var item in GameObject.Find("M1").GetComponent<BattleRow>().row)
+                {
+                    item.cardData.points = item.cardData.Card.points;
+                    item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                }
+            }
+        }
+      
     }
     public void UIEliminateMostPowerful(Player enemy)
     {
