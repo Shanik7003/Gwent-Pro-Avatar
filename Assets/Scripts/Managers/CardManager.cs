@@ -42,20 +42,11 @@ public class CardManager : MonoBehaviour
 
     void Start()
     {
-        // List<Card> EngineCards1 = GetCardsFromEngine(); // guarda las cartas del deck del jugador1
-        // GenerateCardData(EngineCards1);//convierte las cards en cardData
-        // //GenerateCards(player1DeckHolder); // no tengo que instanciar el Deck completo 
-        // List<Card> EngineCards2 = GetCardsFromEngine(); // guarda las cartas del deck del jugador2
-        // GenerateCardData(EngineCards2);//convierte las cards en cardData
-        // //GenerateCards(player2DeckHolder); // no tengo que instanciar el deck completo
-
         //renderizando las cartas de las Hands
         GenerateCardData(Game.GameInstance.Player1.Hand);
         StartCoroutine(GenerateCards(player1HandRow,player1DeckHolder));
         GenerateCardData(Game.GameInstance.Player2.Hand);
         StartCoroutine(GenerateCards(player2HandRow,player2DeckHolder));
-        
-
     }
     void Update()
     {
@@ -75,91 +66,58 @@ public class CardManager : MonoBehaviour
             StartCoroutine(GenerateCards(player2HandRow,player2DeckHolder));
         }
     }
-
-
-    
-
     public  void GenerateCardData(List<Card> collection)
     {
         Debug.Log(frame);
         cardDatas = new List<CardData>();
         foreach (var card in collection)
         {
-             Debug.Log("estoy generando CardDatas");
-            // Asigna una imagen apropiada aquí si es necesario
-            //Sprite cardImage = Resources.Load<Sprite>("path/to/sprite/" + card.name);
+            Debug.Log("estoy generando CardDatas");
             Debug.Log("Imprimiendo this.............." + cardFactory);
-
             if (cardFactory == null)
             {
                 Debug.LogError("CardFactory reference is not set in the inspector!");
                 return;
             }
-            CardData newCardData = cardFactory.CreateCardData(card);//CARD IMAGE Como PARAMETRO
+            CardData newCardData = cardFactory.CreateCardData(card);
             cardDatas.Add(newCardData);
         }
     }
-//original GenerateCards
-    // public  List<CardDisplay> GenerateCards(Transform transform)//este metodo podria ser void 
-    // {
-    //     List<CardDisplay> deck = new List<CardDisplay>();
-    //     foreach (CardData card in cardDatas)
-    //     {
-    //         GameObject newCard = Instantiate(cardPrefab, Vector3.zero, Quaternion.identity, transform);
-    //         newCard.transform.localPosition = Vector3.zero; // Ajusta según necesites
-    //         CardDisplay display = newCard.GetComponent<CardDisplay>();
-    //         if (display != null && card != null)
-    //         {
-    //             display.cardData = card;
-    //             display.UpdateCard();
-    //             deck.Add(display);
-    //             // Debug.Log("Carta creada: " + card.cardName);
-    //         }
-    //         else
-    //         {
-    //             Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
-    //         }
-    //     }
-    //     return deck;
-    // }
-
-public IEnumerator GenerateCards(Transform handTransform, Transform deckTransform)
-{
-    foreach (CardData card in cardDatas)
+    public IEnumerator GenerateCards(Transform handTransform, Transform deckTransform)
     {
-        GameObject newCard = Instantiate(cardPrefab, deckTransform.position, Quaternion.identity, handTransform);
-        CardDisplay display = newCard.GetComponent<CardDisplay>();
-        if (display != null && card != null)
+        foreach (CardData card in cardDatas)
         {
-            display.cardData = card;
-            display.UpdateCard();
-            yield return StartCoroutine(MoveCard(newCard.transform, handTransform.position,handTransform));
-        }
-        else
-        {
-            Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
+            GameObject newCard = Instantiate(cardPrefab, deckTransform.position, Quaternion.identity, handTransform);
+            CardDisplay display = newCard.GetComponent<CardDisplay>();
+            if (display != null && card != null)
+            {
+                display.cardData = card;
+                display.UpdateCard();
+                yield return StartCoroutine(MoveCard(newCard.transform, handTransform.position,handTransform));
+            }
+            else
+            {
+                Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
+            }
         }
     }
-}
 
-IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform parentTransform)
-{
-    float timeToMove = 0.5f; // Duración de la animación en segundos
-    float elapsedTime = 0;
-    Vector3 startPosition = cardTransform.position;
-
-    while (elapsedTime < timeToMove)
+    IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform parentTransform)
     {
-        cardTransform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / timeToMove));
-        elapsedTime += Time.deltaTime;
-        yield return null;
+        float timeToMove = 0.5f; // Duración de la animación en segundos
+        float elapsedTime = 0;
+        Vector3 startPosition = cardTransform.position;
+
+        while (elapsedTime < timeToMove)
+        {
+            cardTransform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / timeToMove));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        cardTransform.position = targetPosition;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(parentTransform.GetComponent<RectTransform>());
     }
-
-      cardTransform.position = targetPosition;
-       LayoutRebuilder.ForceRebuildLayoutImmediate(parentTransform.GetComponent<RectTransform>());
-}
-      // Asegúrate de que la carta está como hija del contenedor correcto
-
 
     // Método para obtener cartas desde el motor, esto es un ejemplo genérico
     private List<Card> GetCardsFromEngine()
@@ -176,7 +134,7 @@ IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform p
             P1CardsGenerated = true;
             return Game.GameInstance.Player1.Faction.Deck;
         }
-    }
+     }
     public static bool CanPlaceCard(Card card, BattleField battleField)
     {
         Debug.Log("Entre al Metodo CanPlaceCard");
@@ -196,32 +154,54 @@ IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform p
             Debug.Log("You cannot place this card now or here.");
         }
     }
+    public void EliminateCard(CardDisplay cardDisplay)//este metoo es para ser usado por la habilidad de eliminar la carta mas o menos poderosa, ya que elimina la carta que le indiques del campo del jugador que no este jugando en este turno 
+    {
+        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
+        {
+            StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery2").transform));
+            Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
+        }
+        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
+        {
+            StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery1").transform));
+            Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
+        }
+       
+    }
+    IEnumerator MoveCardToCemetery(Transform cardTransform, Transform cemeteryTransform)
+    {
+        float timeToMove = 0.5f; // Duración de la animación en segundos
+        float elapsedTime = 0;
+        Vector3 startPosition = cardTransform.position;
+
+        while (elapsedTime < timeToMove)
+        {
+            cardTransform.position = Vector3.Lerp(startPosition, cemeteryTransform.position, (elapsedTime / timeToMove));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        cardTransform.position = cemeteryTransform.position; // Asegúrate de que llegue a la posición exacta del cementerio
+    }
+
+
 
     public void UICardTheft(Player player) //robar una carta 
     {
         Card stolenCard = Card.CardTheft(player);
         if (player==Game.GameInstance.Player1)//hay que hacer algo para que maneje el momento en el que se quede sin cartas el deck
         {
-           
             InstanciateCard( stolenCard); //instancia la carta en la mano visualmente
-            // Game.GameInstance.Player1.Hand.Add(Game.GameInstance.Player1.Faction.Deck[index]);//añade la carta a la mano del engine
-            // Game.GameInstance.Player1.Faction.Deck.Remove(Game.GameInstance.Player1.Faction.Deck[index]);//saca la carta del deck
         }
          if (player==Game.GameInstance.Player2)//hay que hacer algo para que maneje el momento en el que se quede sin cartas el deck
         {
-            // int index = random.Next(0,Game.GameInstance.Player2.Faction.Deck.Count);
             InstanciateCard( stolenCard); //instancia la carta en la mano visualmente
-            // Game.GameInstance.Player2.Hand.Add(Game.GameInstance.Player2.Faction.Deck[index]);//añade la carta a la mano del engine
-            // Game.GameInstance.Player2.Faction.Deck.Remove(Game.GameInstance.Player2.Faction.Deck[index]);//saca la carta del deck
         }
     }
     public void UIIncreaseMyRow(Draggable card)
     {
         CardDisplay newCardDisplay = card.GetComponent<CardDisplay>();
-        Debug.Log("blalblablablablbalbla     " + newCardDisplay.cardData.Card.player.Board.rows[(int)newCardDisplay.cardData.Card.position].Count);
-        Debug.Log("indice en UIIncreaseRow     " + (int)newCardDisplay.cardData.Card.position);
-        newCardDisplay.cardData.Card.IncreaseMyRow(newCardDisplay.cardData.Card);//llamando a esta funcion para que haga lo que tiene que hacer en el engine
-        Debug.Log("EL VACIO => "+ newCardDisplay.cardData.Card.player.Name);
+        newCardDisplay.cardData.Card.IncreaseMyRow(newCardDisplay.cardData.Card,(int)card.GetComponentInParent<BattleRow>().CombatRow);//llamando a esta funcion para que haga lo que tiene que hacer en el engine
         if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
         {    
             PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
@@ -230,11 +210,102 @@ IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform p
         {
             PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
         }
-        foreach (var item in card.GetComponentInParent<BattleRow>().row)
+        foreach (var item in card.GetComponentInParent<BattleRow>().row)//por cada carta de la lista de CardDisplay de la fila de la interfaz, actualiza sus puntos 
         {
            item.cardData.points = item.cardData.Card.points;
            item.UpdateCard();//muestra los puntos actualizados en la interfaz
         }
+    }
+    public void UIEliminateMostPowerful(Player enemy)
+    {
+        int MostPowerfulID = Card.EliminateMostPowerful(enemy);
+        if (Game.GameInstance.Player1 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
+        {
+            for (int i = 0; i < GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows.Length; i++)
+            {
+                 foreach (var item in GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows[i].row)
+                {
+                    if (item.cardData.Card.ID == MostPowerfulID)
+                    {
+                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        //saca la carta de las filas de combate y ponla en el cementerio 
+                        EliminateCard(item);
+                        break;
+                    }
+                }
+            }
+           
+        }
+         if (Game.GameInstance.Player2 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
+        {
+            for (int i = 0; i < GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows.Length; i++)
+            {
+                 foreach (var item in GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row)
+                {
+                    if (item.cardData.Card.ID == MostPowerfulID)
+                    {
+                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        //saca la carta de las filas de combate y ponla en el cementerio 
+                        EliminateCard(item);
+                        break;
+                    }
+                }
+            }
+           
+        }
+    }
+    public void UIEliminateLeastPowerful(Player enemy)
+    {
+        int MostPowerfulID = Card.EliminateLeastPowerful(enemy);
+        if (Game.GameInstance.Player1 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
+        {
+            for (int i = 0; i < GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows.Length; i++)
+            {
+                 foreach (var item in GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows[i].row)
+                {
+                    if (item.cardData.Card.ID == MostPowerfulID)
+                    {
+                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        //saca la carta de las filas de combate y ponla en el cementerio 
+                        EliminateCard(item);
+                        break;
+                    }
+                }
+            }
+           
+        }
+         if (Game.GameInstance.Player2 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
+        {
+            for (int i = 0; i < GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows.Length; i++)
+            {
+                 foreach (var item in GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row)
+                {
+                    if (item.cardData.Card.ID == MostPowerfulID)
+                    {
+                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        //saca la carta de las filas de combate y ponla en el cementerio 
+                        EliminateCard(item);
+                        break;
+                    }
+                }
+            }
+           
+        }
+    }
+    public void UIMultiPoints(CardDisplay card)
+    {
+        int points = Card.Multipoints(card.cardData.Card);
+        card.cardData.points = points;
+        card.UpdateCard();
+        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
+        {    
+            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+        }
+        else
+        {
+            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        }
+
     }
 
 

@@ -16,9 +16,9 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     {
         if (!isDraggable)
         {
+            Debug.Log("Intento de arrastrar una carta no arrastrable.");
             return;
-        }
-           
+        }           
         startPosition = transform.position;
         originalParent = transform.parent;
         transform.SetParent(transform.root);  // Esto es para asegurar que no esté bloqueado por otros elementos UI.

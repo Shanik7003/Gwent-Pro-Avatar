@@ -11,6 +11,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public TextMeshProUGUI descriptionText;
     public TextMeshProUGUI points;
     public static GameObject detailedCardDisplay; // Referencia al panel de visualización detallada
+    public TextMeshProUGUI position;
 
     void Start()
     {
@@ -22,11 +23,12 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
     public void UpdateCard()
     {
-        Debug.Log("IMPRIMIENDO CARdDATA ... => " + cardData);
         nameText.text = cardData.cardName;
         descriptionText.text = cardData.description;
         points.text = cardData.points.ToString();
         artworkImage.sprite = cardData.cardImage;
+        position.text = cardData.Card.position.ToString();
+
     }
 
     public void OnPointerEnter(PointerEventData eventData)
