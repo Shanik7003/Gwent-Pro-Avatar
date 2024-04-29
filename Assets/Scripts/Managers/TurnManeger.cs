@@ -47,6 +47,18 @@ public class TurnManager : MonoBehaviour
         Debug.Log("entre al metodo GetCurrentPlayer");
         return turnCount % 2 == 0 ? Game.GameInstance.Player1 : Game.GameInstance.Player2;//La estructura es condición ? resultado_si_verdadero : resultado_si_falso. (Par:Player1)
     }
+    public Player GetCurrentEnemy()
+    {
+        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
+        {
+            return Game.GameInstance.Player2;
+        }
+        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
+        {
+            return Game.GameInstance.Player1;
+        }
+        return Game.GameInstance.Player1;//por defecto 
+    }
       public bool IsPlayerTurn(Player player)
     {
         return GetCurrentPlayer() == player;

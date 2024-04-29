@@ -73,6 +73,7 @@
     <Compile Include="Assets/API/Engine.cs" />
     <Compile Include="Assets/Scripts/UI/SceneLoader.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerDisplay.cs" />
+    <Compile Include="Assets/Scripts/UI/WheatherSpace.cs" />
     <Compile Include="Assets/Scripts/UI/DetailedCardDisplay.cs" />
     <Compile Include="Assets/Scripts/Managers/PlayerManager.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManagerWrapper.cs" />

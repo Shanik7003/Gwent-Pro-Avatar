@@ -36,7 +36,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.transform.SetParent(transform);
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
-                ExistPasiveIncrease(cardDisplay);
+                ExistPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
                 row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
                 UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
@@ -52,7 +52,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
             }
         }
     }
-    public void  ExistPasiveIncrease(CardDisplay cardDisplay)
+    public void  ExistPasiveIncrease(CardDisplay cardDisplay)//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
     {
         foreach (var item in cardDisplay.cardData.Card.player.Board.rows[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow])
         {
@@ -73,6 +73,10 @@ public class BattleRow : MonoBehaviour, IDropHandler
         if (cardDisplay == null)
         {
             Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
+            return false;
+        }
+        if (cardDisplay.cardData.Card.CardType == CardType.WheatherCard)
+        {
             return false;
         }
         if (cardDisplay.cardData.Card.CardType == CardType.IncreaseCard)//es una carta de aumento?
@@ -173,6 +177,10 @@ public class BattleRow : MonoBehaviour, IDropHandler
         {
             CardManager.Instance.UIMultiPoints(cardDisplay);
         }
+        // if(cardDisplay.cardData.Card.hability == Habilities.Eclipse)
+        // {
+        //     CardManager.Instance.UIDecreaseMyRow(card);
+        // }
     }
 
 

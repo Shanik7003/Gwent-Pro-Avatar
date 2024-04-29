@@ -184,8 +184,6 @@ public class CardManager : MonoBehaviour
         cardTransform.position = cemeteryTransform.position; // Asegúrate de que llegue a la posición exacta del cementerio
     }
 
-
-
     public void UICardTheft(Player player) //robar una carta 
     {
         Card stolenCard = Card.CardTheft(player);
@@ -389,6 +387,25 @@ public class CardManager : MonoBehaviour
         }
 
     }
-
-
+    public void UIDecreaseMyRow(Draggable card)
+    {
+        Debug.Log("Entre a UIDecreaseMyRow");
+        CardDisplay newCardDisplay = card.GetComponent<CardDisplay>();
+        newCardDisplay.cardData.Card.Eclipse(newCardDisplay.cardData.Card,(int)card.GetComponentInParent<WheatherSpace>().CombatRow,TurnManager.Instance.GetCurrentEnemy());//llamando a esta funcion para que haga lo que tiene que hacer en el engine
+       //actualiza los puntos visuales de los jugadores 
+        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        foreach (var item in card.GetComponentInParent<WheatherSpace>().BattleRowPlayer1.row)
+        {
+            item.cardData.points = item.cardData.Card.points;
+            item.UpdateCard();//muestra los puntos actualizados en la interfaz
+        }
+        foreach (var item in card.GetComponentInParent<WheatherSpace>().BattleRowPlayer2.row)
+        {
+            item.cardData.points = item.cardData.Card.points;
+            item.UpdateCard();//muestra los puntos actualizados en la interfaz
+        }
+        card.GetComponentInParent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f); // Semi-transparent red
+        card.GetComponentInParent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f); // Semi-transparent red
+    }
 }
