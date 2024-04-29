@@ -37,6 +37,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
                 ExistPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
+                ExistPasiveWheather(cardDisplay);
                 row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
                 UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
@@ -65,6 +66,23 @@ public class BattleRow : MonoBehaviour, IDropHandler
             }
         }
     }
+    public void  ExistPasiveWheather(CardDisplay cardDisplay)//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
+    {
+        if (Game.GameInstance.WheatherSpace.Spaces[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow] != null)//si el espacio de clima correspondiente a la carta no esta vacio
+        {
+            //actualiza la carta y el jugador del engine 
+            cardDisplay.cardData.Card.points = cardDisplay.cardData.Card.points/2;
+            cardDisplay.cardData.Card.player.Points -= cardDisplay.cardData.Card.points/2;
+            //actualiza los puntos de los jugadores visuales
+            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+            //actualiza la carta visual
+            cardDisplay.cardData.points = cardDisplay.cardData.Card.points;
+            cardDisplay.UpdateCard();
+        } 
+        else return;
+        
+    }
 
     public bool IsDropAllowed(Draggable card)
     {
@@ -74,6 +92,13 @@ public class BattleRow : MonoBehaviour, IDropHandler
         {
             Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
+        }
+        if (IncreasePlace)//si es un espacio de cartas de aumento
+        {
+            if (row.Count == 1)
+            {
+                return false;
+            }
         }
         if (cardDisplay.cardData.Card.CardType == CardType.WheatherCard)
         {

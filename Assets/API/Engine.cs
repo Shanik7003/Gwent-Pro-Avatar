@@ -40,31 +40,31 @@ namespace Engine
             WheatherSpace = new();
         }
         #region WaterTribe 
-        public static Card waterLeader = new Card("Katara",  "Water Bender",Position.Leaderposition, 0,null,Habilities.CardTheft,1);
-        public static Card waterCard2 = new ("Pakku",  "Water Bender",Position.M,2,null,Habilities.CardTheft,2);
-        public static Card waterCard3 = new ("Hama",  "Water Bender",Position.R,3,null,Habilities.CardTheft,3);
-        public static Card waterCard4 = new ("Yue",  "Water Bender",Position.R,3,null,Habilities.CardTheft,4);
-        public static Card waterCard5 = new ("Avatar Kuruk",  "Water Bender",Position.R,2,null,Habilities.CardTheft,5);
-        public static Card waterCard6 = new ("Hakoda",  "Water Bender",Position.R,3,null,Habilities.CardTheft,6);
-        public static Card waterCard7 = new ("Korra",  "Water Bender",Position.R,3,null,Habilities.CardTheft,7);
-        public static Card waterCard8 = new ("Tonraq",  "Water Bender",Position.R,3,null,Habilities.CardTheft,8);
-        public static Card waterCard9 = new ("Cocky Sokka",  "Water Bender",Position.R,3,null,Habilities.CardTheft,9);
-        public static Card waterCard10 = new ("Fighter Katara",  "Water Bender",Position.R,2,null,Habilities.CardTheft,10);
-        public static Card waterCard11 = new ("Eclipse",  "Water Bender",2,null,Habilities.IncreaseMyRow,11,CardType.IncreaseCard);
-        public static Card waterCard12 = new ("Spirits",  "MultiPoints",Position.R,4,null,Habilities.MultiPoints,12);
-        public static Card waterCard13 = new ("Katara",  "Water Bender",Position.R,2,null,Habilities.CardTheft,13);
-        public static Card waterCard14 = new ("Spirits",  "Water Bender",Position.R,2,null,Habilities.CardTheft,14);
-        public static Card waterCard15 = new ("Sozin Comet",  "Water Bender",4,null,Habilities.IncreaseMyRow,15,CardType.IncreaseCard);
-        public static Card waterCard16 = new ("Sozin Comet",  "Water Bender",4,null,Habilities.IncreaseMyRow,16,CardType.IncreaseCard);
-        public static Card waterCard17 = new ("Eclipse",  "Fire Bender",2,null,Habilities.IncreaseMyRow,17,CardType.IncreaseCard);
-        public static Card waterCard18 = new ("Sozin Comet",   "Non-bender",1,null,Habilities.IncreaseMyRow,18,CardType.IncreaseCard);
-        public static Card waterCard19 = new ("Katara",  "Non-bender", Position.S,1,null,Habilities.CardTheft,19);
-        public static Card waterCard20 = new ("Spirits",  "MultiPoints", Position.S,1,null,Habilities.MultiPoints,2);
-        public static Card waterCard21 = new ("Spirits",  "MultiPoints", Position.S,1,null,Habilities.MultiPoints,21);
-        public static Card waterCard22 = new ("Spirits",  "MultiPoints", Position.S,1,null,Habilities.MultiPoints,22);
-        public static Card waterCard23 = new ("Spirits",  "MultiPoints", Position.S,1,null,Habilities.MultiPoints,23);
-        public static Card waterCard24 = new ("Avatar Kuruk",  "Non-bender", Position.S,1,null,Habilities.CardTheft,24);
-        public static Card waterCard25 = new ("The Painted Lady",  "Spirit", Position.S,1,null,Habilities.CardTheft,25);
+        public static Card waterLeader = new Card("Katara",  "Roba una carta extra del Mazo",Position.Leaderposition, 0,null,Habilities.CardTheft,1);
+        public static Card waterCard2 = new ("Pakku",  "Roba una carta extra del Mazo",Position.M,2,null,Habilities.CardTheft,2);
+        public static Card waterCard3 = new ("Hama",  "Roba una carta extra del Mazo",Position.R,3,null,Habilities.CardTheft,3);
+        public static Card waterCard4 = new ("Yue",  "Roba una carta extra del Mazo",Position.R,3,null,Habilities.CardTheft,4);
+        public static Card waterCard5 = new ("Avatar Kuruk",  "Roba una carta extra del Mazo",Position.R,2,null,Habilities.CardTheft,5);
+        public static Card waterCard6 = new ("Hakoda",  "Roba una carta extra del Mazo",Position.R,3,null,Habilities.CardTheft,6);
+        public static Card waterCard7 = new ("Korra",  "Roba una carta extra del Mazo",Position.R,3,null,Habilities.CardTheft,7);
+        public static Card waterCard8 = new ("Tonraq",  "Roba una carta extra del Mazo",Position.R,3,null,Habilities.CardTheft,8);
+        public static Card waterCard9 = new ("Cocky Sokka",  "Roba una carta extra del Mazo",Position.R,3,null,Habilities.CardTheft,9);
+        public static Card waterCard10 = new ("Fighter Katara",  "Roba una carta extra del Mazo",Position.R,2,null,Habilities.CardTheft,10);
+        public static Card waterCard11 = new ("Sozin Comet",  "CARTA DE AUMENTO Le suma a las cartas de su fila de batalla los puntos que posee",2,null,Habilities.IncreaseMyRow,11,CardType.IncreaseCard);
+        public static Card waterCard12 = new ("Spirits",  "Multiplica sus puntos por la cantidad de cartas iguales a ella que hay en el campo de batalla",Position.R,4,null,Habilities.MultiPoints,12);
+        public static Card waterCard13 = new ("Katara",  "Roba una carta extra del Mazo",Position.R,2,null,Habilities.CardTheft,13);
+        public static Card waterCard14 = new ("Spirits",  "Roba una carta extra del Mazo",Position.R,2,null,Habilities.CardTheft,14);
+        public static Card waterCard15 = new ("Sozin Comet",  "CARTA DE AUMENTO Le suma a las cartas de su fila de batalla los puntos que posee",4,null,Habilities.IncreaseMyRow,15,CardType.IncreaseCard);
+        public static Card waterCard16 = new ("Sozin Comet",  "CARTA DE AUMENTO Le suma a las cartas de su fila de batalla los puntos que posee",4,null,Habilities.IncreaseMyRow,16,CardType.IncreaseCard);
+        public static Card waterCard17 = new ("Sozin Comet",  "CARTA DE AUMENTO Le suma a las cartas de su fila de batalla los puntos que posee",2,null,Habilities.IncreaseMyRow,17,CardType.IncreaseCard);
+        public static Card waterCard18 = new ("Sozin Comet",  " CARTA DE AUMENTO Le suma a las cartas de su fila de batalla los puntos que posee",1,null,Habilities.IncreaseMyRow,18,CardType.IncreaseCard);
+        public static Card waterCard19 = new ("Katara",  "Roba una carta extra del Mazo", Position.S,1,null,Habilities.CardTheft,19);
+        public static Card waterCard20 = new ("Spirits",  "Multiplica sus puntos por la cantidad de cartas iguales a ella que hay en el campo de batalla", Position.S,1,null,Habilities.MultiPoints,2);
+        public static Card waterCard21 = new ("Spirits",  "Multiplica sus puntos por la cantidad de cartas iguales a ella que hay en el campo de batalla", Position.S,1,null,Habilities.MultiPoints,21);
+        public static Card waterCard22 = new ("Spirits",  "Multiplica sus puntos por la cantidad de cartas iguales a ella que hay en el campo de batalla", Position.S,1,null,Habilities.MultiPoints,22);
+        public static Card waterCard23 = new ("Spirits",  "Multiplica sus puntos por la cantidad de cartas iguales a ella que hay en el campo de batalla", Position.S,1,null,Habilities.MultiPoints,23);
+        public static Card waterCard24 = new ("Avatar Kuruk",  "Roba una carta extra del Mazo", Position.S,1,null,Habilities.CardTheft,24);
+        public static Card waterCard25 = new ("The Painted Lady",  "Roba una carta extra del Mazo", Position.S,1,null,Habilities.CardTheft,25);
         public static List<Card> WaterDeck = new() { waterCard2, waterCard3, waterCard4, waterCard5, waterCard6, waterCard7, waterCard8, waterCard9, waterCard10, waterCard11, waterCard12, waterCard13, waterCard14, waterCard15, waterCard16, waterCard17, waterCard18, waterCard19, waterCard20, waterCard21, waterCard22, waterCard23, waterCard24, waterCard25};
         public static readonly WaterTribe  WaterTribe = new(WaterDeck,waterLeader);
         #endregion
@@ -100,31 +100,31 @@ namespace Engine
         #endregion
 
         #region FireNation
-        public static Card fireLeader = new Card("Zuko", "Fire Bender",Position.Leaderposition,0,null,Habilities.None,26);
-        public static Card fireCard2 = new ("Azula", "Fire Bender",Position.MRS,1,null,Habilities.None,27);
-        public static Card fireCard3 = new ("Iroh", "Fire Bender",Position.MRS,1,null,Habilities.None,28);
-        public static Card fireCard4 = new ("Piandao", "Fire Bender",Position.MRS,1,null,Habilities.None,29);
-        public static Card fireCard5 = new ("Azula", "Non-bender",Position.MRS,1,null,Habilities.None,30);
-        public static Card fireCard6 = new ("Azula", "Non-bender",Position.MRS,1,null,Habilities.None,31);
-        public static Card fireCard7 = new ("Zhao", "Non-bender",Position.MRS,1,null,Habilities.None,32);
-        public static Card fireCard8 = new ("Azula", "Fire Lion Turtle",Position.MRS,1,null,Habilities.None,33);
-        public static Card fireCard9 = new ("Eclipse", "Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,34,CardType.WheatherCard);
-        public static Card fireCard10 = new ("Eclipse", "Reduce los puntos de las unidades a la mitad ",null,Habilities.Eclipse,35,CardType.WheatherCard);
-        public static Card fireCard11 = new ("Eclipse", "Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,36,CardType.WheatherCard);
-        public static Card fireCard12 = new ("Eclipse", "Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,37,CardType.WheatherCard);
-        public static Card fireCard13 = new ("Eclipse", "Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,38,CardType.WheatherCard);
-        public static Card fireCard14 = new ("Roku", "Non-bender",Position.MRS,2,null,Habilities.None,39);
-        public static Card fireCard15 = new ("Eclipse", "Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,40,CardType.WheatherCard);
-        public static Card fireCard16 = new ("Fire Lord Ozai", "Fire Bender",Position.MRS,2,null,Habilities.None,41);
-        public static Card fireCard17 = new ("Fire Lord Zuko", "Fire Bender",Position.MRS,2,null,Habilities.None,42);
-        public static Card fireCard18 = new ("Fire Lord Ozai", "Fire Bender",Position.MRS,2,null,Habilities.None,43);
-        public static Card fireCard19 = new ("Fire Lord Iroh", "Fire Bender",Position.MRS,2,null,Habilities.None,44);
-        public static Card fireCard20 = new ("Fire Lord Azula", "Fire Bender",Position.MRS,3,null,Habilities.None,45);
-        public static Card fireCard21 = new ("Espiritu Azul", "Fire Bender",Position.MRS,3,null,Habilities.None,46);
-        public static Card fireCard22 = new ("Iroh", "Fire Bender",Position.MRS,3,null,Habilities.None,47);
-        public static Card fireCard23 = new ("Piandao", "Fire Bender",Position.MRS,3,null,Habilities.None,48);
-        public static Card fireCard24 = new ("Piandao", "Fire Bender",Position.MRS,3,null,Habilities.None,49);
-        public static Card fireCard25 = new ("Iroh", "Fire Bender",Position.MRS,3,null,Habilities.None,50);
+        public static Card fireLeader = new Card("Zuko", "Ninguna habilidad especial",Position.Leaderposition,0,null,Habilities.None,26);
+        public static Card fireCard2 = new ("Azula", "Ninguna habilidad especial",Position.MRS,1,null,Habilities.None,27);
+        public static Card fireCard3 = new ("Iroh", "Aumenta los puntos de las unidades de su fila(no pasivamente)",Position.MRS,1,null,Habilities.IncreaseMyRow,28);
+        public static Card fireCard4 = new ("Piandao", "Aumenta los puntos de las unidades de su fila(no pasivamente)",Position.MRS,1,null,Habilities.IncreaseMyRow,29);
+        public static Card fireCard5 = new ("Azula", "Aumenta los puntos de las unidades de su fila(no pasivamente)",Position.MRS,1,null,Habilities.IncreaseMyRow,30);
+        public static Card fireCard6 = new ("Azula", "Aumenta los puntos de las unidades de su fila(no pasivamente)",Position.MRS,1,null,Habilities.IncreaseMyRow,31);
+        public static Card fireCard7 = new ("Zhao", "Aumenta los puntos de las unidades de su fila(no pasivamente)",Position.MRS,1,null,Habilities.IncreaseMyRow,32);
+        public static Card fireCard8 = new ("Azula", "Ninguna habilidad especial",Position.MRS,1,null,Habilities.None,33);
+        public static Card fireCard9 = new ("Eclipse", "CARTA DE CLIMA Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,34,CardType.WheatherCard);
+        public static Card fireCard10 = new ("Eclipse", "CARTA DE CLIMA Reduce los puntos de las unidades a la mitad ",null,Habilities.Eclipse,35,CardType.WheatherCard);
+        public static Card fireCard11 = new ("Eclipse", "CARTA DE CLIMA Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,36,CardType.WheatherCard);
+        public static Card fireCard12 = new ("Eclipse", "CARTA DE CLIMA Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,37,CardType.WheatherCard);
+        public static Card fireCard13 = new ("Eclipse", "CARTA DE CLIMA Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,38,CardType.WheatherCard);
+        public static Card fireCard14 = new ("Roku", "Ninguna habilidad especial",Position.MRS,2,null,Habilities.None,39);
+        public static Card fireCard15 = new ("Eclipse", "CARTA DE CLIMA Reduce los puntos de las unidades a la mitad",null,Habilities.Eclipse,40,CardType.WheatherCard);
+        public static Card fireCard16 = new ("Fire Lord Ozai", "Ninguna habilidad especial",Position.MRS,2,null,Habilities.None,41);
+        public static Card fireCard17 = new ("Fire Lord Zuko", "Ninguna habilidad especial",Position.MRS,2,null,Habilities.None,42);
+        public static Card fireCard18 = new ("Fire Lord Ozai", "Ninguna habilidad especial",Position.MRS,2,null,Habilities.None,43);
+        public static Card fireCard19 = new ("Fire Lord Iroh", "Ninguna habilidad especial",Position.MRS,2,null,Habilities.None,44);
+        public static Card fireCard20 = new ("Fire Lord Azula", "Ninguna habilidad especial",Position.MRS,3,null,Habilities.None,45);
+        public static Card fireCard21 = new ("Espiritu Azul", "Ninguna habilidad especial",Position.MRS,3,null,Habilities.None,46);
+        public static Card fireCard22 = new ("Iroh", "Ninguna habilidad especial",Position.MRS,3,null,Habilities.None,47);
+        public static Card fireCard23 = new ("Piandao", "Ninguna habilidad especial",Position.MRS,3,null,Habilities.None,48);
+        public static Card fireCard24 = new ("Piandao", "Ninguna habilidad especial",Position.MRS,3,null,Habilities.None,49);
+        public static Card fireCard25 = new ("Iroh", "Ninguna habilidad especial",Position.MRS,3,null,Habilities.None,50);
         public static List<Card> FireDeck = new(){fireCard2, fireCard3, fireCard4, fireCard5, fireCard6, fireCard7, fireCard8, fireCard9, fireCard10, fireCard11, fireCard12, fireCard13, fireCard14, fireCard15, fireCard16, fireCard17, fireCard18, fireCard19, fireCard20, fireCard21, fireCard22, fireCard23, fireCard24, fireCard25};
        
         public static readonly FireNation FireNation = new(FireDeck,fireLeader);
@@ -233,16 +233,15 @@ namespace Engine
                 System.Console.WriteLine("Entre a Eclipse del Engine");
                 foreach (var item in card.player.Board.rows[row])
                 {
-                    item.points = item.points-1;//reduce sus puntos a la mitad 
-                    card.player.Points -= 1;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador  
+                    item.points = item.points/2;//reduce sus puntos a la mitad 
+                    card.player.Points -= item.points/2;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador  
                 }
                 foreach (var item in enemy.Board.rows[row])//aplica tambien el clima en la fila correspondiente del otro jugador 
                 {
-                    item.points = item.points-1;//reduce sus puntos a la mitad 
-                    enemy.Points -= 1;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador 
+                    item.points = item.points/2;//reduce sus puntos a la mitad 
+                    enemy.Points -= item.points/2;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador 
                 } 
             }
-
             #endregion
           
             #region Habilidades de las Unidades
@@ -394,6 +393,8 @@ namespace Engine
             public Board Board;
             public List<Card> Hand{get;set;}
             public int Id;
+            public List<int> Gems;
+            public bool AlreadyPass;
             public Player(string name,int points, Faction faction, List<Card> graveyard,List<Card>hand)//constructor antiguo
             {
                 Name = name;
@@ -401,7 +402,7 @@ namespace Engine
                 Faction = faction;
                 Graveyard = graveyard;
                 Hand = hand;
-
+                Gems = new();
             }
             public Player()//nuevo constructor para poder inicializar los players sin tener todos sus datos
             {
@@ -410,6 +411,7 @@ namespace Engine
                 Points = 0;
                 Graveyard = new List<Card>();
                 Hand = new List<Card>();
+                Gems = new();
                 Board = new Board();
                 Id = random.Next(0, 1000);
             }
@@ -448,6 +450,17 @@ namespace Engine
                 for (int i = 0; i < rows.Length; i++)
                 {
                     rows[i] = new List<Card>();
+                }
+            }
+            public void ResetEngineBoard()
+            {
+                for (int i = 0; i < rows.Length; i++)
+                {
+                    foreach (var item in rows[i])
+                    {
+                        rows[i].Remove(item);
+                        cemetery.Add(item);
+                    }
                 }
             }
         }  

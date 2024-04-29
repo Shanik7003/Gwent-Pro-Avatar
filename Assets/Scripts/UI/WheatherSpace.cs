@@ -24,6 +24,7 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
             card.transform.SetParent(transform);
             card.transform.localPosition = Vector3.zero;
             card.dropSuccess = true; // si la carta fue colocada en el tablero 
+            //ExistPasiveWheather(cardDisplay);
             space.Add(cardDisplay);//añade la carta visual (CardDisplay) a el espacio de wheather
             PlaceCardInWheatherSpace(card);
             UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
@@ -41,6 +42,12 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
     {
         Debug.Log("entre a IsDropAllowed");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
+     
+        if (space.Count == 1)//para no poder poner mas de una carta en un espacio de clima 
+        {
+            return false;
+        }
+        
         if (cardDisplay == null)
         {
             Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
@@ -82,4 +89,5 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
             CardManager.Instance.UIDecreaseMyRow(card);
         }
     }
+    
 }
