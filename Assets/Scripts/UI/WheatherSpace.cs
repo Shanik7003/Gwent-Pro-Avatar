@@ -30,6 +30,10 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
             UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
             FreeWheather(card);
             card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
+            if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)
+            {
+                return;
+            }
             TurnManager.Instance.EndTurn();//pasar el turno
             //GetComponent<CanvasGroup>().blocksRaycasts = false;  // Desactiva el raycast
         }   
