@@ -26,25 +26,35 @@ public class GameManagerWrapper : MonoBehaviour
         }
     }
 
-    public void SetPlayersInfo(string Player1Name,string Player2Name,Engine.Faction Faction1,Engine.Faction Faction2)
+    public void SetPlayersInfo1(string PlayerName,Engine.Faction Faction)
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
             // Debug.LogError("Players are not initialized.");
             return;
         }
-        Game.GameInstance.Player1.Name = Player1Name;
-        Game.GameInstance.Player1.Faction = Faction1;
-        foreach (var card in Faction1.Deck)
+        Game.GameInstance.Player1.Name = PlayerName;
+        Game.GameInstance.Player1.Faction = Faction;
+        foreach (var card in Faction.Deck)
         {
             card.player = Game.GameInstance.Player1;
         }
-        Game.GameInstance.Player2.Name = Player2Name;
-        Game.GameInstance.Player2.Faction = Faction2;
-        foreach (var card in Faction2.Deck)
+       
+    }
+      public void SetPlayersInfo2(string PlayerName,Engine.Faction Faction)
+    {
+        if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
+        {
+            // Debug.LogError("Players are not initialized.");
+            return;
+        }
+        Game.GameInstance.Player2.Name = PlayerName;
+        Game.GameInstance.Player2.Faction = Faction;
+        foreach (var card in Faction.Deck)
         {
             card.player = Game.GameInstance.Player2;
         }
+       
     }
    
 

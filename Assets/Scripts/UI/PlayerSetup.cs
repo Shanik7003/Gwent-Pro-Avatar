@@ -22,24 +22,47 @@ public class PlayerSetup : MonoBehaviour
     // Método para asignar al evento de clic de cada botón
     public void SelectFaction(Button selectedButton)
     {
+        
         if (selectedButton == WaterButton)
         {
             selectedFaction = Game.WaterTribe;
+            if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
+            {
+                selectedButton = null;
+                return;
+            }
+           
             // Debug.Log("Seleccionaste la Faccion WaterTribe");
         }
         if (selectedButton == FireButton)
         {
             selectedFaction = Game.FireNation;
+            if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
+            {
+                selectedButton = null;
+                return;
+            }
+
             // Debug.Log("Seleccionaste la Faccion FireNation");
         }
         if (selectedButton == EarthButton)
         {
             selectedFaction = Game.EarthKingdom;
+             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
+            {
+                selectedButton =null;
+                return;
+            }
             // Debug.Log("Seleccionaste la Faccion EarthKindom");
         }
         if (selectedButton == AirButton)
         {
             selectedFaction = Game.AirNomads;
+             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
+            {
+                selectedButton =null;
+                return;
+            }
             // Debug.Log("Seleccionaste la Faccion AirNomads");
         }
         if (currentlySelectedButton != null && currentlySelectedButton != selectedButton)
@@ -58,6 +81,7 @@ public class PlayerSetup : MonoBehaviour
         {
             // Debug.Log("You must fill in your name and select a faction to continue.");
             // Aquí podrías también mostrar algún mensaje en la UI informando al jugador.
+            return;
         }
         else
         {
@@ -66,6 +90,7 @@ public class PlayerSetup : MonoBehaviour
                 // Guardar los datos del Jugador 1
                 player1Name = nameInputField.text;
                 Player1Faction = selectedFaction;
+                GameManagerWrapper.Instance.SetPlayersInfo1(player1Name,  Player1Faction);
                 // Debug.Log("Player 1 set: " + player1Name + ", " + Player1Faction);
                 // Resetear la interfaz para el Jugador 2
                 ResetUI();
@@ -76,6 +101,7 @@ public class PlayerSetup : MonoBehaviour
                 // Guardar los datos del Jugador 2 y procesar
                 player2Name = nameInputField.text;
                 Player2Faction = selectedFaction;
+                GameManagerWrapper.Instance.SetPlayersInfo2(player2Name,  Player2Faction);
                 // Debug.Log("Player 2 set: " + player2Name + ", " + Player2Faction);
         
                 if (GameManagerWrapper.Instance == null)
@@ -84,7 +110,6 @@ public class PlayerSetup : MonoBehaviour
                 }
                 else
                 {
-                    GameManagerWrapper.Instance.SetPlayersInfo(player1Name, player2Name, Player1Faction, Player2Faction);
                     // Debug.Log("nombre del player1:" + Game.GameInstance.Player1.Name);
                     // Debug.Log("nombre del player2:" + Game.GameInstance.Player2.Name);
                     // Debug.Log("faccion del player1:" + Game.GameInstance.Player1.Faction);
