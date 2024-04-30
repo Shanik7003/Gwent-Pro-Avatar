@@ -29,7 +29,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (card != null)
         {
-            Debug.Log("Intentando colocar la carta en BattleRow");
+            // Debug.Log("Intentando colocar la carta en BattleRow");
             if (IsDropAllowed(card))
             {
                 card.GetComponent<CanvasGroup>().blocksRaycasts = true;// poniendo el componente canvas group y el blockraycast a true para que no inetrfiera con la visualizacion
@@ -38,18 +38,25 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
                 ExistPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
                 ExistPasiveWheather(cardDisplay);
-                row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow
+                row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow 
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
                 UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
                 FreeHability(card);
-                card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
+                card.isDraggable = false;//para que el usuarioa no la pueda mover mas
+                //aqui!!!!!!!!! 
+                if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)//si tu enemigo paso :juega todas las cartas que quieres hasta que decidas pasar
+                {
+                    Debug.Log("entre al if ");
+                    return;//y no entras al EndTurn de abajo
+                }
+                TurnManager.Instance.EndTurn();//pasar de turno
                 // GetComponent<CanvasGroup>().blocksRaycasts = false;  // Desactiva el raycast
                
             }
             else
             {
                 card.dropSuccess = false;
-                Debug.LogError("Drop no permitido en " + transform.name);
+                // Debug.LogError("Drop no permitido en " + transform.name);
             }
         }
     }
@@ -86,11 +93,11 @@ public class BattleRow : MonoBehaviour, IDropHandler
 
     public bool IsDropAllowed(Draggable card)
     {
-        Debug.Log("entre a IsDropAllowed");
+        // Debug.Log("entre a IsDropAllowed");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay == null)
         {
-            Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
+            // Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
         }
         if (IncreasePlace)//si es un espacio de cartas de aumento
@@ -119,7 +126,14 @@ public class BattleRow : MonoBehaviour, IDropHandler
         bool correctOwner = (rowOwner == Owner.Player1 && cardOwner == Game.GameInstance.Player1) || (rowOwner == Owner.Player2 && cardOwner == Game.GameInstance.Player2);
         bool positionAllowed = cardDisplay.cardData.Card.position.ToString().Contains(CombatRow.ToString());//verifica si la string de la posicion de la carta contiene la letra de la fila en que se esta queriendo colocar
         //bool CardType = 
-        return isPlayerTurn && correctOwner && positionAllowed;
+        // Debug.Log("isPlayerTurn" + isPlayerTurn);
+        // Debug.Log("correct owner" + correctOwner);
+        // Debug.Log("positionallowed" + positionAllowed);
+        // Debug.Log(!TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
+            Debug.Log(TurnManager.Instance.GetCurrentPlayer().Name);
+            Debug.Log( !TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
+
+        return isPlayerTurn && correctOwner && positionAllowed && !TurnManager.Instance.GetCurrentPlayer().AlreadyPass;
     }
      // Método para obtener todas las cartas en esta fila específica
     public List<Draggable> GetCardsInRow()
@@ -155,18 +169,18 @@ public class BattleRow : MonoBehaviour, IDropHandler
     }
     public void FreeHability(Draggable card)
     {
-        Debug.Log("Entre a FreeHability!!!!!!!!!!!!!!!!!!!!!!!!");
+        // Debug.Log("Entre a FreeHability!!!!!!!!!!!!!!!!!!!!!!!!");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay.cardData.Card.hability == Habilities.CardTheft)
         {
             if(cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
             {
-                Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
+                // Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
                 CardManager.Instance.UICardTheft(Game.GameInstance.Player1);
             }
             if(cardDisplay.cardData.Card.player == Game.GameInstance.Player2)
             {
-                Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
+                // Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
                 CardManager.Instance.UICardTheft(Game.GameInstance.Player2);
             }
         }
@@ -214,11 +228,11 @@ public class BattleRow : MonoBehaviour, IDropHandler
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay == null)
         {
-            Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
+            // Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
         }
-        Debug.Log("El NOMBRE DEL DUEÑO DE LA CARTA DE ESTE CARDDISPLAY ES " + cardDisplay.cardData.Card.player.Name);
-        Debug.Log("REPETIMOS EL NOMBRE DE DUEÑO DE LA CARTA ES ..................  " +cardDisplay.cardData.owner.Name);
+        // Debug.Log("El NOMBRE DEL DUEÑO DE LA CARTA DE ESTE CARDDISPLAY ES " + cardDisplay.cardData.Card.player.Name);
+        // Debug.Log("REPETIMOS EL NOMBRE DE DUEÑO DE LA CARTA ES ..................  " +cardDisplay.cardData.owner.Name);
         Player cardOwner  = cardDisplay.cardData.owner;
         foreach (var item in cardOwner.Hand)
         {

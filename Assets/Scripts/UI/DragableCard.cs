@@ -16,14 +16,14 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     {
         if (!isDraggable)
         {
-            Debug.Log("Intento de arrastrar una carta no arrastrable.");
+            // Debug.Log("Intento de arrastrar una carta no arrastrable.");
             return;
         }           
         startPosition = transform.position;
         originalParent = transform.parent;
         transform.SetParent(transform.root);  // Esto es para asegurar que no esté bloqueado por otros elementos UI.
         GetComponent<CanvasGroup>().blocksRaycasts = false;  // Esto asegura que el evento raycast no se bloquee después de comenzar a arrastrar
-        Debug.Log("VALORES EN OnBeginDrag-------" + $"OnBeginDrag - startPosition: {startPosition}, originalParent: {originalParent.name}");
+        // Debug.Log("VALORES EN OnBeginDrag-------" + $"OnBeginDrag - startPosition: {startPosition}, originalParent: {originalParent.name}");
     }
     public void OnDrag(PointerEventData eventData)
     {
@@ -53,12 +53,12 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         }
         if (!dropSuccess)  // Si el drop no fue exitoso
         {
-            Debug.Log("No se completó el drop correctamente. Regresando a la posición y padre originales.");
-            Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
-            Debug.Log($"originalParent:  {originalParent.name} padre actual: {transform.parent.name}" );
+            // Debug.Log("No se completó el drop correctamente. Regresando a la posición y padre originales.");
+            // Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
+            // Debug.Log($"originalParent:  {originalParent.name} padre actual: {transform.parent.name}" );
             transform.position = startPosition;
             transform.SetParent(originalParent);
-            Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
+            // Debug.Log($"Posicion actual: {transform.position} y startposition:  {startPosition}");
 
         }
         dropSuccess = false;  // Resetea el estado para el próximo drag

@@ -25,7 +25,7 @@ public class CardManager : MonoBehaviour
             if (_instance == null)
             {
                 _instance = GameObject.Find("CardManager").GetComponentInChildren<CardManager>();
-                Debug.Log("imprimirndo _instance.cardFactory LA DEFINITIVA =====> "+_instance.cardFactory);
+                // // Debug.Log("imprimirndo _instance.cardFactory LA DEFINITIVA =====> "+_instance.cardFactory);
             }
             return _instance;
         }
@@ -58,7 +58,7 @@ public class CardManager : MonoBehaviour
         GenerateCardData(SingleCard);
         if (card.player == Game.GameInstance.Player1)
         {
-            Debug.Log("entre a InstanciateCard");
+            // Debug.Log("entre a InstanciateCard");
             StartCoroutine(GenerateCards(player1HandRow,player1DeckHolder));
         }
         if (card.player == Game.GameInstance.Player2)
@@ -68,15 +68,15 @@ public class CardManager : MonoBehaviour
     }
     public  void GenerateCardData(List<Card> collection)
     {
-        Debug.Log(frame);
+        // Debug.Log(frame);
         cardDatas = new List<CardData>();
         foreach (var card in collection)
         {
-            Debug.Log("estoy generando CardDatas");
-            Debug.Log("Imprimiendo this.............." + cardFactory);
+            // Debug.Log("estoy generando CardDatas");
+            // Debug.Log("Imprimiendo this.............." + cardFactory);
             if (cardFactory == null)
             {
-                Debug.LogError("CardFactory reference is not set in the inspector!");
+                // Debug.LogError("CardFactory reference is not set in the inspector!");
                 return;
             }
             CardData newCardData = cardFactory.CreateCardData(card);
@@ -97,7 +97,7 @@ public class CardManager : MonoBehaviour
             }
             else
             {
-                Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
+                // Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
             }
         }
     }
@@ -125,7 +125,7 @@ public class CardManager : MonoBehaviour
         if (P1CardsGenerated)
         {
             // Aquí debes implementar la lógica para obtener las cartas del deck del jugador desde el motor
-            Debug.Log("entré a GetCardFromEngine");
+            // Debug.Log("entré a GetCardFromEngine");
             return Game.GameInstance.Player2.Faction.Deck;
 
         }
@@ -137,7 +137,7 @@ public class CardManager : MonoBehaviour
      }
     public static bool CanPlaceCard(Card card, BattleField battleField)
     {
-        Debug.Log("Entre al Metodo CanPlaceCard");
+        // Debug.Log("Entre al Metodo CanPlaceCard");
         // Verify if the card's player is the owner of the battlefield and it's their turn
         return card.player == TurnManager.Instance.GetCurrentPlayer() && card.player == battleField.Owner;
     }
@@ -147,11 +147,11 @@ public class CardManager : MonoBehaviour
         if (CanPlaceCard(card, battleField))
         {
             // Logic to add card to the row
-            Debug.Log("Card placed successfully.");
+            // Debug.Log("Card placed successfully.");
         }
         else
         {
-            Debug.Log("You cannot place this card now or here.");
+            // Debug.Log("You cannot place this card now or here.");
         }
     }
     public void EliminateCard(CardDisplay cardDisplay)//este metoo es para ser usado por la habilidad de eliminar la carta mas o menos poderosa, ya que elimina la carta que le indiques del campo del jugador que no este jugando en este turno 
@@ -307,7 +307,7 @@ public class CardManager : MonoBehaviour
                 {
                     if (item.cardData.Card.ID == MostPowerfulID)
                     {
-                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
                         break;
@@ -324,7 +324,7 @@ public class CardManager : MonoBehaviour
                 {
                     if (item.cardData.Card.ID == MostPowerfulID)
                     {
-                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
                         break;
@@ -345,7 +345,7 @@ public class CardManager : MonoBehaviour
                 {
                     if (item.cardData.Card.ID == MostPowerfulID)
                     {
-                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
                         break;
@@ -362,7 +362,7 @@ public class CardManager : MonoBehaviour
                 {
                     if (item.cardData.Card.ID == MostPowerfulID)
                     {
-                        Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
+                        // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
                         break;
@@ -389,7 +389,7 @@ public class CardManager : MonoBehaviour
     }
     public void UIDecreaseMyRow(Draggable card)
     {
-        Debug.Log("Entre a UIDecreaseMyRow");
+        // Debug.Log("Entre a UIDecreaseMyRow");
         CardDisplay newCardDisplay = card.GetComponent<CardDisplay>();
         newCardDisplay.cardData.Card.Eclipse(newCardDisplay.cardData.Card,(int)card.GetComponentInParent<WheatherSpace>().CombatRow,TurnManager.Instance.GetCurrentEnemy());//llamando a esta funcion para que haga lo que tiene que hacer en el engine
        //actualiza los puntos visuales de los jugadores 

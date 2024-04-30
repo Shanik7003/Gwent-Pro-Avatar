@@ -456,11 +456,7 @@ namespace Engine
             {
                 for (int i = 0; i < rows.Length; i++)
                 {
-                    foreach (var item in rows[i])
-                    {
-                        rows[i].Remove(item);
-                        cemetery.Add(item);
-                    }
+                    rows[i] = new List<Card>();
                 }
             }
         }  

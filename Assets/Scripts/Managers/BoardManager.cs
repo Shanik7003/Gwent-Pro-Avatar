@@ -11,23 +11,23 @@ public class BoardManager : MonoBehaviour
 
     void Start()
     {
-        ValidateComponents();
+        // ValidateComponents();
     }
 
-    private void ValidateComponents()
-{
-    bool allComponentsValid = true;
-    foreach (var row in battleRows)
-        if (row == null) { allComponentsValid = false; break; }
-    foreach (var space in handSpaces)
-        if (space == null) { allComponentsValid = false; break; }
-    foreach (var deck in deckSpaces)
-        if (deck == null) { allComponentsValid = false; break; }
-    foreach (var graveyard in graveyardSpaces)
-        if (graveyard == null) { allComponentsValid = false; break; }
-    foreach (var leader in leaderCardSpaces)
-        if (leader == null) { allComponentsValid = false; break; }
+//     private void ValidateComponents()
+// {
+//     bool allComponentsValid = true;
+//     foreach (var row in battleRows)
+//         if (row == null) { allComponentsValid = false; break; }
+//     foreach (var space in handSpaces)
+//         if (space == null) { allComponentsValid = false; break; }
+//     foreach (var deck in deckSpaces)
+//         if (deck == null) { allComponentsValid = false; break; }
+//     foreach (var graveyard in graveyardSpaces)
+//         if (graveyard == null) { allComponentsValid = false; break; }
+//     foreach (var leader in leaderCardSpaces)
+//         if (leader == null) { allComponentsValid = false; break; }
 
-    Debug.Log(allComponentsValid ? "All components set up correctly!" : "Component setup error: Check your board assignments.");
-}
+//     // Debug.Log(allComponentsValid ? "All components set up correctly!" : "Component setup error: Check your board assignments.");
+// }
 }

@@ -82,6 +82,7 @@
     <Compile Include="Assets/Scripts/Managers/GameManager.cs" />
     <Compile Include="Assets/Scripts/UI/CardDisplay.cs" />
     <Compile Include="Assets/Scripts/UI/CardZoom.cs" />
+    <Compile Include="Assets/Scripts/UI/ShowPanel.cs" />
     <Compile Include="Assets/Scripts/GameLogic/PlayerFactory.cs" />
     <Compile Include="Assets/Scripts/Managers/TurnManeger.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardFactory.cs" />
