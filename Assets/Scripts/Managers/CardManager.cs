@@ -6,6 +6,7 @@ using Unity.Properties;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class CardManager : MonoBehaviour
@@ -156,14 +157,14 @@ public class CardManager : MonoBehaviour
     }
     public void EliminateCard(CardDisplay cardDisplay)//este metoo es para ser usado por la habilidad de eliminar la carta mas o menos poderosa, ya que elimina la carta que le indiques del campo del jugador que no este jugando en este turno 
     {
-        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
-        {
-            StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery2").transform));
-            Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
-        }
-        if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
+        if (cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
         {
             StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery1").transform));
+            Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
+        }
+        if ( cardDisplay.cardData.Card.player == Game.GameInstance.Player2)
+        {
+            StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery2").transform));
             Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
         }
        
@@ -310,6 +311,9 @@ public class CardManager : MonoBehaviour
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
+                        GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows[i].row.Remove(item);
+
+                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
                         break;
                     }
                 }
@@ -320,13 +324,15 @@ public class CardManager : MonoBehaviour
         {
             for (int i = 0; i < GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows.Length; i++)
             {
-                 foreach (var item in GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row)
+                foreach (var item in GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row)
                 {
                     if (item.cardData.Card.ID == MostPowerfulID)
                     {
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
+                        GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row.Remove(item);
+                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
                         break;
                     }
                 }
@@ -348,13 +354,14 @@ public class CardManager : MonoBehaviour
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
+                        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
                         break;
                     }
                 }
-            }
-           
+            } 
         }
-         if (Game.GameInstance.Player2 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
+
+        else if (Game.GameInstance.Player2 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
         {
             for (int i = 0; i < GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows.Length; i++)
             {
@@ -365,6 +372,7 @@ public class CardManager : MonoBehaviour
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
                         EliminateCard(item);
+                        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
                         break;
                     }
                 }
@@ -374,7 +382,7 @@ public class CardManager : MonoBehaviour
     }
     public void UIMultiPoints(CardDisplay card)
     {
-        int points = Card.Multipoints(card.cardData.Card);
+        double points = Card.Multipoints(card.cardData.Card);
         card.cardData.points = points;
         card.UpdateCard();
         if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)//actualiza los puntos de los jugadores 
@@ -397,15 +405,246 @@ public class CardManager : MonoBehaviour
         PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
         foreach (var item in card.GetComponentInParent<WheatherSpace>().BattleRowPlayer1.row)
         {
+            if(item.cardData.Card.CardType == CardType.IncreaseCard)
+            {
+                continue;
+            }
             item.cardData.points = item.cardData.Card.points;
             item.UpdateCard();//muestra los puntos actualizados en la interfaz
         }
         foreach (var item in card.GetComponentInParent<WheatherSpace>().BattleRowPlayer2.row)
         {
+            if(item.cardData.Card.CardType == CardType.IncreaseCard)
+            {
+                continue;
+            }
             item.cardData.points = item.cardData.Card.points;
             item.UpdateCard();//muestra los puntos actualizados en la interfaz
         }
         card.GetComponentInParent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f); // Semi-transparent red
         card.GetComponentInParent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(1, 0, 0, 0.5f); // Semi-transparent red
+    }
+    public void UIClearence(Draggable card ,Player owner)//habilidad para las cartas de despeje
+    {
+        CardDisplay newCardDisplay = card.GetComponent<CardDisplay>();
+        newCardDisplay.cardData.Card.Clearence(card.GetComponent<CardDisplay>().cardData.Card,(int)card.GetComponentInParent<BattleRow>().CombatRow,TurnManager.Instance.GetCurrentEnemy());
+      
+        if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.M)
+        {
+            if (GameObject.Find("WM").GetComponent<WheatherSpace>().space.Count != 0)//si en ese espeacio hay una carta de clima 
+            {
+                if (GameObject.Find("WM").GetComponent<WheatherSpace>().space[0] == null)
+                {
+                    return;
+                }
+                //eliminala y quita su efecto en todas las cartas de esa fila y la fila corespondiente en el campo del jugador 
+                EliminateCard(GameObject.Find("WM").GetComponent<WheatherSpace>().space[0]);//elimina la carta de clima visualmente
+                GameObject.Find("WM").GetComponent<WheatherSpace>().space.Remove(GameObject.Find("WM").GetComponent<WheatherSpace>().space[0]);
+
+                foreach (var item in card.GetComponentInParent<BattleRow>().row)
+                {
+                    item.cardData.points = item.cardData.Card.points;
+                    item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                }
+                if (TurnManager.Instance.GetCurrentEnemy() == Game.GameInstance.Player1)
+                {
+                    foreach (var item in GameObject.Find("M1").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+                else
+                {
+                    foreach (var item in GameObject.Find("M2").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    }
+                }
+
+            }
+            GameObject.Find("WM").GetComponent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
+            GameObject.Find("WM").GetComponent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
+        }
+        if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.R)
+        {
+
+            if (GameObject.Find("WR").GetComponent<WheatherSpace>().space.Count != 0)//si en ese espeacio hay una carta de clima 
+            {
+                if (GameObject.Find("WR").GetComponent<WheatherSpace>().space[0] == null)
+                {
+                    return;
+                }
+                //eliminala y quita su efecto en todas las cartas de esa fila y la fila corespondiente en el campo del jugador 
+                EliminateCard(GameObject.Find("WR").GetComponent<WheatherSpace>().space[0]);//elimina la carta de clima 
+                 GameObject.Find("WR").GetComponent<WheatherSpace>().space.Remove(GameObject.Find("WR").GetComponent<WheatherSpace>().space[0]);
+                foreach (var item in card.GetComponentInParent<BattleRow>().row)
+                {
+                    item.cardData.points = item.cardData.Card.points;
+                    item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    
+                }
+                if (TurnManager.Instance.GetCurrentEnemy() == Game.GameInstance.Player1)
+                {
+                    foreach (var item in GameObject.Find("R1").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                        
+                    }
+                }
+                else
+                {
+                    foreach (var item in GameObject.Find("R2").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                        
+                    }
+                }
+            }
+            GameObject.Find("WR").GetComponent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(0, 0, 0, 0.8f); // Semi-transparent black
+            GameObject.Find("WR").GetComponent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(0, 0, 0, 0.8f); // Semi-transparent black
+        }
+        if (card.GetComponentInParent<BattleRow>().CombatRow == CombatRow.S)
+        {
+            if (GameObject.Find("WS").GetComponent<WheatherSpace>().space.Count != 0)//si en ese espeacio hay una carta de clima 
+            {
+                if (GameObject.Find("WS").GetComponent<WheatherSpace>().space[0] == null)
+                {
+                    return;
+                }
+                //eliminala y quita su efecto en todas las cartas de esa fila y la fila corespondiente en el campo del jugador 
+                EliminateCard(GameObject.Find("WS").GetComponent<WheatherSpace>().space[0]);//elimina la carta de clima 
+                GameObject.Find("WS").GetComponent<WheatherSpace>().space.Remove(GameObject.Find("WS").GetComponent<WheatherSpace>().space[0]);
+                foreach (var item in card.GetComponentInParent<BattleRow>().row)
+                {
+                    item.cardData.points = item.cardData.Card.points;
+                    item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                    Game.GameInstance.WheatherSpace.Spaces[(int)CombatRow.S] = null;
+                    
+                    
+                }
+                if (TurnManager.Instance.GetCurrentEnemy() == Game.GameInstance.Player1)
+                {
+                    foreach (var item in GameObject.Find("S1").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                        
+                    }
+                }
+                else
+                {
+                    foreach (var item in GameObject.Find("S2").GetComponent<BattleRow>().row)
+                    {
+                        item.cardData.points = item.cardData.Card.points;
+                        item.UpdateCard();//muestra los puntos actualizados en la interfaz
+                        
+                    }
+                }
+            }
+            GameObject.Find("WS").GetComponent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
+            GameObject.Find("WS").GetComponent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
+        }
+        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+    }
+    public void UICleanRow(Draggable card)
+    {
+
+        CardDisplay newCardDisplay = card.GetComponent<CardDisplay>();
+        (Position,Player) rowAndPlayer = Card.CleanRow(newCardDisplay.cardData.Card,TurnManager.Instance.GetCurrentEnemy());
+        
+        //(Position,Player) rowAndPlayer = (Position.M, Game.GameInstance.Player1);
+        if (rowAndPlayer.Item2 == Game.GameInstance.Player1)
+        {
+            if (rowAndPlayer.Item1 == Position.M)
+            {
+                foreach (var item in GameObject.Find("M1").GetComponent<BattleRow>().row)
+                {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                    EliminateCard(item);
+                    
+                }
+                GameObject.Find("M1").GetComponent<BattleRow>().row = new List<CardDisplay>();
+            }
+            if (rowAndPlayer.Item1 == Position.R)
+            {
+                foreach (var item in GameObject.Find("R1").GetComponent<BattleRow>().row)
+                {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                    EliminateCard(item);
+                }
+                GameObject.Find("R1").GetComponent<BattleRow>().row = new List<CardDisplay>();
+            }
+            if (rowAndPlayer.Item1 == Position.S)
+            {
+                foreach (var item in GameObject.Find("S1").GetComponent<BattleRow>().row)
+                {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                    EliminateCard(item);
+              
+                }
+                GameObject.Find("S1").GetComponent<BattleRow>().row = new List<CardDisplay>();
+            }
+            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
+        }
+        if (rowAndPlayer.Item2 == Game.GameInstance.Player2)
+        {
+            if (rowAndPlayer.Item1 == Position.M)
+            {
+                foreach (var item in GameObject.Find("M2").GetComponent<BattleRow>().row)
+                {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                    EliminateCard(item);
+                    
+                }
+                GameObject.Find("M2").GetComponent<BattleRow>().row = new List<CardDisplay>();
+            }
+            if (rowAndPlayer.Item1 == Position.R)
+            {
+                foreach (var item in GameObject.Find("R2").GetComponent<BattleRow>().row)
+                {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                    EliminateCard(item);
+                  
+                }
+                GameObject.Find("R2").GetComponent<BattleRow>().row = new List<CardDisplay>();
+            }
+            if (rowAndPlayer.Item1 == Position.S)
+            {
+                foreach (var item in GameObject.Find("S2").GetComponent<BattleRow>().row)
+                {
+                    if(item == null)
+                    {
+                        continue;
+                    }
+                  
+                    EliminateCard(item);
+                   
+                }
+                GameObject.Find("S2").GetComponent<BattleRow>().row = new List<CardDisplay>();
+            }
+            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        }
+        
+
     }
 }

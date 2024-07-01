@@ -6,6 +6,8 @@ public class TurnManager : MonoBehaviour
     public static TurnManager Instance { get; private set; }
 
     public int turnCount = 0; // Contador de turnos
+    // string name1 = Game.GameInstance.Player1.Name;
+    // string name2 = Game.GameInstance.Player2.Name;
 
     void Awake()
     {
@@ -27,13 +29,27 @@ public class TurnManager : MonoBehaviour
 
     public void StartTurn()
     {
-        // Debug.Log($"Turno {turnCount}: Empieza.");
         Player currentPlayer = GetCurrentPlayer();
-        // Debug.Log($"Es el turno de {currentPlayer.Name}.");
+        // if(currentPlayer == Game.GameInstance.Player1)
+        // {
+        //     Debug.Log("ESTOY AQUI, QUERIENDOTE ");
+        //     currentPlayer.Name = name1 + " X"; 
+        //     Game.GameInstance.Player2.Name = name2;
 
-        // Aquí puedes añadir cualquier lógica de inicio de turno, como robar cartas, etc.
+        //     GameObject.Find("Player1").GetComponentInChildren<PlayerData>().Name = Game.GameInstance.Player1.Name;
+        //     GameObject.Find("Player1").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
+        //     GameObject.Find("Player2").GetComponentInChildren<PlayerData>().Name = Game.GameInstance.Player2.Name;
+        //     GameObject.Find("Player2").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
+        // }
+        // else if (currentPlayer == Game.GameInstance.Player2)
+        // {
+        //     currentPlayer.Name = name2 + " X"; 
+        //     Game.GameInstance.Player1.Name = name1;
+        //     GameObject.Find("Player1").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
+        //     GameObject.Find("Player2").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
+        // }
+        
     }
-
     public void EndTurn()
     {
 

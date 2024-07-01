@@ -24,11 +24,11 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
             card.transform.SetParent(transform);
             card.transform.localPosition = Vector3.zero;
             card.dropSuccess = true; // si la carta fue colocada en el tablero 
-            //ExistPasiveWheather(cardDisplay);
+            //ExistsPasiveWheather(cardDisplay);
             space.Add(cardDisplay);//añade la carta visual (CardDisplay) a el espacio de wheather
             PlaceCardInWheatherSpace(card);
-            UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
             FreeWheather(card);
+            UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
             card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
             if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)
             {

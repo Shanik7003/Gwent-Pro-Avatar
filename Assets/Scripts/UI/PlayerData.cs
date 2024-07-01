@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class PlayerData: ScriptableObject
 {
     public string Name;
-    public int Points;
+    public double Points;
     public Faction Faction;
     // public Board Board;
     public BattleField BattleField;
