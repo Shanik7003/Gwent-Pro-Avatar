@@ -1,0 +1,71 @@
+effect 
+{
+    Name: "Damage",
+    Params: {
+        Amount: Number
+    },
+    Action: (targets, context) => 
+	{
+        for target in targets 
+		{
+            i = 0;
+            while (a < Amount)
+            target.Power -= 1;
+        };
+    }
+}
+
+effect 
+{
+    Name: "Draw",
+    Action: (targets, context) => {
+    topCard = context.Deck.Pop();
+    context.Hand.Add(topCard);
+    context.Hand.Shuffle();
+    }
+}
+
+card 
+{
+	Type: "Oro",
+	Name: "Beluga",
+	Faction: "NorthernRealms",
+	Power: 10,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Damage",
+                Amount: 5 
+            },
+
+            Selector: 
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Faction == "NorthernRealms"
+            },
+
+            PostAction: 
+            {
+                Effect: 
+                {
+                    Name: "ReturnToDeck"
+                },
+
+                Selector: 
+                {
+                    Source: "parent",
+                    Single: false,
+                    Predicate: (unit) => unit.Power < 1
+                },
+            }
+        },
+
+        {
+            Effect: "Draw"
+        }
+	]
+}

@@ -1,0 +1,10 @@
+=> hay que hacer dos campos difentes para source, 
+las que se aceptan para los effects y las que 
+se aceptan para los postActions
+
+=> hay que preguntar si es obligado que un effect tenga 
+selector(el ultimo efecto del ejemplo no tiene selector)
+
+=> ya sabemos que postAction no es obligado que tenga PostAction
+
+=> analizar bien todas las comas del ejemplo original del pdf
