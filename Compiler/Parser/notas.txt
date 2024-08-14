@@ -8,3 +8,5 @@ selector(el ultimo efecto del ejemplo no tiene selector)
 => ya sabemos que postAction no es obligado que tenga PostAction
 
 => analizar bien todas las comas del ejemplo original del pdf
+
+=> en el visit de efecto solo se estan analizando los parametros del efecto, hay que analizar tambien el name                                                              

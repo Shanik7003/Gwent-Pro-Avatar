@@ -20,20 +20,18 @@ class Parser
             {
                 EffectNode effect = ParseEffect();
                 root.Effects.Add(effect);
-                root.Children.Add(effect);
             }
             if (Tokens.MatchValue("card")) 
             {
                 CardNode card = ParseCard();
                 root.Cards.Add(card);
-                root.Children.Add(card);
             }
         }
 
         // Realizar el análisis semántico
         var semanticVisitor = new SemanticVisitor();
         root.Accept(semanticVisitor);
-        
+
         return root;
     }
 
@@ -55,11 +53,7 @@ class Parser
         Tokens.Expect(",");
         List<EffectInvocationNode> effects = ParseOnActivationBody();
         Tokens.Expect("}");
-        CardNode cardNode = new CardNode(name,type,faction,power,range,effects);
-        foreach (var effect in effects)
-        {
-            cardNode.Children.Add(effect);
-        }   
+        CardNode cardNode = new CardNode(name,type,faction,power,range,effects);  
         return cardNode;
     }
     public CardType ParseType()
@@ -191,11 +185,6 @@ class Parser
         }
         Tokens.Expect("}");
         EffectInvocationNode effect = new EffectInvocationNode(effectfield,selector,postAction);
-
-        effect.Children.Add(selector);
-        effect.Children.Add(postAction);
-        effect.Children.Add(effectfield);
-
         return effect;
     }
     public EffectField ParseEffectField()
@@ -221,10 +210,6 @@ class Parser
             }
             Tokens.Expect("}");
             EffectField effectField = new EffectField(name,cardParams);
-            foreach (var param in cardParams)
-            {
-                effectField.Children.Add(param);
-            }
             return effectField;
     }
     public CardParam ParseCardParam()
@@ -381,7 +366,6 @@ class Parser
             if (Tokens.LookAhead().Type == TokenType.Comma)
             {
                 Tokens.Next(); // consume ','
-    
             }
         }
         //System.Console.WriteLine("SALI DEL WHILE");
@@ -421,9 +405,9 @@ class Parser
         Console.ResetColor();
         Tokens.Expect("(");
 
-        var targets = Tokens.Expect(TokenType.Identifier).Value;
+        IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value,true);
         Tokens.Expect(",");
-        var context = Tokens.Expect(TokenType.Identifier).Value;
+        IdentifierNode context = new(Tokens.Expect(TokenType.Identifier).Value,true,true);//porque ademas de ser dinamico es de tipo context
         Tokens.Expect(")");
         Tokens.Expect("=>");
         Tokens.Expect("{");
@@ -470,9 +454,9 @@ class Parser
         System.Console.WriteLine("Entre a ParseFor");
         Console.ResetColor();
         Tokens.Expect("for");
-        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
+        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value,true);//porque la variable del for es un identifier dinamico
         Tokens.Expect("in");
-        var iterable =  ParseExpression();
+        IdentifierNode iterable =  new IdentifierNode (Tokens.Expect(TokenType.Identifier).Value);
 
         if (Tokens.LookAhead().Value != "{")// si no le pusieron llaves entonces parsea un statement solamente 
         {
@@ -483,18 +467,13 @@ class Parser
         else
         {
             Tokens.Expect("{");
-
-
             var body = new List<ASTNode>();
             while (Tokens.LookAhead().Value != "}")
             {
                 body.Add(ParseStatement());
             }
-
             Tokens.Expect("}");
-
             Tokens.Expect(";");
-
             return new ForStatement(variable, iterable, body);
         }
       
@@ -519,17 +498,12 @@ class Parser
         else
         {
             Tokens.Expect("{");
-
-
             var body = new List<ASTNode>();
             while (Tokens.LookAhead().Type != TokenType.ClosedCurlyBrace)
             {
                 body.Add(ParseStatement());
             }
-
             Tokens.Expect("}");
-
-
             return new WhileStatement(condition, body);
         }
   
@@ -540,18 +514,16 @@ class Parser
         Console.ForegroundColor = ConsoleColor.Green;
         System.Console.WriteLine("Entre a ParseAssingment");
         Console.ResetColor();
-        var variable = ParseExpression();
+        ExpressionNode variable = ParseExpression();
         var op = Tokens.LookAhead().Value;
-        if (op == "+=" || op== "-="||op== "*=" || op == "/=")
+        if (op == "+=" || op== "-="|| op == "*=" || op == "/=")
         {
             Tokens.Next(); //consumelo 
-
             var value = ParseExpression();
             Tokens.Expect(";");
-
             return new CompoundAssignmentNode(variable, op,value);
         }
-        else if(Tokens.LookAhead().Value == "(")//es una llamada a metodo solo
+        else if(Tokens.LookAhead().Value == "(")//es una llamada a metodo como un statement, en una sola linea, no eat dentro de un assignment
         {
             return ParseMethodCall(variable as PropertyAccessNode);
         }
@@ -561,7 +533,7 @@ class Parser
             var value = ParseExpression();
             if (Tokens.LookAhead().Value == "(")//es una llamada a metodo dentro de un assingment
             {
-                return ParseMethodCall(value as PropertyAccessNode);
+                return new Assignment(variable, ParseExpressionMethodCall(value as PropertyAccessNode));
             }
             else
             {
@@ -584,6 +556,22 @@ class Parser
         Tokens.Expect(")"); // Espera y consume ')'
         Tokens.Expect(";");
         var mcall = new MethodCallNode(call.Property.Name, call.Target);
+        return mcall;
+    }
+    public ExpressionMethodCall ParseExpressionMethodCall(PropertyAccessNode call)
+    {
+        Tokens.Next();//consume (
+        if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)//tiene parametro 
+        {
+        var param = Tokens.Expect(TokenType.Identifier);
+        Tokens.Expect(")"); // Espera y consume ')'
+        Tokens.Expect(";");
+        return new ExpressionMethodCall(call.Property.Name,param.Value,call.Target);
+        }
+        //no tiene parametro 
+        Tokens.Expect(")"); // Espera y consume ')'
+        Tokens.Expect(";");
+        var mcall = new ExpressionMethodCall(call.Property.Name, call.Target);
         return mcall;
     }
 
@@ -756,7 +744,7 @@ class Parser
 
         if (token.Type == TokenType.Identifier || token.Type == TokenType.Text)
         {
-            var target = new IdentifierNode(Tokens.LookAhead().Value); // guardalo para los targets 
+            ExpressionNode target = new IdentifierNode(Tokens.LookAhead().Value); // guardalo para los targets 
             Tokens.Next(); // Consume el identificador o el texto
 
             while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == ".")
@@ -769,17 +757,14 @@ class Parser
                 while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == ".")
                 {
                     Tokens.Next();//Consume . 
-                    target = new IdentifierNode(target.Name + "." + exp.Property.Name);//concatenando el nuevo identifier despues del punto 
+                    target = new PropertyAccessNode(exp.Property.Name,target);
+                    // target = new IdentifierNode(target.Name + "." + exp.Property.Name);//concatenando el nuevo identifier despues del punto 
                     exp = new PropertyAccessNode(Tokens.LookAhead().Value,target);
                     Tokens.Next();//consume el indentificador 
                     break;
                 }
-                //dejo de haber un identifier, ahora puede venir un "(" o ";"
-                if (Tokens.LookAhead().Value == ";")
-                {
-                    return exp;
-                }
-                if (Tokens.LookAhead().Value == "(")//es una llamada a metodo 
+                //dejo de haber un identifier, ahora puede venir un "(" o ";" o "operator"
+                if (Tokens.LookAhead().Value == ";" || Tokens.LookAhead().Value == "(" || Tokens.LookAhead().Type == TokenType.Operator)
                 {
                     return exp;
                 }

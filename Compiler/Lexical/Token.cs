@@ -34,6 +34,7 @@ public enum TokenType
     ClosedCurlyBrace,
     Dot,
     CardType,
+    Operator
 }
 
 public class TokenValues

@@ -7,8 +7,6 @@ public abstract class ASTNode : IVisitable
     public abstract void PrintMermaid(StringBuilder sb, string parentId);
 
     public abstract void Accept(ASTVisitor visitor);
-
-    public List<ASTNode> Children { get; set; }
 }
 
 public abstract class ExpressionNode : ASTNode, IVisitable
@@ -28,7 +26,6 @@ public class RootNode : ASTNode, IVisitable
     {
         Effects = new List<EffectNode>();
         Cards = new List<CardNode>();
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -68,7 +65,6 @@ public class EffectNode : ASTNode, IVisitable
         Name = name;
         Params = @params;
         Action = action;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -100,7 +96,6 @@ public class ParamNode : ASTNode, IVisitable
     {
         Name = name;
         Type = type;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -122,12 +117,11 @@ public class ActionNode : ASTNode, IVisitable
     public IdentifierNode Targets { get; }
     public IdentifierNode Context { get; }
 
-    public ActionNode(string targets, string context, List<StatementNode> statements)
+    public ActionNode(IdentifierNode targets, IdentifierNode context, List<StatementNode> statements)
     {
-        Targets = new IdentifierNode(targets);
+        Targets = targets;
         Statements = statements;
-        Context = new IdentifierNode(context);
-        Children = new List<ASTNode>();
+        Context = context;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -150,13 +144,9 @@ public class ActionNode : ASTNode, IVisitable
     }
 }
 
-public abstract class StatementNode : ASTNode
-{
-}
+public abstract class StatementNode : ASTNode{}
 
-public abstract class AssignmentOrMethodCall : StatementNode
-{
-}
+public abstract class AssignmentOrMethodCall : StatementNode{}
 
 public class Assignment : AssignmentOrMethodCall, IVisitable
 {
@@ -167,14 +157,12 @@ public class Assignment : AssignmentOrMethodCall, IVisitable
     {
         Variable = variable;
         Value = value;
-        Children = new List<ASTNode>();
     }
 
     public Assignment(ExpressionNode variable)
     {
         Variable = variable;
         Value = null;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -204,7 +192,6 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
         Funtion = new IdentifierNode(funtion);
         Param = new IdentifierNode(param);
         Target = target;
-        Children = new List<ASTNode>();
     }
 
     public MethodCallNode(string funtion, ExpressionNode target)
@@ -212,7 +199,42 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
         Funtion = new IdentifierNode(funtion);
         Param = null;
         Target = target;
-        Children = new List<ASTNode>();
+    }
+
+    public override void PrintMermaid(StringBuilder sb, string parentId)
+    {
+        string nodeId = $"{GetHashCode()}";
+        sb.AppendLine($"{nodeId}[\"CallFuntionNode: {Funtion.Name}\"]");
+        sb.AppendLine($"{parentId} --> {nodeId}");
+
+        Funtion.PrintMermaid(sb, nodeId);
+        Param?.PrintMermaid(sb, nodeId);
+        Target.PrintMermaid(sb, nodeId);
+    }
+
+    public override void Accept(ASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+}
+public class ExpressionMethodCall : ExpressionNode,IVisitable
+{
+    public IdentifierNode Funtion { get; }
+    public ExpressionNode Target { get; }
+    public IdentifierNode? Param { get; }
+
+    public ExpressionMethodCall(string funtion, string param, ExpressionNode target)
+    {
+        Funtion = new IdentifierNode(funtion);
+        Param = new IdentifierNode(param);
+        Target = target;
+    }
+
+    public ExpressionMethodCall(string funtion, ExpressionNode target)
+    {
+        Funtion = new IdentifierNode(funtion);
+        Param = null;
+        Target = target;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -235,15 +257,14 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
 public class ForStatement : StatementNode, IVisitable
 {
     public IdentifierNode Variable { get; }
-    public ExpressionNode Iterable { get; }
+    public IdentifierNode Iterable { get; }
     public List<ASTNode> Body { get; }
 
-    public ForStatement(IdentifierNode variable, ExpressionNode iterable, List<ASTNode> body)
+    public ForStatement(IdentifierNode variable, IdentifierNode iterable, List<ASTNode> body)
     {
         Variable = variable;
         Iterable = iterable;
         Body = body;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -275,7 +296,6 @@ public class WhileStatement : StatementNode, IVisitable
     {
         Condition = condition;
         Body = body;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -303,7 +323,6 @@ public class Number : ExpressionNode, IVisitable
     public Number(double value)
     {
         Value = value;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -322,10 +341,13 @@ public class Number : ExpressionNode, IVisitable
 public class IdentifierNode : ExpressionNode, IVisitable
 {
     public string Name { get; }
-    public IdentifierNode(string name)
+    public bool IsDynamic { get; set; }
+    public bool IsContext { get; set; }
+
+    public IdentifierNode(string name, bool isDynamic = false,bool IsContext = false)
     {
         Name = name;
-        Children = new List<ASTNode>();
+        IsDynamic = isDynamic;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -350,7 +372,6 @@ public class PropertyAccessNode : ExpressionNode, IVisitable
     {
         Property = new IdentifierNode(property);
         Target = target;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -394,7 +415,6 @@ public class BinaryOperation : ExpressionNode, IVisitable
         Left = left;
         Operator = op;
         Right = right;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -420,7 +440,6 @@ public class CompoundAssignmentNode : Assignment
     public CompoundAssignmentNode(ExpressionNode variable, string op, ExpressionNode value) : base(variable, value)
     {
         Operator = op;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -456,7 +475,6 @@ public class CardNode : ASTNode, IVisitable
         Power = power;
         Position = position;
         EffectList = effectList;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -508,7 +526,6 @@ public class EffectInvocationNode : ASTNode, IVisitable
         EffectField = effectField;
         Selector = selector;
         PostAction = postAction;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -537,14 +554,12 @@ public class EffectField : ASTNode, IVisitable
     {
         Name = name;
         Params = null;
-        Children = new List<ASTNode>();
     }
 
     public EffectField(string name, List<CardParam>? param)
     {
         Name = name;
         Params = param;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -576,7 +591,6 @@ public class CardParam : ASTNode, IVisitable
     {
         Name = new IdentifierNode(name);
         Value = value;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -608,7 +622,6 @@ public class SelectorNode : ASTNode, IVisitable
         Source = source;
         Single = single;
         Predicate = predicate;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -643,7 +656,6 @@ public class MyPredicate : ASTNode, IVisitable
     {
         Param = param;
         Condition = condition;
-        Children = new List<ASTNode>();
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)

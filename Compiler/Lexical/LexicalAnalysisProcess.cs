@@ -39,6 +39,11 @@ public class LexicalAnalyzer
             foreach (var op in operators.Keys.OrderByDescending(k => k.Length))
                 if (stream.Match(op))
                 {
+                    if (op == "=" || op == "==" || op == "+=" || op == "-=" || op == "*=" || op == "/=" || op == "++" || op == "--")
+                    {
+                        tokens.Add(new Token(TokenType.Operator, operators[op], stream.Location));
+                        return true;
+                    }
                     tokens.Add(new Token(TokenType.Symbol, operators[op], stream.Location));
                     return true;
                 }

@@ -1,11 +1,14 @@
 using System;
+using System.ComponentModel;
 using System.Globalization;
+using System.Net.Http.Headers;
 public class Symbol
 {
     public string Name { get; }
-    public Type Type { get; }
+    public Type Type { get; set;}
     public bool IsFunction { get; }
     public List<Type> Parameters { get; }
+    public Dictionary<string, Symbol> Members { get; } 
 
     public Symbol(string name, Type type, bool isFunction = false, List<Type> parameters = null)
     {
@@ -13,6 +16,24 @@ public class Symbol
         Type = type;
         IsFunction = isFunction;
         Parameters = parameters ?? new List<Type>();
+        Members = new Dictionary<string, Symbol>(); 
+    }
+    public void AddMember(string memberName, Symbol memberSymbol)
+    {
+        if (!Members.ContainsKey(memberName))
+        {
+            Members[memberName] = memberSymbol;
+        }
+        else
+        {
+            Console.WriteLine($"Error: El miembro '{memberName}' ya está declarado en el tipo '{Name}'.");
+        }
+    }
+
+    public Symbol GetMemberInGlobalTab(string memberName)
+    {
+        Members.TryGetValue(memberName, out var memberSymbol);
+        return memberSymbol;
     }
 
     public override string ToString()
@@ -150,10 +171,69 @@ public abstract class ASTVisitor
 public class SemanticVisitor : ASTVisitor
 {
     private SymbolTable currentSymbolTable;
+    private static SymbolTable globalSymbolTable; 
 
+    private static readonly Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>
+    {
+        { "Number", typeof(Number) },
+        { "string", typeof(string) },
+        { "bool", typeof(bool) },
+        { "float", typeof(float) },
+        { "double", typeof(double) },
+        { "CardType", typeof(CardType) },
+        { "Context", typeof(Context) },
+        {"CardList", typeof(CardList)},
+        {"Method", typeof(Method)},
+        {"Effect", typeof(Effect)}
+        // Agrega otros tipos primitivos o personalizados según sea necesario
+    };
     public SemanticVisitor()
     {
-        currentSymbolTable = new SymbolTable();
+        globalSymbolTable = new SymbolTable();
+        RegisterGlobalSymbols();
+        currentSymbolTable = new SymbolTable(globalSymbolTable);
+    }
+    private void RegisterGlobalSymbols()
+    {
+        // Registrar el tipo 'Card' con sus propiedades
+        var cardSymbol = new Symbol("CardType", typeof(CardType));
+        var power = new Symbol("Power", typeof(Context));
+        var context = new Symbol("Context",typeof(Number));
+        cardSymbol.AddMember("Name", new Symbol("Name", typeof(string)));
+        cardSymbol.AddMember("Power", power);
+        cardSymbol.AddMember("Faction", new Symbol("Faction", typeof(Faction)));
+        context.AddMember("Prueba",new Symbol("Prueba",typeof(Number)));
+        context.AddMember("blablaprueba",new Symbol("Prueba",typeof(Number)));
+        // Agregar 'Card' al mapa global de tipos
+        globalSymbolTable.AddSymbol("CardType", cardSymbol);
+        globalSymbolTable.AddSymbol("Power", power);
+        globalSymbolTable.AddSymbol("Context", context);
+
+
+        // Otros tipos y propiedades
+        // Registrar más tipos y sus miembros aquí...
+    }
+
+    private Type GetMappedType(string typeName)
+    {
+        if (TypeMapping.ContainsKey(typeName))
+        {
+            return TypeMapping[typeName];
+        }
+        else
+        {
+            // Intentar obtener el tipo por completo (para tipos definidos por el usuario o tipos complejos)
+            var type = Type.GetType(typeName);
+            if (type != null)
+            {
+                return type;
+            }
+            else
+            {
+                ReportError($"Unknown type: {typeName}");
+                return null; 
+            }
+        }
     }
 
     private void ReportError(string message)
@@ -166,7 +246,7 @@ public class SemanticVisitor : ASTVisitor
         switch (expression)
         {
             case Number number:
-                return "int"; // o "float" si corresponde
+                return "Number"; // o "float" si corresponde
             case IdentifierNode identifierNode:
                 var symbol = currentSymbolTable.GetSymbol(identifierNode.Name);
                 if (symbol != null)
@@ -191,15 +271,57 @@ public class SemanticVisitor : ASTVisitor
                     return "unknown";
                 }
             case PropertyAccessNode propertyAccess:
-                // Evaluar el tipo de la propiedad accedida
-                var targetType = EvaluateType(propertyAccess.Target);
-                // Asumir que la propiedad es de tipo "int" para este ejemplo
-                return "int";
-
-            default:
-                ReportError($"Unknown expression type: {expression.GetType().Name}");
+                if (propertyAccess.Target is IdentifierNode)
+                {
+                    //tipo del target y verifica si existe
+                    Symbol target = currentSymbolTable.GetSymbol(((IdentifierNode)propertyAccess.Target).Name);
+                    if (target == null)
+                    {
+                        ReportError($"El target {((IdentifierNode)propertyAccess.Target).Name} no esta declarado"); 
+                        return "unknown";
+                    }    
+                    string targetType = target.Type.ToString();
+                    //verifica si existe la propiedad del tipo del target
+                    Symbol targetTypeSymbol = currentSymbolTable.GetSymbol(targetType);
+                    if (targetTypeSymbol == null)
+                    {
+                        ReportError($"El tipo del target {((IdentifierNode)propertyAccess.Target).Name} no contiene ninguna propiedad con su nombre "); 
+                        return "unknown";
+                    } 
+                    //verifica si el symbolo del tipo del target contiene alguna propiedad con el nombre de la property de accesProperty
+                    string propertyName = propertyAccess.Property.Name;
+                    Symbol propertyType = targetTypeSymbol.GetMemberInGlobalTab(propertyName);
+                    if (propertyType == null)
+                    {
+                        ReportError($"No existe la propiedad {propertyName} para el tipo {targetType}");
+                        return "unknown";
+                    }
+                    string type = propertyType.Type.ToString();//borrar esta linea es solo para debugear
+                    return propertyType.Type.ToString();
+                }
+                string targetTyp = EvaluateType(propertyAccess.Target);
+                //si regresaste es porque existe el targetType
+                Symbol targetTypSymbol = currentSymbolTable.GetSymbol(targetTyp);
+                if (targetTypSymbol == null)
+                {
+                ReportError($"El tipo del target {((IdentifierNode)propertyAccess.Target).Name} no contiene ninguna propiedad con su nombre "); 
                 return "unknown";
+                } 
+                //verifica si el symbolo del tipo del target contiene alguna propiedad con el nombre de la property de accesProperty
+                string propertyNam = propertyAccess.Property.Name;
+                Symbol propertyTyp = targetTypSymbol.GetMemberInGlobalTab(propertyNam);
+                if (propertyTyp == null)
+                {
+                    ReportError($"No existe la propiedad {propertyNam} para el tipo {targetTyp}");
+                    return "unknown";
+                }
+                string respuesta =  propertyTyp.Type.ToString();//borrar esta linea es solo para debugear 
+                return propertyTyp.Type.ToString();
+
+
+
         }
+        return "unknown";
     }
 
     private bool TypesAreCompatible(string type1, string type2)
@@ -226,21 +348,57 @@ public class SemanticVisitor : ASTVisitor
 
     public override void Visit(Assignment node)
     {
-        var varName = (node.Variable as IdentifierNode)?.Name;
-        var exprType = EvaluateType(node.Value);
-
-        if (!currentSymbolTable.ContainsSymbol(varName))
+        // Primero, obtenemos el nombre de la variable que está siendo asignada
+        if (node.Variable is PropertyAccessNode)
         {
-            ReportError($"Variable '{varName}' is not declared");
+            var propertyAccesType = EvaluateType(node.Variable);
+            var valueType = EvaluateType(node.Value);
+            if (!TypesAreCompatible(propertyAccesType,valueType))
+            {
+                ReportError($"Type mismatch: cannot assign '{valueType}' to '{propertyAccesType}'.");
+            }
+            // Evaluar y procesar el valor de la expresión en el lado derecho de la asignación
+            node.Value.Accept(this);
+            return;
+        }
+        var variableName = (node.Variable as IdentifierNode)?.Name;
+        if (string.IsNullOrEmpty(variableName))
+        {
+            ReportError("Invalid assignment target.");
             return;
         }
 
-        var varSymbol = currentSymbolTable.GetSymbol(varName);
-        if (!TypesAreCompatible(varSymbol.Type.ToString(), exprType))
+        // Verificar si la variable está declarada en el alcance actual o en algún alcance padre
+        var variableSymbol = currentSymbolTable.GetSymbol(variableName);
+
+        if (variableSymbol == null)
         {
-            ReportError($"Type mismatch: cannot assign '{exprType}' to '{varSymbol.Type}'");
+            // Si la variable no está declarada, se declara ahora con el tipo de la expresión asignada
+            var exprType = EvaluateType(node.Value);
+            if (exprType == "unknown")
+            {
+                ReportError($"Unable to determine the type of the expression assigned to '{variableName}'.");
+                return;
+            }
+
+            // Agregar la variable a la tabla de símbolos actual
+            var newSymbol = new Symbol(variableName, GetMappedType(exprType));
+            currentSymbolTable.AddSymbol(variableName, newSymbol);
         }
+        else
+        {
+            // Si ya está declarada, verificar que el tipo de la variable sea compatible con el tipo de la expresión
+            var exprType = EvaluateType(node.Value);
+            if (!TypesAreCompatible(variableSymbol.Type.ToString(), exprType))
+            {
+                ReportError($"Type mismatch: cannot assign '{exprType}' to '{variableSymbol.Type}' in variable '{variableName}'.");
+            }
+        }
+
+        // Evaluar y procesar el valor de la expresión en el lado derecho de la asignación
+        node.Value.Accept(this);
     }
+
 
     public override void Visit(MethodCallNode node)
     {
@@ -264,6 +422,7 @@ public class SemanticVisitor : ASTVisitor
     public override void Visit(EffectNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
+        currentSymbolTable.AddSymbol(node.Name,new Symbol(node.Name,typeof(Effect)));
 
         foreach (var param in node.Params)
         {
@@ -309,9 +468,10 @@ public class SemanticVisitor : ASTVisitor
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
-        node.Variable.Accept(this);
+        node.Variable.Accept(this);//asumi que esta variable siempre va a ser de tipo card
+        var variable = currentSymbolTable.GetSymbol(node.Variable.Name);
+        variable.Type = typeof(CardType);
         node.Iterable.Accept(this);
-
         foreach (var statement in node.Body)
         {
             statement.Accept(this);
@@ -350,6 +510,19 @@ public class SemanticVisitor : ASTVisitor
 
     public override void Visit(IdentifierNode node)
     {
+        // Verifica si el identificador es dinámico
+        if (node.IsDynamic)
+        {
+            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name, typeof(IdentifierNode)));
+            return; // No reportar error, ya que es un identificador dinámico
+        }
+        if (node.IsContext)
+        {
+            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(Context)));
+            return; 
+        }
+
+        // Si no es dinámico, realiza el chequeo estándar
         if (!currentSymbolTable.ContainsSymbol(node.Name))
         {
             ReportError($"Variable '{node.Name}' is not declared");
@@ -363,6 +536,24 @@ public class SemanticVisitor : ASTVisitor
 
     public override void Visit(PropertyAccessNode node)
     {
+        // Evaluar el tipo del objetivo
+        var targetType = EvaluateType(node.Target);
+        var targetSymbol = GetMappedType(targetType);
+
+        if (targetSymbol != null)
+        {
+            var propertySymbol = targetSymbol.GetMember(node.Property.Name);
+            if (propertySymbol == null)
+            {
+                ReportError($"Property '{node.Property.Name}' does not exist in type '{targetType}'.");
+            }
+        }
+        else
+        {
+            ReportError($"Type '{targetType}' is not defined.");
+        }
+
+        // Visitar los hijos
         node.Target.Accept(this);
         node.Property.Accept(this);
     }
@@ -428,6 +619,14 @@ public class SemanticVisitor : ASTVisitor
 
     // Agrega más métodos de visita para otros tipos de nodos según sea necesario
 }
+
+public class Context{}
+
+public class CardList{}
+
+public class Method{} 
+
+public class Effect{}
 
 public enum CardType
 {
