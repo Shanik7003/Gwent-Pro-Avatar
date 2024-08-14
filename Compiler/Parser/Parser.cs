@@ -30,7 +30,7 @@ class Parser
 
         // Realizar el análisis semántico
         var semanticVisitor = new SemanticVisitor();
-        root.Accept(semanticVisitor);
+
 
         return root;
     }

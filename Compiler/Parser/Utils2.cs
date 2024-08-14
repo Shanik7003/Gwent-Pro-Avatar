@@ -196,22 +196,35 @@ public class SemanticVisitor : ASTVisitor
     private void RegisterGlobalSymbols()
     {
         // Registrar el tipo 'Card' con sus propiedades
-        var cardSymbol = new Symbol("CardType", typeof(CardType));
-        var power = new Symbol("Power", typeof(Context));
-        var context = new Symbol("Context",typeof(Number));
+        var cardSymbol = new Symbol("Card", typeof(Card));
         cardSymbol.AddMember("Name", new Symbol("Name", typeof(string)));
-        cardSymbol.AddMember("Power", power);
+        cardSymbol.AddMember("Power", new Symbol("Power", typeof(Number)));
         cardSymbol.AddMember("Faction", new Symbol("Faction", typeof(Faction)));
-        context.AddMember("Prueba",new Symbol("Prueba",typeof(Number)));
-        context.AddMember("blablaprueba",new Symbol("Prueba",typeof(Number)));
-        // Agregar 'Card' al mapa global de tipos
-        globalSymbolTable.AddSymbol("CardType", cardSymbol);
-        globalSymbolTable.AddSymbol("Power", power);
-        globalSymbolTable.AddSymbol("Context", context);
+        cardSymbol.AddMember("CardType", new Symbol("CardType", typeof(CardType)));
+        cardSymbol.AddMember("Range",new Symbol("Range",typeof(Position[])));
+        globalSymbolTable.AddSymbol("Card", cardSymbol);
 
-
-        // Otros tipos y propiedades
-        // Registrar más tipos y sus miembros aquí...
+        //Registrar el tipo Context con sus propiedades
+        var context = new Symbol("Context", typeof(Context));
+        context.AddMember("TriggerPlayer", new Symbol("Triggerplayer",typeof(Number)));        // Otros tipos y propiedades
+        context.AddMember("Board", new Symbol("Board",typeof(CardList))); 
+        context.AddMember("HandOfPlayer", new Symbol("HandOfPlayer",typeof(CardList)));
+        context.AddMember("FieldOfPlayer", new Symbol("FieldOfPlayer",typeof(CardList)));
+        context.AddMember("GraveyardOfPlayer", new Symbol("GraveyardOfPlayer",typeof(CardList)));
+        context.AddMember("DeckOfPlayer", new Symbol("DeckOfPlayer",typeof(CardList)));
+        context.AddMember("Hand", new Symbol("Hand",typeof(CardList)));
+        context.AddMember("Deck", new Symbol("Deck",typeof(CardList)));
+        context.AddMember("Field", new Symbol("Field",typeof(CardList)));
+        context.AddMember("Graveyard", new Symbol("Graveyard",typeof(CardList)));
+     
+        //Registrar el tipo CardList con sus metodos 
+        var cardList = new Symbol("CardList",typeof(CardList));
+        cardList.AddMember("Find",new Symbol("Find",typeof(CardList)));
+        cardList.AddMember("Push",new Symbol("Push",null));
+        cardList.AddMember("SendBottom",new Symbol("SendBottom",null));
+        cardList.AddMember("Pop",new Symbol("Pop",null));
+        cardList.AddMember("Remove",new Symbol("Remove",null));
+        cardList.AddMember("Shuffle",new Symbol("Shuffle",null));
     }
 
     private Type GetMappedType(string typeName)
@@ -628,6 +641,9 @@ public class Method{}
 
 public class Effect{}
 
+public class Card {}
+
+
 public enum CardType
 {
     UnitCard,
@@ -656,7 +672,14 @@ public enum Position
 public enum Source
 {
     board,
-    parent
+    parent,
+    hand,
+    otherHand,
+    deck,
+    otherDeck,
+    field,
+    otherField,
+
 }
 
 public delegate bool MyDelegate(int x);
