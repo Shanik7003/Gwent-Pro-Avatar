@@ -21,7 +21,7 @@ class Program
         {
             foreach (var error in errors)
             {
-                Console.WriteLine(error);
+                Console.WriteLine($"Error ({error.Location.Line},{error.Location.Column}): {error.Message}");
             }
             return true;
         }
@@ -29,9 +29,9 @@ class Program
     }
     static void Main(string[] args)
     {
-        List<CompilingError> LexicalErrors = new List<CompilingError>();
-        List<CompilingError> ParsingErrors = new List<CompilingError>();
-        List<CompilingError> SemanticErrors = new List<CompilingError>();
+        List<CompilingError> LexicalErrors = [];
+        List<CompilingError> ParsingErrors = [];
+        List<CompilingError> SemanticErrors = [];
 
         LexicalAnalyzer lexer = Compiling.Lexical;
         string text = File.ReadAllText("./code.txt");  
@@ -43,15 +43,14 @@ class Program
 
         // Parser
         Parser parser = new Parser(Tokens,ParsingErrors);
-
-        // Parsear el efecto
         RootNode ast = parser.ParseCode();
+        if(HandleErrors(ParsingErrors)) return;
 
         // Realizar el análisis semántico
         var semanticVisitor = new SemanticVisitor();
         semanticVisitor.Visit(ast);
 
-
         GenerateMermaidDiagram(ast,"effectNodeDiagram.md");
+
     }
 }

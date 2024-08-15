@@ -4,20 +4,24 @@ using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Xml;
+
 class Parser
 {
     public TokenList Tokens { get; private set; }
     private List<CompilingError> parsingErrors;
-    public Parser(TokenList tokens,List<CompilingError> errors)
+
+    public Parser(TokenList tokens, List<CompilingError> errors)
     {
         Tokens = tokens;
         parsingErrors = errors;
     }
+
     // Método para agregar errores
     private void AddParsingError(CodeLocation location, ErrorCode code, string message)
     {
         parsingErrors.Add(new CompilingError(location, code, message));
     }
+
     public RootNode ParseCode()
     {
         RootNode root = new RootNode();
@@ -26,15 +30,25 @@ class Parser
             if (Tokens.MatchValue("effect"))
             {
                 EffectNode effect = ParseEffect();
-                root.Effects.Add(effect);
+                if (effect != null)
+                {
+                    root.Effects.Add(effect);
+                }
             }
-            if (Tokens.MatchValue("card")) 
+            else if (Tokens.MatchValue("card"))
             {
                 CardNode card = ParseCard();
-                root.Cards.Add(card);
+                if (card != null)
+                {
+                    root.Cards.Add(card);
+                }
+            }
+            else
+            {
+                AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, "Se esperaba 'effect' o 'card'.");
+                break;
             }
         }
-
         return root;
     }
 
@@ -43,7 +57,7 @@ class Parser
         Tokens.Expect("{");
         CardType type = ParseType();
         Tokens.Expect(",");
-        string name  = ParseNameField();
+        string name = ParseNameField();
         Tokens.Expect(",");
         Faction faction = ParseFaction();
         Tokens.Expect(",");
@@ -53,95 +67,86 @@ class Parser
         Tokens.Expect(",");
         List<EffectInvocationNode> effects = ParseOnActivationBody();
         Tokens.Expect("}");
-        CardNode cardNode = new CardNode(name,type,faction,power,range,effects);  
-        return cardNode;
+        return new CardNode(name, type, faction, power, range, effects);
     }
+
     public CardType ParseType()
     {
-        // HashSet de tipos válidos derivados del enumerado
-        HashSet<string> ValidCardTypes = Enum.GetNames(typeof(CardType)).ToHashSet();
         Tokens.Expect("Type");
         Tokens.Expect(":");
         var type = Tokens.Expect(TokenType.Text).Value;
-        if (ValidCardTypes.Contains(type))
+        if (Enum.TryParse(type, out CardType cardType))
         {
-            return Enum.Parse<CardType>(type);
+            return cardType;
         }
         else
         {
-            throw new ArgumentException($"Invalid card type: {type}");
+            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Tipo de carta inválido: {type}");
+            return default;
         }
     }
+
     public Faction ParseFaction()
     {
-        // HashSet de tipos válidos derivados del enumerado
-        HashSet<string> ValidFactions = Enum.GetNames(typeof(Faction)).ToHashSet();
         Tokens.Expect("Faction");
         Tokens.Expect(":");
         var faction = Tokens.Expect(TokenType.Text).Value;
-        if (ValidFactions.Contains(faction))
+        if (Enum.TryParse(faction, out Faction factionType))
         {
-            return Enum.Parse<Faction>(faction);
+            return factionType;
         }
         else
         {
-            throw new ArgumentException($"Invalid faction : {faction}");
+            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Facción inválida: {faction}");
+            return default;
         }
     }
+
     public int ParsePower()
     {
         Tokens.Expect("Power");
         Tokens.Expect(":");
         var power = Tokens.Expect(TokenType.Number).Value;
-        int result;
-        if (int.TryParse(power,out result))
+        if (int.TryParse(power, out int result))
         {
             return result;
         }
         else
         {
-            throw new ArgumentException($"Expected type int but found: {power.GetType()}");
+            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Valor de poder inválido: {power}");
+            return 0;
         }
     }
+
     public Position[] ParseRange()
     {
-         // HashSet de tipos válidos derivados del enumerado
-        HashSet<string> ValidPositions = Enum.GetNames(typeof(Position)).ToHashSet();
         Tokens.Expect("Range");
         Tokens.Expect(":");
         Tokens.Expect("[");
-        List<Position> Range = [];
-        List<string> positions = [];
-        while(Tokens.LookAhead().Value != TokenValues.ClosedSquareBraket)
+        List<Position> range = new List<Position>();
+        while (Tokens.LookAhead().Value != "]")
         {
-
+            var position = Tokens.Expect(TokenType.Text).Value;
+            if (Enum.TryParse(position, out Position pos))
+            {
+                range.Add(pos);
+            }
+            else
+            {
+                AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Posición inválida: {position}");
+            }
             if (Tokens.LookAhead().Value == ",")
             {
-                Tokens.Next();//consume la coma
-                positions.Add(Tokens.Expect(TokenType.Text).Value);
-            }
-            else
-            {
-                positions.Add(Tokens.Expect(TokenType.Text).Value);
+                Tokens.Next();
             }
         }
-        Tokens.Next();//consume el ]
-        foreach (var pos in positions)
-        {
-            if (ValidPositions.Contains(pos))
-            {
-                Range.Add(Enum.Parse<Position>(pos));
-            }
-            else
-            {
-                throw new ArgumentException($"Invalid Position : {pos}");
-            }
-        }
-        return Range.ToArray();
+        Tokens.Expect("]");
+        return range.ToArray();
     }
+
     public List<EffectInvocationNode> ParseOnActivationBody()
     {
-        List<EffectInvocationNode> effects = [];
+        List<EffectInvocationNode> effects = new List<EffectInvocationNode>();
         Tokens.Expect("OnActivation");
         Tokens.Expect(":");
         Tokens.Expect("[");
@@ -157,6 +162,7 @@ class Parser
         }
         return effects;
     }
+
     public EffectInvocationNode ParseEffectInvocation()
     {
         SelectorNode? selector = null;
@@ -172,28 +178,30 @@ class Parser
         EffectInvocationNode effect = new EffectInvocationNode(effectfield,selector,postAction);
         return effect;
     }
+
     public EffectField ParseEffectField()
     {
-            Tokens.Expect("Effect");
-            Tokens.Expect(":");
-            if (Tokens.LookAhead().Type == TokenType.Text)
-            {
-                string Name = Tokens.LookAhead().Value;
-                Tokens.Next();
-                return new EffectField(Name);
-            }
-            Tokens.Expect("{");
-            string name = ParseNameField();
-            List<CardParam> cardParams = [];
-            while (Tokens.LookAhead().Value != "}")
-            {
-                Tokens.Expect(",");
-                cardParams.Add(ParseCardParam());
-            }
-            Tokens.Expect("}");
-            EffectField effectField = new EffectField(name,cardParams);
-            return effectField;
+        Tokens.Expect("Effect");
+        Tokens.Expect(":");
+        if (Tokens.LookAhead().Type == TokenType.Text)
+        {
+            string Name = Tokens.LookAhead().Value;
+            Tokens.Next();
+            return new EffectField(Name);
+        }
+        Tokens.Expect("{");
+        string name = ParseNameField();
+        List<CardParam> cardParams = [];
+        while (Tokens.LookAhead().Value != "}")
+        {
+            Tokens.Expect(",");
+            cardParams.Add(ParseCardParam());
+        }
+        Tokens.Expect("}");
+        EffectField effectField = new EffectField(name,cardParams);
+        return effectField;
     }
+
     public CardParam ParseCardParam()
     {
         string name = Tokens.Expect(TokenType.Identifier).Value;
@@ -218,22 +226,23 @@ class Parser
         }
         return null;
     }
+
     public Source ParseSource()
     {
-        // HashSet de tipos válidos derivados del enumerado
-        HashSet<string> ValidSources = Enum.GetNames(typeof(Source)).ToHashSet();
         Tokens.Expect("Source");
         Tokens.Expect(":");
-        string source = Tokens.Expect(TokenType.Text).Value;
-        if (ValidSources.Contains(source))
+        var source = Tokens.Expect(TokenType.Text).Value;
+        if (Enum.TryParse(source, out Source result))
         {
-            return Enum.Parse<Source>(source);
+            return result;
         }
         else
         {
-            throw new ArgumentException($"Invalid source : {source}");
+            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Fuente inválida: {source}");
+            return default;
         }
     }
+
     public bool ParseSingle()
     {
         if (Tokens.LookAhead().Value == ",") Tokens.Next();
@@ -246,8 +255,8 @@ class Parser
             else throw new ArgumentException($"Invalid single : {single}");
         }
         else return false;
-
     }
+
     public MyPredicate ParsePredicate()
     {
         if (Tokens.LookAhead().Value == ",") Tokens.Next();
@@ -260,6 +269,7 @@ class Parser
         var condition = ParseExpression();
         return new MyPredicate(param,condition);
     }
+
     public EffectInvocationNode? ParsePostAction()
     {
         if (Tokens.LookAhead().Value ==",") Tokens.Next();
@@ -273,13 +283,20 @@ class Parser
         return null;
     }
 
-//parsear effecto
     public EffectNode ParseEffect()
     {
-        Tokens.Expect("{");
-        var effectBody = ParseEffectBody();
-        Tokens.Expect("}");
-        return effectBody;
+        try
+        {
+            Tokens.Expect("{");
+            var effectBody = ParseEffectBody();
+            Tokens.Expect("}");
+            return effectBody;
+        }
+        catch (Exception ex)
+        {
+            AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, $"Error al parsear el efecto: {ex.Message}");
+            return null;
+        }
     }
 
     public EffectNode ParseEffectBody()
@@ -320,22 +337,18 @@ class Parser
                 Tokens.Next(); // consume ','
             }
         }
-        //System.Console.WriteLine("SALI DEL WHILE");
         Tokens.Expect("}");
         Tokens.Expect(",");
         return paramList;
     }
+
     public ParamNode ParseParam()
     {
-        // Console.WriteLine("ParseParam - Current Token: " + Tokens.LookAhead().Value + " (Expected Identifier for param name)");
         var name = Tokens.Expect(TokenType.Identifier).Value;
-        // Console.WriteLine("ParseParam - Current Token: " + Tokens.LookAhead().Value + " (Expected ':' after param name)");
         Tokens.Expect(":");
-        // Console.WriteLine("ParseParam - Current Token: " + Tokens.LookAhead().Value + " (Expected Identifier for param type)");
         var type = Tokens.Expect(TokenType.Type).Value;
         return new ParamNode(name, type);
     }
-
 
     public ActionNode ParseActionField()
     {
@@ -348,13 +361,13 @@ class Parser
     {
         Tokens.Expect("(");
 
-        IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value,true);
+        IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value, true);
         Tokens.Expect(",");
-        IdentifierNode context = new(Tokens.Expect(TokenType.Identifier).Value,true,true);//porque ademas de ser dinamico es de tipo context
+        IdentifierNode context = new(Tokens.Expect(TokenType.Identifier).Value, true, true);
         Tokens.Expect(")");
         Tokens.Expect("=>");
         Tokens.Expect("{");
-    
+
         var statements = new List<StatementNode>();
         while (Tokens.LookAhead().Value != "}")
         {
@@ -362,44 +375,41 @@ class Parser
         }
 
         Tokens.Expect("}");
-        return new ActionNode(targets,context,statements);
+        return new ActionNode(targets, context, statements);
     }
-    
+
     public StatementNode ParseStatement()
     {
-        // Maneja la declaración 'for'
         if (Tokens.LookAhead().Value == "for")
         {
             return ParseForStatement();
         }
-        // Maneja la declaración 'while'
         else if (Tokens.LookAhead().Value == "while")
         {
             return ParseWhileStatement();
         }
-        // Maneja la declaración de asignación
         else if (Tokens.LookAhead().Type == TokenType.Identifier)
         {
             return ParseAssignment();
         }
         else
         {
-            throw new Exception($"Unexpected token: {Tokens.LookAhead().Value}");
+            AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, $"Token inesperado: {Tokens.LookAhead().Value}");
+            return null;
         }
     }
 
     public ForStatement ParseForStatement()
     {
         Tokens.Expect("for");
-        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value,true);//porque la variable del for es un identifier dinamico
+        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value, true);
         Tokens.Expect("in");
-        IdentifierNode iterable =  new IdentifierNode (Tokens.Expect(TokenType.Identifier).Value);
+        IdentifierNode iterable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
 
-        if (Tokens.LookAhead().Value != "{")// si no le pusieron llaves entonces parsea un statement solamente 
+        if (Tokens.LookAhead().Value != "{")
         {
-            var body = new List<ASTNode>();
-            body.Add(ParseStatement());
-            return new ForStatement(variable,iterable, body);
+            var body = new List<ASTNode> { ParseStatement() };
+            return new ForStatement(variable, iterable, body);
         }
         else
         {
@@ -413,9 +423,7 @@ class Parser
             Tokens.Expect(";");
             return new ForStatement(variable, iterable, body);
         }
-      
     }
-
 
     public WhileStatement ParseWhileStatement()
     {
@@ -423,10 +431,9 @@ class Parser
         Tokens.Expect("(");
         var condition = ParseExpression();
         Tokens.Expect(")");
-        if (Tokens.LookAhead().Value != "{")// si no le pusieron llaves entonces parsea un statement solamente 
+        if (Tokens.LookAhead().Value != "{")
         {
-            var body = new List<ASTNode>();
-            body.Add(ParseStatement());
+            var body = new List<ASTNode> { ParseStatement() };
             return new WhileStatement(condition, body);
         }
         else
@@ -440,21 +447,20 @@ class Parser
             Tokens.Expect("}");
             return new WhileStatement(condition, body);
         }
-  
     }
 
     public AssignmentOrMethodCall ParseAssignment()
     {
         ExpressionNode variable = ParseExpression();
         var op = Tokens.LookAhead().Value;
-        if (op == "+=" || op== "-="|| op == "*=" || op == "/=")
+        if (op == "+=" || op == "-=" || op == "*=" || op == "/=")
         {
-            Tokens.Next(); //consumelo 
+            Tokens.Next();
             var value = ParseExpression();
             Tokens.Expect(";");
-            return new CompoundAssignmentNode(variable, op,value);
+            return new CompoundAssignmentNode(variable, op, value);
         }
-        else if(Tokens.LookAhead().Value == "(")//es una llamada a metodo como un statement, en una sola linea, no eat dentro de un assignment
+        else if (Tokens.LookAhead().Value == "(")
         {
             return ParseMethodCall(variable as PropertyAccessNode);
         }
@@ -462,7 +468,7 @@ class Parser
         {
             Tokens.Expect("=");
             var value = ParseExpression();
-            if (Tokens.LookAhead().Value == "(")//es una llamada a metodo dentro de un assingment
+            if (Tokens.LookAhead().Value == "(")
             {
                 return new Assignment(variable, ParseExpressionMethodCall(value as PropertyAccessNode));
             }
@@ -470,43 +476,42 @@ class Parser
             {
                 Tokens.Expect(";");
                 return new Assignment(variable, value);
-            } 
+            }
         }
     }
+
     public MethodCallNode ParseMethodCall(PropertyAccessNode call)
     {
-        Tokens.Next();//consume (
-        if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)//tiene parametro 
+        Tokens.Next();
+        if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)
         {
-        var param = Tokens.Expect(TokenType.Identifier);
-        Tokens.Expect(")"); // Espera y consume ')'
-        Tokens.Expect(";");
-        return new MethodCallNode(call.Property.Name,param.Value,call.Target);
+            var param = Tokens.Expect(TokenType.Identifier);
+            Tokens.Expect(")");
+            Tokens.Expect(";");
+            return new MethodCallNode(call.Property.Name, param.Value, call.Target);
         }
-        //no tiene parametro 
-        Tokens.Expect(")"); // Espera y consume ')'
+        Tokens.Expect(")");
         Tokens.Expect(";");
-        var mcall = new MethodCallNode(call.Property.Name, call.Target);
-        return mcall;
+        return new MethodCallNode(call.Property.Name, call.Target);
     }
+
     public ExpressionMethodCall ParseExpressionMethodCall(PropertyAccessNode call)
     {
-        Tokens.Next();//consume (
-        if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)//tiene parametro 
+        Tokens.Next();
+        if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)
         {
-        var param = Tokens.Expect(TokenType.Identifier);
-        Tokens.Expect(")"); // Espera y consume ')'
-        Tokens.Expect(";");
-        return new ExpressionMethodCall(call.Property.Name,param.Value,call.Target);
+            var param = Tokens.Expect(TokenType.Identifier);
+            Tokens.Expect(")");
+            Tokens.Expect(";");
+            return new ExpressionMethodCall(call.Property.Name, param.Value, call.Target);
         }
-        //no tiene parametro 
-        Tokens.Expect(")"); // Espera y consume ')'
+        Tokens.Expect(")");
         Tokens.Expect(";");
-        var mcall = new ExpressionMethodCall(call.Property.Name, call.Target);
-        return mcall;
+        return new ExpressionMethodCall(call.Property.Name, call.Target);
     }
 
     #region ParseEspression
+
     public ExpressionNode ParseExpression()
     {
         return ParseLogicalTerm();
@@ -515,13 +520,10 @@ class Parser
     public ExpressionNode ParseLogicalTerm()
     {
         var node = ParseLogicalFactor();
-        bool flag = false;
         while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "||")
         {
-            flag = true;
             var op = Tokens.LookAhead().Value;
-            Tokens.Next(); // Consume el operador
-
+            Tokens.Next();
             var right = ParseLogicalFactor();
             node = new BinaryOperation(node, op, right);
         }
@@ -531,31 +533,23 @@ class Parser
     public ExpressionNode ParseLogicalFactor()
     {
         var node = ParseEqualityExpr();
-        bool flag = false;
         while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "&&")
         {
-            flag = true;
             var op = Tokens.LookAhead().Value;
-            Tokens.Next(); // Consume el operador
-
+            Tokens.Next();
             var right = ParseEqualityExpr();
             node = new BinaryOperation(node, op, right);
         }
-
         return node;
     }
 
     public ExpressionNode ParseEqualityExpr()
     {
         var node = ParseRelationalExpr();
-        bool flag = false;
-
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "==" || Tokens.LookAhead().Value == "!="))
         {
-            flag = true;
             var op = Tokens.LookAhead().Value;
-            Tokens.Next(); // Consume el operador
-
+            Tokens.Next();
             var right = ParseRelationalExpr();
             node = new BinaryOperation(node, op, right);
         }
@@ -565,52 +559,39 @@ class Parser
     public ExpressionNode ParseRelationalExpr()
     {
         var node = ParseAdditiveExpr();
-        bool flag = false;
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "<" || Tokens.LookAhead().Value == ">" || Tokens.LookAhead().Value == "<=" || Tokens.LookAhead().Value == ">="))
         {
-            flag = true;
             var op = Tokens.LookAhead().Value;
-            Tokens.Next(); // Consume el operador
-
+            Tokens.Next();
             var right = ParseAdditiveExpr();
             node = new BinaryOperation(node, op, right);
         }
-
         return node;
     }
 
     public ExpressionNode ParseAdditiveExpr()
     {
         var node = ParseMultiplicativeExpr();
-        bool flag = false;
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-"))
         {
-            flag = true;
             var op = Tokens.LookAhead().Value;
-            Tokens.Next(); // Consume el operador
-
+            Tokens.Next();
             var right = ParseMultiplicativeExpr();
             node = new BinaryOperation(node, op, right);
         }
-
         return node;
     }
 
     public ExpressionNode ParseMultiplicativeExpr()
     {
         var node = ParsePrimary();
-        bool flag = false;
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "*" || Tokens.LookAhead().Value == "/"))
         {
-            flag = true;
-        //  System.Console.WriteLine("NO ENCONTRE UN SIGNO DE MULTIPLICACION O DIVISION ");
             var op = Tokens.LookAhead().Value;
-            Tokens.Next(); // Consume el operador
-
+            Tokens.Next();
             var right = ParsePrimary();
             node = new BinaryOperation(node, op, right);
         }
-        
         return node;
     }
 
@@ -621,50 +602,35 @@ class Parser
         if (token.Type == TokenType.Number)
         {
             Tokens.Next(); // Consume el número
-
             return new Number(double.Parse(token.Value));
         }
 
         if (token.Type == TokenType.Identifier || token.Type == TokenType.Text)
         {
-            ExpressionNode target = new IdentifierNode(Tokens.LookAhead().Value); // guardalo para los targets 
+            ExpressionNode target = new IdentifierNode(Tokens.LookAhead().Value);
             Tokens.Next(); // Consume el identificador o el texto
 
             while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == ".")
             {
-                Tokens.Next();//Consume . 
-                string property = Tokens.LookAhead().Value;//porque puede ser Idenrifier o Keyword ejemplo Faction
+                Tokens.Next(); // Consume '.'
+                string property = Tokens.LookAhead().Value;
                 Tokens.Next();
-                var exp = new PropertyAccessNode(property,target);
-    
-                while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == ".")
-                {
-                    Tokens.Next();//Consume . 
-                    target = new PropertyAccessNode(exp.Property.Name,target);
-                    // target = new IdentifierNode(target.Name + "." + exp.Property.Name);//concatenando el nuevo identifier despues del punto 
-                    exp = new PropertyAccessNode(Tokens.LookAhead().Value,target);
-                    Tokens.Next();//consume el indentificador 
-                    break;
-                }
-                //dejo de haber un identifier, ahora puede venir un "(" o ";" o "operator"
-                if (Tokens.LookAhead().Value == ";" || Tokens.LookAhead().Value == "(" || Tokens.LookAhead().Type == TokenType.Operator)
-                {
-                    return exp;
-                }
+                target = new PropertyAccessNode(property, target);
             }
-            return new IdentifierNode(token.Value);
+            return target;
         }
 
         if (token.Value == "(")
         {
             Tokens.Next(); // Consume '('
-    
             var expression = ParseExpression();
             Tokens.Expect(")"); // Espera y consume ')'
-    
             return expression;
         }
-        throw new Exception("Unexpected token: " + token.Value);
+
+        AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, $"Token inesperado: {token.Value}");
+        return null;
     }
+
     #endregion
 }
