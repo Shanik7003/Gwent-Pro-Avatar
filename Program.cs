@@ -2,6 +2,8 @@
 
 class Program
 {
+
+
     public static void GenerateMermaidDiagram(ASTNode rootNode, string filePath)
     {
         var sb = new StringBuilder();
@@ -13,39 +15,43 @@ class Program
         File.WriteAllText(filePath, sb.ToString());
         Console.WriteLine($"Mermaid diagram written to {filePath}");
     }
+    static bool HandleErrors(List<CompilingError> errors)
+    {
+        if (errors.Count > 0)
+        {
+            foreach (var error in errors)
+            {
+                Console.WriteLine(error);
+            }
+            return true;
+        }
+        return false;
+    }
     static void Main(string[] args)
     {
-        LexicalAnalyzer lex = Compiling.Lexical;
+        List<CompilingError> LexicalErrors = new List<CompilingError>();
+        List<CompilingError> ParsingErrors = new List<CompilingError>();
+        List<CompilingError> SemanticErrors = new List<CompilingError>();
 
+        LexicalAnalyzer lexer = Compiling.Lexical;
         string text = File.ReadAllText("./code.txt");  
 
-        /* You can uncomment fragments of the following lines to test the game step by step*/
-
-        IEnumerable<Token> tokens = lex.GetTokens("code", text, new List<CompilingError>());
-         
-        Console.ForegroundColor = ConsoleColor.Red; 
-        System.Console.WriteLine("LEXER");
-        Console.ResetColor();
-
-        foreach (Token token in tokens)
-        {
-            Console.WriteLine(token);
-        }
-        // Ejemplo de tokens
-        TokenList Tokens = new TokenList(tokens); // Asumiendo que TokenList es tu clase que contiene los tokens ya procesados
+        IEnumerable<Token> tokens = lexer.GetTokens("code", text, LexicalErrors);
+        if(HandleErrors(LexicalErrors)) return;
+     
+        TokenList Tokens = new TokenList(tokens);
 
         // Parser
-        Parser parser = new Parser(Tokens);
+        Parser parser = new Parser(Tokens,ParsingErrors);
 
         // Parsear el efecto
-        ASTNode ast = parser.ParseCode();
+        RootNode ast = parser.ParseCode();
 
-        Console.ForegroundColor = ConsoleColor.Cyan; 
-        System.Console.WriteLine("Parser");
-        Console.ResetColor();
-        // Imprimir el AST
-        // parser.PrintAST(ast);
-        //parser.SaveASTAsMermaid(ast, "ast_graph.md");
+        // Realizar el análisis semántico
+        var semanticVisitor = new SemanticVisitor();
+        semanticVisitor.Visit(ast);
+
+
         GenerateMermaidDiagram(ast,"effectNodeDiagram.md");
     }
 }

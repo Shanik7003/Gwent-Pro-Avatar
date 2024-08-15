@@ -7,9 +7,16 @@ using System.Xml;
 class Parser
 {
     public TokenList Tokens { get; private set; }
-    public Parser(TokenList tokens)
+    private List<CompilingError> parsingErrors;
+    public Parser(TokenList tokens,List<CompilingError> errors)
     {
         Tokens = tokens;
+        parsingErrors = errors;
+    }
+    // Método para agregar errores
+    private void AddParsingError(CodeLocation location, ErrorCode code, string message)
+    {
+        parsingErrors.Add(new CompilingError(location, code, message));
     }
     public RootNode ParseCode()
     {
@@ -28,18 +35,11 @@ class Parser
             }
         }
 
-        // Realizar el análisis semántico
-        var semanticVisitor = new SemanticVisitor();
-
-
         return root;
     }
 
     public CardNode ParseCard()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseCard");
-        Console.ResetColor();
         Tokens.Expect("{");
         CardType type = ParseType();
         Tokens.Expect(",");
@@ -60,9 +60,6 @@ class Parser
     {
         // HashSet de tipos válidos derivados del enumerado
         HashSet<string> ValidCardTypes = Enum.GetNames(typeof(CardType)).ToHashSet();
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseType");
-        Console.ResetColor();
         Tokens.Expect("Type");
         Tokens.Expect(":");
         var type = Tokens.Expect(TokenType.Text).Value;
@@ -79,9 +76,6 @@ class Parser
     {
         // HashSet de tipos válidos derivados del enumerado
         HashSet<string> ValidFactions = Enum.GetNames(typeof(Faction)).ToHashSet();
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseFaction");
-        Console.ResetColor();
         Tokens.Expect("Faction");
         Tokens.Expect(":");
         var faction = Tokens.Expect(TokenType.Text).Value;
@@ -96,9 +90,6 @@ class Parser
     }
     public int ParsePower()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParsePower");
-        Console.ResetColor();
         Tokens.Expect("Power");
         Tokens.Expect(":");
         var power = Tokens.Expect(TokenType.Number).Value;
@@ -116,9 +107,6 @@ class Parser
     {
          // HashSet de tipos válidos derivados del enumerado
         HashSet<string> ValidPositions = Enum.GetNames(typeof(Position)).ToHashSet();
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseRange");
-        Console.ResetColor();
         Tokens.Expect("Range");
         Tokens.Expect(":");
         Tokens.Expect("[");
@@ -153,9 +141,6 @@ class Parser
     }
     public List<EffectInvocationNode> ParseOnActivationBody()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseOnActivationBody");
-        Console.ResetColor();
         List<EffectInvocationNode> effects = [];
         Tokens.Expect("OnActivation");
         Tokens.Expect(":");
@@ -189,9 +174,6 @@ class Parser
     }
     public EffectField ParseEffectField()
     {
-            Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine("Entre a ParseEffectField");
-            Console.ResetColor();
             Tokens.Expect("Effect");
             Tokens.Expect(":");
             if (Tokens.LookAhead().Type == TokenType.Text)
@@ -214,9 +196,6 @@ class Parser
     }
     public CardParam ParseCardParam()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseCardParam");
-        Console.ResetColor();
         string name = Tokens.Expect(TokenType.Identifier).Value;
         Tokens.Expect(":");
         string value = Tokens.LookAhead().Value;
@@ -228,9 +207,6 @@ class Parser
         if (Tokens.LookAhead().Value ==",") Tokens.Next();
         if (Tokens.LookAhead().Value == "Selector")
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine("Entre a ParseSelectorField");
-            Console.ResetColor();
             Tokens.Expect("Selector");
             Tokens.Expect(":");
             Tokens.Expect("{");
@@ -244,9 +220,6 @@ class Parser
     }
     public Source ParseSource()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseSource");
-        Console.ResetColor();
         // HashSet de tipos válidos derivados del enumerado
         HashSet<string> ValidSources = Enum.GetNames(typeof(Source)).ToHashSet();
         Tokens.Expect("Source");
@@ -266,9 +239,6 @@ class Parser
         if (Tokens.LookAhead().Value == ",") Tokens.Next();
         if (Tokens.LookAhead().Value == "Single")
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine("Entre a ParseSingle");
-            Console.ResetColor();
             Tokens.Expect("Single");
             Tokens.Expect(":");
             string single = Tokens.Expect(TokenType.Keyword).Value;
@@ -281,13 +251,10 @@ class Parser
     public MyPredicate ParsePredicate()
     {
         if (Tokens.LookAhead().Value == ",") Tokens.Next();
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParsePredicate");
-        Console.ResetColor();
         Tokens.Expect("Predicate");
         Tokens.Expect(":");
         Tokens.Expect("(");
-        var param = Tokens.Expect(TokenType.Identifier).Value;
+        string param = Tokens.Expect(TokenType.Identifier).Value;
         Tokens.Expect(")");
         Tokens.Expect("=>");
         var condition = ParseExpression();
@@ -298,9 +265,6 @@ class Parser
         if (Tokens.LookAhead().Value ==",") Tokens.Next();
         if (Tokens.LookAhead().Value == "PostAction")
         {
-            Console.ForegroundColor = ConsoleColor.Green;
-            System.Console.WriteLine("Entre a ParsePostAction");
-            Console.ResetColor();
             Tokens.Expect("PostAction");
             Tokens.Expect(":");
             EffectInvocationNode postAction = ParseEffectInvocation();
@@ -312,9 +276,6 @@ class Parser
 //parsear effecto
     public EffectNode ParseEffect()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseEffect");
-        Console.ResetColor();
         Tokens.Expect("{");
         var effectBody = ParseEffectBody();
         Tokens.Expect("}");
@@ -323,9 +284,6 @@ class Parser
 
     public EffectNode ParseEffectBody()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseEffectBody");
-        Console.ResetColor();
         var name = ParseNameField();
         Tokens.Expect(",");
         List<ParamNode> parameters = new List<ParamNode>();
@@ -340,9 +298,6 @@ class Parser
 
     public string ParseNameField()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a PasreNameField");
-        Console.ResetColor();
         Tokens.Expect("Name");
         Tokens.Expect(":");
         var name = Tokens.Expect(TokenType.Text).Value;
@@ -351,9 +306,6 @@ class Parser
 
     public List<ParamNode> ParseParamsField()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseParamsField");
-        Console.ResetColor();
         Tokens.Expect("Params");
         Tokens.Expect(":");
         Tokens.Expect("{");
@@ -375,9 +327,6 @@ class Parser
     }
     public ParamNode ParseParam()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseParam");
-        Console.ResetColor();
         // Console.WriteLine("ParseParam - Current Token: " + Tokens.LookAhead().Value + " (Expected Identifier for param name)");
         var name = Tokens.Expect(TokenType.Identifier).Value;
         // Console.WriteLine("ParseParam - Current Token: " + Tokens.LookAhead().Value + " (Expected ':' after param name)");
@@ -390,9 +339,6 @@ class Parser
 
     public ActionNode ParseActionField()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseActionField");
-        Console.ResetColor();
         Tokens.Expect("Action");
         Tokens.Expect(":");
         return ParseFunction();
@@ -400,9 +346,6 @@ class Parser
 
     public ActionNode ParseFunction()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseFunction");
-        Console.ResetColor();
         Tokens.Expect("(");
 
         IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value,true);
@@ -424,9 +367,6 @@ class Parser
     
     public StatementNode ParseStatement()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseStatement");
-        Console.ResetColor();
         // Maneja la declaración 'for'
         if (Tokens.LookAhead().Value == "for")
         {
@@ -450,9 +390,6 @@ class Parser
 
     public ForStatement ParseForStatement()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseFor");
-        Console.ResetColor();
         Tokens.Expect("for");
         var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value,true);//porque la variable del for es un identifier dinamico
         Tokens.Expect("in");
@@ -482,9 +419,6 @@ class Parser
 
     public WhileStatement ParseWhileStatement()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseWhile");
-        Console.ResetColor();
         Tokens.Expect("while");
         Tokens.Expect("(");
         var condition = ParseExpression();
@@ -511,9 +445,6 @@ class Parser
 
     public AssignmentOrMethodCall ParseAssignment()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseAssingment");
-        Console.ResetColor();
         ExpressionNode variable = ParseExpression();
         var op = Tokens.LookAhead().Value;
         if (op == "+=" || op== "-="|| op == "*=" || op == "/=")
@@ -578,17 +509,11 @@ class Parser
     #region ParseEspression
     public ExpressionNode ParseExpression()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseExpression");
-        Console.ResetColor();
         return ParseLogicalTerm();
     }
 
     public ExpressionNode ParseLogicalTerm()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseLogicalTerm");
-        Console.ResetColor();
         var node = ParseLogicalFactor();
         bool flag = false;
         while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "||")
@@ -600,18 +525,11 @@ class Parser
             var right = ParseLogicalFactor();
             node = new BinaryOperation(node, op, right);
         }
-        if (!flag)
-        {
-        //   System.Console.WriteLine("NO ENCONTRE ||");
-        }
         return node;
     }
 
     public ExpressionNode ParseLogicalFactor()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseFactor");
-        Console.ResetColor();
         var node = ParseEqualityExpr();
         bool flag = false;
         while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "&&")
@@ -623,19 +541,12 @@ class Parser
             var right = ParseEqualityExpr();
             node = new BinaryOperation(node, op, right);
         }
-        if (!flag)
-        {
-        //   System.Console.WriteLine("NO ENCONTRE &&");
-        }
 
         return node;
     }
 
     public ExpressionNode ParseEqualityExpr()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseEqualityExpr");
-        Console.ResetColor();
         var node = ParseRelationalExpr();
         bool flag = false;
 
@@ -648,18 +559,11 @@ class Parser
             var right = ParseRelationalExpr();
             node = new BinaryOperation(node, op, right);
         }
-        if (!flag)
-        {
-        //   System.Console.WriteLine("NO ENCONTRE == o != ");
-        }
         return node;
     }
 
     public ExpressionNode ParseRelationalExpr()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseRelationalExpr");
-        Console.ResetColor();
         var node = ParseAdditiveExpr();
         bool flag = false;
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "<" || Tokens.LookAhead().Value == ">" || Tokens.LookAhead().Value == "<=" || Tokens.LookAhead().Value == ">="))
@@ -671,19 +575,12 @@ class Parser
             var right = ParseAdditiveExpr();
             node = new BinaryOperation(node, op, right);
         }
-        if (!flag)
-        {
-        //   System.Console.WriteLine("NO ENCONTRE MENOR O MAYOR ");
-        }
 
         return node;
     }
 
     public ExpressionNode ParseAdditiveExpr()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseAdditiveExpr");
-        Console.ResetColor();
         var node = ParseMultiplicativeExpr();
         bool flag = false;
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-"))
@@ -695,19 +592,12 @@ class Parser
             var right = ParseMultiplicativeExpr();
             node = new BinaryOperation(node, op, right);
         }
-        if (!flag)
-        {
-        //   System.Console.WriteLine("NO ENCONTRE ADICION");
-        }
 
         return node;
     }
 
     public ExpressionNode ParseMultiplicativeExpr()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParseMultExpr");
-        Console.ResetColor();
         var node = ParsePrimary();
         bool flag = false;
         while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "*" || Tokens.LookAhead().Value == "/"))
@@ -720,19 +610,12 @@ class Parser
             var right = ParsePrimary();
             node = new BinaryOperation(node, op, right);
         }
-        if (!flag)
-        {
-        //   System.Console.WriteLine("NO ENCONTRE MULTIPLICACION");
-        }
         
         return node;
     }
 
     public ExpressionNode ParsePrimary()
     {
-        Console.ForegroundColor = ConsoleColor.Green;
-        System.Console.WriteLine("Entre a ParsePrimaryExpr");
-        Console.ResetColor();
         var token = Tokens.LookAhead();
 
         if (token.Type == TokenType.Number)

@@ -343,11 +343,14 @@ public class IdentifierNode : ExpressionNode, IVisitable
     public string Name { get; }
     public bool IsDynamic { get; set; }
     public bool IsContext { get; set; }
+    public bool IsCard { get; set; }
 
-    public IdentifierNode(string name, bool isDynamic = false,bool IsContext = false)
+    public IdentifierNode(string name, bool isDynamic = false,bool isContext = false,bool isCard = false)
     {
         Name = name;
         IsDynamic = isDynamic;
+        IsContext = isContext;
+        IsCard = isCard;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -649,12 +652,12 @@ public class SelectorNode : ASTNode, IVisitable
 
 public class MyPredicate : ASTNode, IVisitable
 {
-    public string Param { get; }
+    public IdentifierNode Param { get; }
     public ExpressionNode Condition { get; }
 
     public MyPredicate(string param, ExpressionNode condition)
     {
-        Param = param;
+        Param = new IdentifierNode(param,true,false,true);
         Condition = condition;
     }
 

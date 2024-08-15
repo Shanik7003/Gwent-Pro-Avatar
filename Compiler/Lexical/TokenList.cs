@@ -28,10 +28,9 @@ public class TokenList : IEnumerable<Token>
      /*si existe una NextPosition la consume (actualiza position) */
     public bool Next()
     {
-     
         if (CanLookAhead())
         {
-            System.Console.WriteLine($"Consumido {tokens[Position].Value}");
+            // System.Console.WriteLine($"Consumido {tokens[Position].Value}");
             position++;
         }
 

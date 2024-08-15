@@ -216,7 +216,8 @@ public class SemanticVisitor : ASTVisitor
         context.AddMember("Deck", new Symbol("Deck",typeof(CardList)));
         context.AddMember("Field", new Symbol("Field",typeof(CardList)));
         context.AddMember("Graveyard", new Symbol("Graveyard",typeof(CardList)));
-     
+        globalSymbolTable.AddSymbol("Context", context);
+
         //Registrar el tipo CardList con sus metodos 
         var cardList = new Symbol("CardList",typeof(CardList));
         cardList.AddMember("Find",new Symbol("Find",typeof(CardList)));
@@ -225,6 +226,7 @@ public class SemanticVisitor : ASTVisitor
         cardList.AddMember("Pop",new Symbol("Pop",null));
         cardList.AddMember("Remove",new Symbol("Remove",null));
         cardList.AddMember("Shuffle",new Symbol("Shuffle",null));
+        globalSymbolTable.AddSymbol("CardList",cardList);
     }
 
     private Type GetMappedType(string typeName)
@@ -524,15 +526,20 @@ public class SemanticVisitor : ASTVisitor
     public override void Visit(IdentifierNode node)
     {
         // Verifica si el identificador es dinámico
-        if (node.IsDynamic)
-        {
-            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name, typeof(IdentifierNode)));
-            return; // No reportar error, ya que es un identificador dinámico
-        }
         if (node.IsContext)
         {
             currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(Context)));
             return; 
+        }
+        else if (node.IsCard)
+        {
+            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(Card)));
+            return; 
+        }
+        else if (node.IsDynamic)
+        {
+            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name, typeof(IdentifierNode)));
+            return; // No reportar error, ya que es un identificador dinámico
         }
 
         // Si no es dinámico, realiza el chequeo estándar
