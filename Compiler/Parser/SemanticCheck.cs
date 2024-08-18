@@ -155,7 +155,7 @@ public interface IVisitable
 public abstract class ASTVisitor
 {
     // Definir métodos para cada tipo de nodo que quieras visitar
-
+    
     public abstract void Visit(RootNode node);
     public abstract void Visit(Assignment node);
     public abstract void Visit(MethodCallNode node);

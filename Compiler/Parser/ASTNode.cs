@@ -331,7 +331,7 @@ public class WhileStatement : StatementNode, IVisitable
             statement.PrintMermaid(sb, nodeId);
         }
     }
-
+    
     public override void Accept(ASTVisitor visitor)
     {
         visitor.Visit(this);
