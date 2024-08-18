@@ -1,86 +1,91 @@
-effect 
-{
-    Name: "Damage",
-    Params: {
-        Amount: Number
-    },
-    Action: (targets, context) => 
-	{
-        for target in targets 
-		{
-            i = 0;
-            while (i < Amount)
-            target.Power -= 1;
-        };
+El chequeo semántico que has implementado cubre una buena parte de los aspectos esenciales, como la verificación de tipos, la validación de la existencia de símbolos, y el chequeo de compatibilidad de tipos en operaciones y asignaciones. Aquí hay algunos aspectos adicionales que podrías considerar para fortalecer tu chequeo semántico, seguidos de los pasos que podrías tomar para continuar con tu proyecto:
+Aspectos adicionales para el chequeo semántico:
 
-    }
-}
-effect 
-{
-    Name: "ReturnToDeck",
-    Action: (targets, context) => 
-    {
-        for target in targets 
-        {
-            owner = target.Owner;
-            deck = context.DeckOfPlayer (owner);
-            deck.Push(target);
-            deck.Shuffle();
-            context.Board.Remove(target);
-        };
-    }
-}
-effect 
-{
-    Name: "Draw",
-    Action: (targets, context) => {
-    topCard = context.Deck.Pop();
-    context.Hand.Add(topCard);
-    context.Hand.Shuffle();
-    }
-}
+    Sobrecarga de funciones y métodos:
+    Si en tu DSL es posible tener métodos o funciones con el mismo nombre pero diferentes firmas (sobrecarga), deberías implementar lógica para verificar que se esté llamando a la sobrecarga correcta y que los tipos de parámetros coincidan.
 
-card 
-{
-	Type: "Oro",
-	Name: "Beluga",
-	Faction: "NorthernRealms",
-	Power: 90,
-	Range: ["M", "R"],
-	OnActivation: 
-	[
-	    {
-            Effect: 
-            {
-                Name: "Damage",
-                Amount: 5 
-            },
+    Alcances y sombras de variables:
+    Asegúrate de que las variables en alcances internos no están sobrescribiendo accidentalmente variables en alcances externos, a menos que esto sea intencional. Es útil emitir una advertencia o error en casos de sombras de variables no intencionadas.
 
-            Selector:
-            {
-                Source: "board",
-                Single: false,
-                Predicate: (unit) => unit.Faction == "NorthernRealms"
-            },
+    Uso de variables antes de su declaración:
+    Verifica que las variables y funciones sean usadas solo después de ser declaradas en el código. Esto puede evitar errores en el uso de variables que no hayan sido inicializadas.
 
-            PostAction: 
-            {
-                Effect: 
-                {
-                    Name: "ReturnToDeck"
-                },
+    Chequeo de retorno en funciones:
+    Si tu DSL soporta funciones que deben retornar un valor, verifica que todas las rutas de código dentro de la función efectivamente retornen un valor del tipo correcto.
 
-                Selector: 
-                {
-                    Source: "parent",
-                    Single: false,
-                    Predicate: (unit) => unit.Power < 1
-                },
-            }
-        },
+    Constantes:
+    Si tienes constantes en tu DSL, asegúrate de que no se están reasignando o modificando durante la ejecución.
 
-        {
-            Effect: "Draw"
-        }
-    ]
-}
+    Verificación de ciclos infinitos:
+    Aunque este es un chequeo complejo y no siempre factible, podrías considerar advertencias sobre posibles bucles infinitos, especialmente si hay estructuras de control que dependen de condiciones que podrían no cambiar.
+
+Siguiente paso después del chequeo semántico:
+
+Después de completar el chequeo semántico, el siguiente paso lógico en el desarrollo de tu compilador sería la generación de código o la traducción a un código intermedio.
+1. Generación de Código Intermedio (Opcional):
+
+    Podrías generar una representación intermedia (IR) de tu código, que sea más fácil de manipular para optimizaciones o traducción posterior. Este paso es útil si planeas realizar optimizaciones más avanzadas antes de la generación del código final.
+
+2. Generación de Código (Code Generation):
+
+    Target Platform: En tu caso, estarías generando código que pueda ser ejecutado en Unity. Esto podría ser en C# o un conjunto de scripts que Unity pueda entender y ejecutar en el contexto del juego.
+    Traducción de AST a Código: Transforma el árbol de sintaxis abstracta (AST) que has generado durante el parsing y chequeo semántico en código que puede ser ejecutado directamente por Unity.
+    Optimización: Puedes realizar optimizaciones simples durante la generación de código, como eliminar código muerto, optimizar expresiones aritméticas, etc.
+
+3. Integración con Unity:
+
+    Ejecución de Efectos: Asegúrate de que las cartas generadas por tu DSL puedan ejecutar sus efectos correctamente dentro del entorno de Unity.
+    Pruebas: Es importante realizar pruebas exhaustivas para asegurarte de que las cartas y sus efectos funcionan como se espera dentro del juego. Considera tanto pruebas unitarias como pruebas de integración.
+
+4. Manejo de Errores en Tiempo de Ejecución:
+
+    Aunque ya manejaste errores en tiempo de compilación, también debes considerar cómo manejarás errores o condiciones inesperadas que puedan surgir durante la ejecución de las cartas en el juego.
+
+¿Le falta algo al chequeo semántico?
+
+En general, tu chequeo semántico parece estar bastante completo para los propósitos que mencionaste. Sin embargo, considera los puntos adicionales que mencioné para asegurarte de que no se pasen por alto aspectos importantes que podrían afectar la robustez y corrección de tu DSL y su compilador.
+
+En resumen, el siguiente paso principal es la generación de código, seguido por la integración y pruebas en Unity. Si decides incorporar alguno de los aspectos adicionales en el chequeo semántico, puedes hacerlo antes de proceder con la generación de código.
+
+Propuesta 3: Generación de Código con Árboles de Sintaxis Intermedios (Intermediate Syntax Trees)
+
+Descripción:
+En este enfoque, en lugar de generar código C# directamente desde el AST, primero se traduce el AST a un Árbol de Sintaxis Intermedio (IST) que esté más cerca del código final. Luego, se recorre el IST para generar el código C#. Este enfoque es más avanzado y permite realizar optimizaciones o adaptaciones más fácilmente.
+
+Pasos a seguir:
+
+    Definir el IST:
+        Diseña un conjunto de estructuras que representen el código intermedio. Este IST debe reflejar el código C# que se desea generar, pero en una forma más abstracta y flexible.
+
+    Transformar el AST en un IST:
+        Implementa un paso intermedio donde el AST se transforma en un IST. Esto permite realizar optimizaciones y ajustes antes de la generación del código final.
+
+    Generar el Código desde el IST:
+        Crea una clase que recorra el IST y lo traduzca en código C#. Este paso es similar al de la Propuesta 1, pero con la ventaja de que el IST permite modificaciones y optimizaciones adicionales.
+
+    Optimización:
+        Antes de generar el código final, puedes aplicar optimizaciones en el IST, como eliminar expresiones redundantes o reorganizar el código para mejorar su eficiencia.
+
+    Generación de Archivos:
+        Una vez que el código está optimizado, genera el código C# y guárdalo en archivos .cs.
+
+    Integración con Unity:
+        Asegúrate de que todo se integre correctamente en Unity y realiza pruebas exhaustivas.
+
+Ventajas:
+
+    Muy flexible y potente.
+    Permite optimizaciones y modificaciones avanzadas.
+
+Desventajas:
+
+    Más complejo y requiere más tiempo para implementar.
+    Requiere un buen diseño del IST.
+
+Resumen
+
+    Propuesta 1: Ideal para proyectos pequeños y simples. Generación directa de código C# desde el AST.
+    Propuesta 2: Utiliza plantillas de código, facilitando la reutilización y el mantenimiento del código.
+    Propuesta 3: Usa un IST para tener un mayor control y capacidad de optimización antes de la generación final del código.
+
+Dependiendo de la complejidad de tu DSL y el tiempo que tengas disponible, puedes optar por uno de estos enfoques. Si buscas algo rápido y funcional, la Propuesta 1 es adecuada. Si planeas ampliar el DSL en el futuro o quieres un enfoque más modular y reutilizable, considera la Propuesta 2 o la Propuesta 3.

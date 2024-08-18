@@ -74,7 +74,7 @@ public class SymbolTable
         }
         else
         {
-            PrintActualSymbolTable();
+            PrintCurrentSymbolTable();
             Console.WriteLine($"Error: El símbolo '{name}' ya está declarado en este alcance.");
         }
     }
@@ -117,7 +117,7 @@ public class SymbolTable
         return Parent ?? this; // Volver al padre, si no existe, quedarse en el mismo alcance
     }
 
-    public void PrintActualSymbolTable()
+    public void PrintCurrentSymbolTable()
     { 
         Console.ForegroundColor = ConsoleColor.DarkMagenta;
         Console.WriteLine("Símbolos en el alcance actual:");
@@ -195,7 +195,9 @@ public class SemanticVisitor : ASTVisitor
     {
         { "Number", typeof(Number) },
         { "string", typeof(string) },
+        {"String", typeof(string) },
         { "bool", typeof(bool) },
+        { "Bool", typeof(bool) },
         { "float", typeof(float) },
         { "double", typeof(double) },
         { "CardType", typeof(CardType) },
@@ -203,8 +205,8 @@ public class SemanticVisitor : ASTVisitor
         { "CardList", typeof(CardList) },
         { "Method", typeof(Method) },
         { "Effect", typeof(Effect) },
-        {"Null", typeof(Null)},
-        {"Player", typeof(Player)}
+        {"Null", typeof(Null) },
+        {"Player", typeof(Player) }
         // Agrega otros tipos primitivos o personalizados según sea necesario
     };
     public SemanticVisitor(List<CompilingError> errors)
@@ -212,6 +214,7 @@ public class SemanticVisitor : ASTVisitor
         globalSymbolTable = new SymbolTable();
         RegisterGlobalSymbols();
         currentSymbolTable = new SymbolTable(globalSymbolTable);
+        semanticErrors = errors;
         
     }
     private void RegisterGlobalSymbols()
@@ -272,15 +275,15 @@ public class SemanticVisitor : ASTVisitor
             }
             else
             {
-                ReportError($"Unknown type: {typeName}");
+                throw new Exception($"Unknown type: {typeName}");
                 return null; 
             }
         }
     }
 
-    private void ReportError(string message)
+    private void AddSemanticError(CodeLocation location, string message)
     {
-        Console.WriteLine($"Semantic Error: {message}");
+        semanticErrors.Add(new CompilingError(location, ErrorCode.SemanticError, message)); 
     }
 
     private string EvaluateType(ExpressionNode expression)
@@ -297,7 +300,7 @@ public class SemanticVisitor : ASTVisitor
                 }
                 else
                 {
-                    ReportError($"Variable '{identifierNode.Name}' is not declared");
+                   AddSemanticError(expression.Location,$"Variable '{identifierNode.Name}' is not declared");
                     return "unknown";
                 }
             case BinaryOperation binaryOperation:
@@ -309,7 +312,7 @@ public class SemanticVisitor : ASTVisitor
                 }
                 else
                 {
-                    ReportError($"Type mismatch in binary operation: {leftType} and {rightType}");
+                   AddSemanticError(binaryOperation.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
                     return "unknown";
                 }
             case ExpressionMethodCall methodCall:
@@ -317,14 +320,14 @@ public class SemanticVisitor : ASTVisitor
                 Symbol targeTypeSymbol = currentSymbolTable.GetSymbol(targeType);
                 if (targeTypeSymbol == null)
                 {
-                    ReportError($"El tipo  {targeType} no contiene ninguna propiedad"); 
+                   AddSemanticError(methodCall.Location,$"El tipo  {targeType} no contiene ninguna propiedad"); 
                     return "unknown";
                 } 
                 string functionName = methodCall.Funtion.Name;
                 Symbol functionSymbol = targeTypeSymbol.GetMemberInGlobalTab(functionName);  
                 if (functionSymbol == null)
                 {
-                    ReportError($"No existe la propiedad {functionName} para el tipo {targeType}");
+                   AddSemanticError(methodCall.Location,$"No existe la propiedad {functionName} para el tipo {targeType}");
                     return "unknown";
                 }
                 return functionSymbol.Type.ToString();
@@ -335,7 +338,7 @@ public class SemanticVisitor : ASTVisitor
                     Symbol target = currentSymbolTable.GetSymbol(((IdentifierNode)propertyAccess.Target).Name);
                     if (target == null)
                     {
-                        ReportError($"El target {((IdentifierNode)propertyAccess.Target).Name} no esta declarado"); 
+                       AddSemanticError(propertyAccess.Location,$"El target {((IdentifierNode)propertyAccess.Target).Name} no esta declarado"); 
                         return "unknown";
                     }    
                     string targetType = target.Type.ToString();
@@ -343,7 +346,7 @@ public class SemanticVisitor : ASTVisitor
                     Symbol targetTypeSymbol = currentSymbolTable.GetSymbol(targetType);
                     if (targetTypeSymbol == null)
                     {
-                        ReportError($"El tipo {targetType} no contiene ninguna propiedad"); 
+                       AddSemanticError(propertyAccess.Location,$"El tipo {targetType} no contiene ninguna propiedad"); 
                         return "unknown";
                     } 
                     //verifica si el symbolo del tipo del target contiene alguna propiedad con el nombre de la property de accesProperty
@@ -351,7 +354,7 @@ public class SemanticVisitor : ASTVisitor
                     Symbol propertyType = targetTypeSymbol.GetMemberInGlobalTab(propertyName);
                     if (propertyType == null)
                     {
-                        ReportError($"No existe la propiedad {propertyName} para el tipo {targetType}");
+                       AddSemanticError(propertyAccess.Location,$"No existe la propiedad {propertyName} para el tipo {targetType}");
                         return "unknown";
                     }
                     return propertyType.Type.ToString();
@@ -361,7 +364,7 @@ public class SemanticVisitor : ASTVisitor
                 Symbol targetTypSymbol = currentSymbolTable.GetSymbol(targetTyp);
                 if (targetTypSymbol == null)
                 {
-                ReportError($"El tipo del target {((IdentifierNode)propertyAccess.Target).Name} no contiene ninguna propiedad con su nombre "); 
+               AddSemanticError(propertyAccess.Location,$"El tipo del target {((IdentifierNode)propertyAccess.Target).Name} no contiene ninguna propiedad con su nombre "); 
                 return "unknown";
                 } 
                 //verifica si el symbolo del tipo del target contiene alguna propiedad con el nombre de la property de accesProperty
@@ -369,7 +372,7 @@ public class SemanticVisitor : ASTVisitor
                 Symbol propertyTyp = targetTypSymbol.GetMemberInGlobalTab(propertyNam);
                 if (propertyTyp == null)
                 {
-                    ReportError($"No existe la propiedad {propertyNam} para el tipo {targetTyp}");
+                   AddSemanticError(propertyAccess.Location,$"No existe la propiedad {propertyNam} para el tipo {targetTyp}");
                     return "unknown";
                 }
                 string respuesta =  propertyTyp.Type.ToString();//borrar esta linea es solo para debugear 
@@ -410,7 +413,7 @@ public class SemanticVisitor : ASTVisitor
             var valueType = EvaluateType(node.Value);
             if (!TypesAreCompatible(propertyAccesType,valueType))
             {
-                ReportError($"Type mismatch: cannot assign '{valueType}' to '{propertyAccesType}'.");
+               AddSemanticError(node.Location,$"Type mismatch: cannot assign '{valueType}' to '{propertyAccesType}'.");
             }
             // Evaluar y procesar el valor de la expresión en el lado derecho de la asignación
             node.Value.Accept(this);
@@ -419,7 +422,7 @@ public class SemanticVisitor : ASTVisitor
         var variableName = (node.Variable as IdentifierNode)?.Name;
         if (string.IsNullOrEmpty(variableName))
         {
-            ReportError("Invalid assignment target.");
+           AddSemanticError(node.Location,"Invalid assignment target.");
             return;
         }
 
@@ -432,13 +435,20 @@ public class SemanticVisitor : ASTVisitor
             var exprType = EvaluateType(node.Value);
             if (exprType == "unknown")
             {
-                ReportError($"Unable to determine the type of the expression assigned to '{variableName}'.");
+               AddSemanticError(node.Location,$"Unable to determine the type of the expression assigned to '{variableName}'.");
                 return;
             }
 
             // Agregar la variable a la tabla de símbolos actual
-            var newSymbol = new Symbol(variableName, GetMappedType(exprType));
-            currentSymbolTable.AddSymbol(variableName, newSymbol);
+            try
+            {
+                var newSymbol = new Symbol(variableName, GetMappedType(exprType));
+                currentSymbolTable.AddSymbol(variableName, newSymbol);
+            }
+            catch (System.Exception ex)
+            {
+                AddSemanticError(node.Location,ex.Message);
+            }
         }
         else
         {
@@ -446,7 +456,7 @@ public class SemanticVisitor : ASTVisitor
             var exprType = EvaluateType(node.Value);
             if (!TypesAreCompatible(variableSymbol.Type.ToString(), exprType))
             {
-                ReportError($"Type mismatch: cannot assign '{exprType}' to '{variableSymbol.Type}' in variable '{variableName}'.");
+               AddSemanticError(node.Location,$"Type mismatch: cannot assign '{exprType}' to '{variableSymbol.Type}' in variable '{variableName}'.");
             }
         }
 
@@ -461,12 +471,12 @@ public class SemanticVisitor : ASTVisitor
         Symbol targetTypeSymbol = currentSymbolTable.GetSymbol(targetType);
         if (targetTypeSymbol == null)
         {
-            ReportError($"El tipo {targetType} no esta declarado");
+           AddSemanticError(node.Location,$"El tipo {targetType} no esta declarado");
         }
         Symbol functionSymbol = targetTypeSymbol.GetMemberInGlobalTab(node.Funtion.Name);
         if (functionSymbol == null)
         {
-            ReportError($"El metodo {node.Funtion.Name} no puede ser aplicado a el tipo {targetType}");
+           AddSemanticError(node.Location,$"El metodo {node.Funtion.Name} no puede ser aplicado a el tipo {targetType}");
         }
         //verificaciones del parametro 
         if (node.Param != null && functionSymbol.FunctionParametersType.Count > 0)//si el methodCall tiene un parametro y el tipo de la funcion requiere un parametro 
@@ -476,21 +486,21 @@ public class SemanticVisitor : ASTVisitor
             string functionParamType = functionSymbol.FunctionParametersType[0].ToString();
             if (!TypesAreCompatible(paramType,functionParamType))
             {
-                ReportError($"Invalid parameterType in funtion {node.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
+               AddSemanticError(node.Location,$"Invalid parameterType in funtion {node.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
             }
         }
         else if (node.Param == null)
         {
             if (functionSymbol.FunctionParametersType.Count > 0)
             {
-                ReportError($"There is no argument given that corresponds to the required parameter '{functionSymbol.FunctionParametersType[0].Name}' of the method {node.Funtion.Name}");
+               AddSemanticError(node.Location,$"There is no argument given that corresponds to the required parameter '{functionSymbol.FunctionParametersType[0].Name}' of the method {node.Funtion.Name}");
             }
         } 
         else if(functionSymbol.FunctionParametersType.Count == 0)
         {
             if (node.Param != null)
             {
-                ReportError($"Invalid expression term '{node.Param.Name}'");
+               AddSemanticError(node.Location,$"Invalid expression term '{node.Param.Name}'");
             }
         }
 
@@ -505,8 +515,15 @@ public class SemanticVisitor : ASTVisitor
         foreach (var param in node.Params)
         {
             param.Accept(this);
-            Type debug = GetMappedType(param.Type);
-            Effect.Parameters.Add(new Symbol(param.Name, debug));
+            try
+            {
+                Type debug = GetMappedType(param.Type);
+                Effect.Parameters.Add(new Symbol(param.Name, debug));
+            }
+            catch (System.Exception ex)
+            {
+                AddSemanticError(node.Location,ex.Message);
+            }
         }
 
         node.Action.Accept(this);
@@ -521,11 +538,18 @@ public class SemanticVisitor : ASTVisitor
 
         if (currentSymbolTable.ContainsSymbol(paramName))
         {
-            ReportError($"Parameter '{paramName}' is already declared");
+           AddSemanticError(node.Location,$"Parameter '{paramName}' is already declared");
         }
         else
         {
-            globalSymbolTable.AddSymbol(paramName, new Symbol(paramName, Type.GetType(paramType)));
+            try
+            {
+                globalSymbolTable.AddSymbol(paramName, new Symbol(paramName, GetMappedType(paramType)));     
+            }
+            catch (System.Exception ex)
+            {
+                AddSemanticError(node.Location,ex.Message);
+            }
         }
     }
 
@@ -564,7 +588,7 @@ public class SemanticVisitor : ASTVisitor
 
         if (!node.Condition.IsLogicalExp)
         {
-            ReportError("La Expresion dentro del while debe ser una expresion logica");
+           AddSemanticError(node.Location,"La Expresion dentro del while debe ser una expresion logica");
         }
         node.Condition.Accept(this);
 
@@ -582,7 +606,7 @@ public class SemanticVisitor : ASTVisitor
         var rightType = EvaluateType(node.Right);
         if (!TypesAreCompatible(leftType, rightType))
         {
-            ReportError($"Type mismatch in binary operation: {leftType} and {rightType}");
+           AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
         }
 
         node.Left.Accept(this);
@@ -616,7 +640,7 @@ public class SemanticVisitor : ASTVisitor
         // Si no es dinámico, realiza el chequeo estándar
         if (!currentSymbolTable.ContainsSymbol(node.Name))
         {
-            ReportError($"Variable '{node.Name}' is not declared");
+           AddSemanticError(node.Location,$"Variable '{node.Name}' is not declared");
         }
     }
 
@@ -636,12 +660,12 @@ public class SemanticVisitor : ASTVisitor
             var propertySymbol = targetSymbol.GetMemberInGlobalTab(node.Property.Name);
             if (propertySymbol == null)
             {
-                ReportError($"Property '{node.Property.Name}' does not exist in type '{targetType}'.");
+               AddSemanticError(node.Location,$"Property '{node.Property.Name}' does not exist in type '{targetType}'.");
             }
         }
         else
         {
-            ReportError($"Type '{targetType}' is not defined.");
+           AddSemanticError(node.Location,$"Type '{targetType}' is not defined.");
         }
     }
 
@@ -684,7 +708,7 @@ public class SemanticVisitor : ASTVisitor
             Symbol effectSymbol = globalSymbolTable.GetSymbol(node.Name.Name);
             if (effectSymbol == null)
             {
-                ReportError($"El simbolo {node.Name.Name} no esta declarado");
+               AddSemanticError(node.Location,$"El simbolo {node.Name.Name} no esta declarado");
                 return;
             }
             else
@@ -692,7 +716,7 @@ public class SemanticVisitor : ASTVisitor
                 int effectParams = effectSymbol.Parameters.Count;
                 if (nodeParams != effectParams)
                 {
-                    ReportError($"El efecto {node.Name} requiere {effectParams} parametros, no coincide con la cantidad de parametros proporcionados: {nodeParams}");
+                   AddSemanticError(node.Location,$"El efecto {node.Name} requiere {effectParams} parametros, no coincide con la cantidad de parametros proporcionados: {nodeParams}");
                 }
             }  
             foreach (var param in node.Params)
@@ -730,7 +754,7 @@ public class SemanticVisitor : ASTVisitor
         node.Param.Accept(this);
         if (!node.Condition.IsLogicalExp)
         {
-            ReportError("La condicion del predicado debe ser una expresion logica");
+           AddSemanticError(node.Location,"La condicion del predicado debe ser una expresion logica");
         }
         node.Condition.Accept(this);
     }

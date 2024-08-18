@@ -46,7 +46,7 @@ class Program
         // Realizar el análisis semántico
         SemanticVisitor semanticVisitor = new SemanticVisitor(SemanticErrors);
         semanticVisitor.Visit(ast);
-        
+        if(HandleErrors(SemanticErrors)) return;
 
         GenerateMermaidDiagram(ast,"effectNodeDiagram.md");
 

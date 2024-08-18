@@ -12,6 +12,11 @@ public class CompilingError
             this.Message = message;
             Location = location;
         }
+        public CompilingError(ErrorCode code,string message)
+        {
+            this.Code = code;
+            this.Message = message;
+        }
     }
 
     public enum ErrorCode
