@@ -78,7 +78,7 @@ public class TokenList : IEnumerable<Token>
     public Token LookAhead()
     {
         if(CanLookAhead())
-            return tokens[position + 1];
+            return tokens[position + 1];    
         throw new Exception("Can't lookahead");
     }
     

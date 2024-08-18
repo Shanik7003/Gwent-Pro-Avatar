@@ -17,57 +17,72 @@ class Parser
     }
 
     // Método para agregar errores
-    private void AddParsingError(CodeLocation location, ErrorCode code, string message)
+    private void AddParsingError(CodeLocation location, string message)
     {
-        parsingErrors.Add(new CompilingError(location, code, message));
+        parsingErrors.Add(new CompilingError(location, ErrorCode.ParsingError, message));
     }
 
     public RootNode ParseCode()
     {
-        RootNode root = new RootNode();
+        RootNode root = new();
         while (!Tokens.End)
         {
-            if (Tokens.MatchValue("effect"))
+            try
             {
-                EffectNode effect = ParseEffect();
-                if (effect != null)
+                if (Tokens.MatchValue("effect"))
                 {
-                    root.Effects.Add(effect);
+                    EffectNode effect = ParseEffect();
+                    if (effect != null)
+                    {
+                        root.Effects.Add(effect);
+                    }
+                }
+                else if (Tokens.MatchValue("card"))
+                {
+                    CardNode card = ParseCard();
+                    if (card != null)
+                    {
+                        root.Cards.Add(card);
+                    }
+                }
+                else 
+                {
+                    Tokens.Next();
                 }
             }
-            else if (Tokens.MatchValue("card"))
+            catch (Exception ex)
             {
-                CardNode card = ParseCard();
-                if (card != null)
-                {
-                    root.Cards.Add(card);
-                }
+                AddParsingError(Tokens.LookAhead().Location,ex.Message);
             }
-            else
-            {
-                AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, "Se esperaba 'effect' o 'card'.");
-                break;
-            }
+
         }
         return root;
     }
 
-    public CardNode ParseCard()
+    public CardNode? ParseCard()
     {
-        Tokens.Expect("{");
-        CardType type = ParseType();
-        Tokens.Expect(",");
-        string name = ParseNameField();
-        Tokens.Expect(",");
-        Faction faction = ParseFaction();
-        Tokens.Expect(",");
-        int power = ParsePower();
-        Tokens.Expect(",");
-        Position[] range = ParseRange();
-        Tokens.Expect(",");
-        List<EffectInvocationNode> effects = ParseOnActivationBody();
-        Tokens.Expect("}");
-        return new CardNode(name, type, faction, power, range, effects);
+        try
+        {
+            Tokens.Expect("{");
+            CardType type = ParseType();
+            Tokens.Expect(",");
+            string name = ParseNameField();
+            Tokens.Expect(",");
+            Faction faction = ParseFaction();
+            Tokens.Expect(",");
+            int power = ParsePower();
+            Tokens.Expect(",");
+            Position[] range = ParseRange();
+            Tokens.Expect(",");
+            List<EffectInvocationNode> effects = ParseOnActivationBody();
+            Tokens.Expect("}");
+            return new CardNode(name, type, faction, power, range, effects);
+        }
+        catch (Exception ex)
+        {
+            AddParsingError(Tokens.LookAhead().Location,ex.Message);
+            return null; 
+        }
     }
 
     public CardType ParseType()
@@ -81,7 +96,7 @@ class Parser
         }
         else
         {
-            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Tipo de carta inválido: {type}");
+            AddParsingError(Tokens.LookAhead().Location,  $"Tipo de carta inválido: {type}");
             return default;
         }
     }
@@ -97,7 +112,7 @@ class Parser
         }
         else
         {
-            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Facción inválida: {faction}");
+            AddParsingError(Tokens.LookAhead().Location,  $"Facción inválida: {faction}");
             return default;
         }
     }
@@ -113,7 +128,7 @@ class Parser
         }
         else
         {
-            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Valor de poder inválido: {power}");
+            AddParsingError(Tokens.LookAhead().Location,  $"Valor de poder inválido: {power}");
             return 0;
         }
     }
@@ -133,11 +148,16 @@ class Parser
             }
             else
             {
-                AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Posición inválida: {position}");
+                AddParsingError(Tokens.LookAhead().Location,  $"Posición inválida: {position}");
             }
             if (Tokens.LookAhead().Value == ",")
             {
                 Tokens.Next();
+            }
+            if (Tokens.End)
+            {
+                AddParsingError(Tokens.LookAhead().Location,  " Expected ']' ");
+                break;
             }
         }
         Tokens.Expect("]");
@@ -173,6 +193,11 @@ class Parser
         {
             selector = ParseSelectorField();
             postAction = ParsePostAction();
+            if (Tokens.End)
+            {
+                AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
+                break;
+            }
         }
         Tokens.Expect("}");
         EffectInvocationNode effect = new EffectInvocationNode(effectfield,selector,postAction);
@@ -185,17 +210,22 @@ class Parser
         Tokens.Expect(":");
         if (Tokens.LookAhead().Type == TokenType.Text)
         {
-            string Name = Tokens.LookAhead().Value;
+            IdentifierNode Name = new IdentifierNode(Tokens.LookAhead().Value);
             Tokens.Next();
             return new EffectField(Name);
         }
         Tokens.Expect("{");
-        string name = ParseNameField();
+        IdentifierNode name = new IdentifierNode(ParseNameField());
         List<CardParam> cardParams = [];
         while (Tokens.LookAhead().Value != "}")
         {
             Tokens.Expect(",");
             cardParams.Add(ParseCardParam());
+            if (Tokens.End)
+            {
+                AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
+                break;
+            }
         }
         Tokens.Expect("}");
         EffectField effectField = new EffectField(name,cardParams);
@@ -206,10 +236,26 @@ class Parser
     {
         string name = Tokens.Expect(TokenType.Identifier).Value;
         Tokens.Expect(":");
-        string value = Tokens.LookAhead().Value;
+        object value = ConvertString(Tokens.LookAhead().Value);
         Tokens.Next();//consume el value
         return new CardParam(name, value);
     }
+    public static object ConvertString(string input)
+    {
+        if (int.TryParse(input, out int intValue))
+        {
+            return intValue; // Devuelve un int si es convertible
+        }
+        else if (bool.TryParse(input, out bool boolValue))
+        {
+            return boolValue; // Devuelve un bool si es convertible
+        }
+        else
+        {
+            return input; // Devuelve el string original si no es convertible a int ni a bool
+        }
+    }
+
     public SelectorNode? ParseSelectorField()
     {
         if (Tokens.LookAhead().Value ==",") Tokens.Next();
@@ -238,7 +284,7 @@ class Parser
         }
         else
         {
-            AddParsingError(Tokens.LookAhead().Location, ErrorCode.Invalid, $"Fuente inválida: {source}");
+            AddParsingError(Tokens.LookAhead().Location,  $"Fuente inválida: {source}");
             return default;
         }
     }
@@ -294,7 +340,7 @@ class Parser
         }
         catch (Exception ex)
         {
-            AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, $"Error al parsear el efecto: {ex.Message}");
+            AddParsingError(Tokens.LookAhead().Location,  $"Error al parsear el efecto: {ex.Message}");
             return null;
         }
     }
@@ -315,6 +361,7 @@ class Parser
 
     public string ParseNameField()
     {
+    
         Tokens.Expect("Name");
         Tokens.Expect(":");
         var name = Tokens.Expect(TokenType.Text).Value;
@@ -336,6 +383,11 @@ class Parser
             {
                 Tokens.Next(); // consume ','
             }
+            if (Tokens.End)
+            {
+                AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
+                break;
+            }
         }
         Tokens.Expect("}");
         Tokens.Expect(",");
@@ -344,6 +396,7 @@ class Parser
 
     public ParamNode ParseParam()
     {
+    
         var name = Tokens.Expect(TokenType.Identifier).Value;
         Tokens.Expect(":");
         var type = Tokens.Expect(TokenType.Type).Value;
@@ -352,6 +405,7 @@ class Parser
 
     public ActionNode ParseActionField()
     {
+    
         Tokens.Expect("Action");
         Tokens.Expect(":");
         return ParseFunction();
@@ -360,8 +414,7 @@ class Parser
     public ActionNode ParseFunction()
     {
         Tokens.Expect("(");
-
-        IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value, true);
+        IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value, false,false,false,true);
         Tokens.Expect(",");
         IdentifierNode context = new(Tokens.Expect(TokenType.Identifier).Value, true, true);
         Tokens.Expect(")");
@@ -372,6 +425,11 @@ class Parser
         while (Tokens.LookAhead().Value != "}")
         {
             statements.Add(ParseStatement());
+            if (Tokens.End)
+            {
+                AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
+                break;
+            }
         }
 
         Tokens.Expect("}");
@@ -394,7 +452,7 @@ class Parser
         }
         else
         {
-            AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, $"Token inesperado: {Tokens.LookAhead().Value}");
+            AddParsingError(Tokens.LookAhead().Location,  $"Token inesperado: {Tokens.LookAhead().Value}");
             return null;
         }
     }
@@ -402,7 +460,7 @@ class Parser
     public ForStatement ParseForStatement()
     {
         Tokens.Expect("for");
-        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value, true);
+        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value, false,false,true);
         Tokens.Expect("in");
         IdentifierNode iterable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
 
@@ -418,6 +476,11 @@ class Parser
             while (Tokens.LookAhead().Value != "}")
             {
                 body.Add(ParseStatement());
+                if (Tokens.End)
+                {
+                    AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
+                    break;
+                }
             }
             Tokens.Expect("}");
             Tokens.Expect(";");
@@ -443,6 +506,11 @@ class Parser
             while (Tokens.LookAhead().Type != TokenType.ClosedCurlyBrace)
             {
                 body.Add(ParseStatement());
+                if (Tokens.End)
+                {
+                    AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
+                    break;
+                }
             }
             Tokens.Expect("}");
             return new WhileStatement(condition, body);
@@ -482,6 +550,7 @@ class Parser
 
     public MethodCallNode ParseMethodCall(PropertyAccessNode call)
     {
+    
         Tokens.Next();
         if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)
         {
@@ -497,6 +566,7 @@ class Parser
 
     public ExpressionMethodCall ParseExpressionMethodCall(PropertyAccessNode call)
     {
+    
         Tokens.Next();
         if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)
         {
@@ -525,7 +595,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseLogicalFactor();
-            node = new BinaryOperation(node, op, right);
+            node = new BinaryOperation(node, op, right,true);
         }
         return node;
     }
@@ -538,7 +608,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseEqualityExpr();
-            node = new BinaryOperation(node, op, right);
+            node = new BinaryOperation(node, op, right,true);
         }
         return node;
     }
@@ -551,7 +621,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseRelationalExpr();
-            node = new BinaryOperation(node, op, right);
+            node = new BinaryOperation(node, op, right,true);
         }
         return node;
     }
@@ -564,7 +634,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseAdditiveExpr();
-            node = new BinaryOperation(node, op, right);
+            node = new BinaryOperation(node, op, right,true);
         }
         return node;
     }
@@ -577,7 +647,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseMultiplicativeExpr();
-            node = new BinaryOperation(node, op, right);
+            node = new BinaryOperation(node, op, right,false,true);
         }
         return node;
     }
@@ -590,7 +660,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParsePrimary();
-            node = new BinaryOperation(node, op, right);
+            node = new BinaryOperation(node, op, right,false,true);
         }
         return node;
     }
@@ -628,7 +698,7 @@ class Parser
             return expression;
         }
 
-        AddParsingError(Tokens.LookAhead().Location, ErrorCode.SyntaxError, $"Token inesperado: {token.Value}");
+        AddParsingError(Tokens.LookAhead().Location,  $"Token inesperado: {token.Value}");
         return null;
     }
 

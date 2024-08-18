@@ -2,20 +2,33 @@ using System;
 using System.ComponentModel;
 using System.Globalization;
 using System.Net.Http.Headers;
+using System.Timers;
 public class Symbol
 {
     public string Name { get; }
     public Type Type { get; set;}
     public bool IsFunction { get; }
-    public List<Type> Parameters { get; }
+    public List<Symbol> Parameters { get; }
+    public List<Type> FunctionParametersType { get; }
     public Dictionary<string, Symbol> Members { get; } 
 
-    public Symbol(string name, Type type, bool isFunction = false, List<Type> parameters = null)
+    public Symbol(string name, Type type, bool isFunction = false)
     {
         Name = name;
         Type = type;
         IsFunction = isFunction;
-        Parameters = parameters ?? new List<Type>();
+        FunctionParametersType =  [];
+        Parameters = [];
+        Members = new Dictionary<string, Symbol>(); 
+    }
+
+    public Symbol(string name, Type type, Type parameterType, bool isFunction = false)
+    {
+        Name = name;
+        Type = type;
+        IsFunction = isFunction;
+        FunctionParametersType = [parameterType];
+        Parameters = [];
         Members = new Dictionary<string, Symbol>(); 
     }
     public void AddMember(string memberName, Symbol memberSymbol)
@@ -38,7 +51,7 @@ public class Symbol
 
     public override string ToString()
     {
-        return $"Symbol(Name: {Name}, Type: {Type}, IsFunction: {IsFunction}, Parameters: {string.Join(", ", Parameters)})";
+        return $"Symbol(Name: {Name}, Type: {Type}, IsFunction: {IsFunction}, FunctionParametersTypes: {string.Join(", ", FunctionParametersType)})";
     }
 }
 
@@ -61,6 +74,7 @@ public class SymbolTable
         }
         else
         {
+            PrintActualSymbolTable();
             Console.WriteLine($"Error: El símbolo '{name}' ya está declarado en este alcance.");
         }
     }
@@ -110,12 +124,14 @@ public class SymbolTable
         {
             Console.WriteLine($"  {kvp.Value}");
         }
-        Parent?.PrintActualSymbolTable();
+        //Parent?.PrintActualSymbolTable();
     }
 
     public void PrintAllScopes()
     {
+        Console.ForegroundColor = ConsoleColor.DarkMagenta;
         Console.WriteLine("Todos los Alcances:");
+        Console.ResetColor();
         var currentScope = this;
         while (currentScope != null)
         {
@@ -182,9 +198,11 @@ public class SemanticVisitor : ASTVisitor
         { "double", typeof(double) },
         { "CardType", typeof(CardType) },
         { "Context", typeof(Context) },
-        {"CardList", typeof(CardList)},
-        {"Method", typeof(Method)},
-        {"Effect", typeof(Effect)}
+        { "CardList", typeof(CardList) },
+        { "Method", typeof(Method) },
+        { "Effect", typeof(Effect) },
+        {"Null", typeof(Null)},
+        {"Player", typeof(Player)}
         // Agrega otros tipos primitivos o personalizados según sea necesario
     };
     public SemanticVisitor()
@@ -202,6 +220,7 @@ public class SemanticVisitor : ASTVisitor
         cardSymbol.AddMember("Faction", new Symbol("Faction", typeof(Faction)));
         cardSymbol.AddMember("CardType", new Symbol("CardType", typeof(CardType)));
         cardSymbol.AddMember("Range",new Symbol("Range",typeof(Position[])));
+        cardSymbol.AddMember("Owner",new Symbol("Owner",typeof(Player)));        
         globalSymbolTable.AddSymbol("Card", cardSymbol);
 
         //Registrar el tipo Context con sus propiedades
@@ -220,13 +239,18 @@ public class SemanticVisitor : ASTVisitor
 
         //Registrar el tipo CardList con sus metodos 
         var cardList = new Symbol("CardList",typeof(CardList));
-        cardList.AddMember("Find",new Symbol("Find",typeof(CardList)));
-        cardList.AddMember("Push",new Symbol("Push",null));
-        cardList.AddMember("SendBottom",new Symbol("SendBottom",null));
-        cardList.AddMember("Pop",new Symbol("Pop",null));
-        cardList.AddMember("Remove",new Symbol("Remove",null));
-        cardList.AddMember("Shuffle",new Symbol("Shuffle",null));
+        cardList.AddMember("Find",new Symbol("Find",typeof(CardList),typeof(MyPredicate),true));
+        cardList.AddMember("Push",new Symbol("Push",typeof(Null),typeof(Card),true));
+        cardList.AddMember("Add",new Symbol("Add",typeof(Null),typeof(Card),true));
+        cardList.AddMember("SendBottom",new Symbol("SendBottom",typeof(Null),typeof(Card),true));
+        cardList.AddMember("Pop",new Symbol("Pop",typeof(Card),true));
+        cardList.AddMember("Remove",new Symbol("Remove",typeof(Null),typeof(Card),true));
+        cardList.AddMember("Shuffle",new Symbol("Shuffle",typeof(Null),true));
         globalSymbolTable.AddSymbol("CardList",cardList);
+
+        //Registrar todas las facciones y las source y todos los enum del juego 
+        var NorthernRealms = new Symbol("NorthernRealms", typeof(Faction));
+        globalSymbolTable.AddSymbol("NorthernRealms", NorthernRealms);
     }
 
     private Type GetMappedType(string typeName)
@@ -285,6 +309,22 @@ public class SemanticVisitor : ASTVisitor
                     ReportError($"Type mismatch in binary operation: {leftType} and {rightType}");
                     return "unknown";
                 }
+            case ExpressionMethodCall methodCall:
+                string targeType = EvaluateType(methodCall.Target);
+                Symbol targeTypeSymbol = currentSymbolTable.GetSymbol(targeType);
+                if (targeTypeSymbol == null)
+                {
+                    ReportError($"El tipo  {targeType} no contiene ninguna propiedad"); 
+                    return "unknown";
+                } 
+                string functionName = methodCall.Funtion.Name;
+                Symbol functionSymbol = targeTypeSymbol.GetMemberInGlobalTab(functionName);  
+                if (functionSymbol == null)
+                {
+                    ReportError($"No existe la propiedad {functionName} para el tipo {targeType}");
+                    return "unknown";
+                }
+                return functionSymbol.Type.ToString();
             case PropertyAccessNode propertyAccess:
                 if (propertyAccess.Target is IdentifierNode)
                 {
@@ -300,7 +340,7 @@ public class SemanticVisitor : ASTVisitor
                     Symbol targetTypeSymbol = currentSymbolTable.GetSymbol(targetType);
                     if (targetTypeSymbol == null)
                     {
-                        ReportError($"El tipo del target {((IdentifierNode)propertyAccess.Target).Name} no contiene ninguna propiedad con su nombre "); 
+                        ReportError($"El tipo {targetType} no contiene ninguna propiedad"); 
                         return "unknown";
                     } 
                     //verifica si el symbolo del tipo del target contiene alguna propiedad con el nombre de la property de accesProperty
@@ -311,7 +351,6 @@ public class SemanticVisitor : ASTVisitor
                         ReportError($"No existe la propiedad {propertyName} para el tipo {targetType}");
                         return "unknown";
                     }
-                    string type = propertyType.Type.ToString();//borrar esta linea es solo para debugear
                     return propertyType.Type.ToString();
                 }
                 string targetTyp = EvaluateType(propertyAccess.Target);
@@ -332,10 +371,8 @@ public class SemanticVisitor : ASTVisitor
                 }
                 string respuesta =  propertyTyp.Type.ToString();//borrar esta linea es solo para debugear 
                 return propertyTyp.Type.ToString();
-
-
-
         }
+
         return "unknown";
     }
 
@@ -417,31 +454,56 @@ public class SemanticVisitor : ASTVisitor
 
     public override void Visit(MethodCallNode node)
     {
-        var functionName = node.Funtion.Name;
-        if (!currentSymbolTable.ContainsSymbol(functionName))
+        string targetType = EvaluateType(node.Target);
+        Symbol targetTypeSymbol = currentSymbolTable.GetSymbol(targetType);
+        if (targetTypeSymbol == null)
         {
-            ReportError($"Function '{functionName}' is not declared");
-            return;
+            ReportError($"El tipo {targetType} no esta declarado");
+        }
+        Symbol functionSymbol = targetTypeSymbol.GetMemberInGlobalTab(node.Funtion.Name);
+        if (functionSymbol == null)
+        {
+            ReportError($"El metodo {node.Funtion.Name} no puede ser aplicado a el tipo {targetType}");
+        }
+        //verificaciones del parametro 
+        if (node.Param != null && functionSymbol.FunctionParametersType.Count > 0)//si el methodCall tiene un parametro y el tipo de la funcion requiere un parametro 
+        {
+            //verificar si el parametro del methodCall es del tipo requerido 
+            string paramType = EvaluateType(node.Param);//evalua el tipo del parametro 
+            string functionParamType = functionSymbol.FunctionParametersType[0].ToString();
+            if (!TypesAreCompatible(paramType,functionParamType))
+            {
+                ReportError($"Invalid parameterType in funtion {node.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
+            }
+        }
+        else if (node.Param == null)
+        {
+            if (functionSymbol.FunctionParametersType.Count > 0)
+            {
+                ReportError($"There is no argument given that corresponds to the required parameter '{functionSymbol.FunctionParametersType[0].Name}' of the method {node.Funtion.Name}");
+            }
+        } 
+        else if(functionSymbol.FunctionParametersType.Count == 0)
+        {
+            if (node.Param != null)
+            {
+                ReportError($"Invalid expression term '{node.Param.Name}'");
+            }
         }
 
-        var functionSymbol = currentSymbolTable.GetSymbol(functionName);
-        if (!functionSymbol.IsFunction)
-        {
-            ReportError($"Symbol '{functionName}' is not a function");
-            return;
-        }
-
-        // Verificar los parámetros de la función aquí
     }
 
     public override void Visit(EffectNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
-        currentSymbolTable.AddSymbol(node.Name,new Symbol(node.Name,typeof(Effect)));
+        globalSymbolTable.AddSymbol(node.Name,new Symbol(node.Name,typeof(Effect)));
+        Symbol Effect = globalSymbolTable.GetSymbol(node.Name);//creo que a este se le puede quitar lo amarillo porque nunca va a ser
 
         foreach (var param in node.Params)
         {
             param.Accept(this);
+            Type debug = GetMappedType(param.Type);
+            Effect.Parameters.Add(new Symbol(param.Name, debug));
         }
 
         node.Action.Accept(this);
@@ -460,7 +522,7 @@ public class SemanticVisitor : ASTVisitor
         }
         else
         {
-            currentSymbolTable.AddSymbol(paramName, new Symbol(paramName, Type.GetType(paramType)));
+            globalSymbolTable.AddSymbol(paramName, new Symbol(paramName, Type.GetType(paramType)));
         }
     }
 
@@ -484,8 +546,6 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.EnterScope();
 
         node.Variable.Accept(this);//asumi que esta variable siempre va a ser de tipo card
-        var variable = currentSymbolTable.GetSymbol(node.Variable.Name);
-        variable.Type = typeof(CardType);
         node.Iterable.Accept(this);
         foreach (var statement in node.Body)
         {
@@ -499,6 +559,10 @@ public class SemanticVisitor : ASTVisitor
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
+        if (!node.Condition.IsLogicalExp)
+        {
+            ReportError("La Expresion dentro del while debe ser una expresion logica");
+        }
         node.Condition.Accept(this);
 
         foreach (var statement in node.Body)
@@ -513,7 +577,6 @@ public class SemanticVisitor : ASTVisitor
     {
         var leftType = EvaluateType(node.Left);
         var rightType = EvaluateType(node.Right);
-
         if (!TypesAreCompatible(leftType, rightType))
         {
             ReportError($"Type mismatch in binary operation: {leftType} and {rightType}");
@@ -536,12 +599,17 @@ public class SemanticVisitor : ASTVisitor
             currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(Card)));
             return; 
         }
+        else if (node.IsCardList)
+        {
+            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(CardList)));
+            return; 
+        }
         else if (node.IsDynamic)
         {
             currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name, typeof(IdentifierNode)));
             return; // No reportar error, ya que es un identificador dinámico
         }
-
+        //currentSymbolTable.PrintAllScopes();
         // Si no es dinámico, realiza el chequeo estándar
         if (!currentSymbolTable.ContainsSymbol(node.Name))
         {
@@ -558,11 +626,11 @@ public class SemanticVisitor : ASTVisitor
     {
         // Evaluar el tipo del objetivo
         var targetType = EvaluateType(node.Target);
-        var targetSymbol = GetMappedType(targetType);
+        Symbol targetSymbol = currentSymbolTable.GetSymbol(targetType);
 
         if (targetSymbol != null)
         {
-            var propertySymbol = targetSymbol.GetMember(node.Property.Name);
+            var propertySymbol = targetSymbol.GetMemberInGlobalTab(node.Property.Name);
             if (propertySymbol == null)
             {
                 ReportError($"Property '{node.Property.Name}' does not exist in type '{targetType}'.");
@@ -572,16 +640,12 @@ public class SemanticVisitor : ASTVisitor
         {
             ReportError($"Type '{targetType}' is not defined.");
         }
-
-        // Visitar los hijos
-        node.Target.Accept(this);
-        node.Property.Accept(this);
     }
 
     public override void Visit(CardNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
-
+        
         foreach (var effect in node.EffectList)
         {
             effect.Accept(this);
@@ -605,36 +669,72 @@ public class SemanticVisitor : ASTVisitor
 
     public override void Visit(EffectField node)
     {
+        currentSymbolTable = currentSymbolTable.EnterScope();
+
+        //verificar que el name del efecto este declarado anteriormente
+        node.Name.Accept(this);
+
+        //comparar el numero de parametros del nodo y del efecto que ya esta declarado en la tabla global 
         if (node.Params != null)
         {
+            int nodeParams = node.Params.Count;
+            Symbol effectSymbol = globalSymbolTable.GetSymbol(node.Name.Name);
+            if (effectSymbol == null)
+            {
+                ReportError($"El simbolo {node.Name.Name} no esta declarado");
+                return;
+            }
+            else
+            {
+                int effectParams = effectSymbol.Parameters.Count;
+                if (nodeParams != effectParams)
+                {
+                    ReportError($"El efecto {node.Name} requiere {effectParams} parametros, no coincide con la cantidad de parametros proporcionados: {nodeParams}");
+                }
+            }  
             foreach (var param in node.Params)
             {
                 param.Accept(this);
             }
         }
+
+        currentSymbolTable = currentSymbolTable.ExitScope();   
     }
 
     public override void Visit(CardParam node)
     {
         node.Name.Accept(this);
+        //si llego aqui es porque estaba declarado ya entonces hay que verificar que sea el tipo que debe ser
+        Symbol param = currentSymbolTable.GetSymbol(node.Name.Name);
+       
+
     }
 
     public override void Visit(SelectorNode node)
     {
+        currentSymbolTable = currentSymbolTable.EnterScope();
+
         if (node.Predicate != null)
         {
             node.Predicate.Accept(this);
         }
+
+        currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
     public override void Visit(MyPredicate node)
     {
+        node.Param.Accept(this);
+        if (!node.Condition.IsLogicalExp)
+        {
+            ReportError("La condicion del predicado debe ser una expresion logica");
+        }
         node.Condition.Accept(this);
     }
 
     public override void Visit(ExpressionNode node)
     {
-        throw new NotImplementedException();
+       // System.Console.WriteLine("Todavia no implemetado el Visit(ExpressionNode)");
     }
 
     // Agrega más métodos de visita para otros tipos de nodos según sea necesario
@@ -650,6 +750,8 @@ public class Effect{}
 
 public class Card {}
 
+public class Null {}
+public class Player {}
 
 public enum CardType
 {

@@ -16,6 +16,9 @@ public class CompilingError
 
     public enum ErrorCode
     {
+        ParsingError,
+        LexicalError,
+        SemanticError,
         None,
         Expected,  // Se esperaba un token específico
         Invalid,   // Token inválido o formato inválido

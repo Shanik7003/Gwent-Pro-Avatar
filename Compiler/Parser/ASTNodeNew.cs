@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 public abstract class ASTNode : IVisitable
@@ -11,6 +12,9 @@ public abstract class ASTNode : IVisitable
 
 public abstract class ExpressionNode : ASTNode, IVisitable
 {
+    public bool IsLogicalExp{ get; set ;}
+    public bool IsNumericExp{ get; set; }
+
     public override void Accept(ASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -343,14 +347,16 @@ public class IdentifierNode : ExpressionNode, IVisitable
     public string Name { get; }
     public bool IsDynamic { get; set; }
     public bool IsContext { get; set; }
+    public bool IsCardList { get; set; }
     public bool IsCard { get; set; }
 
-    public IdentifierNode(string name, bool isDynamic = false,bool isContext = false,bool isCard = false)
+    public IdentifierNode(string name, bool isDynamic = false,bool isContext = false,bool isCard = false, bool isCardList = false)
     {
         Name = name;
         IsDynamic = isDynamic;
         IsContext = isContext;
         IsCard = isCard;
+        IsCardList = isCardList;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -413,11 +419,13 @@ public class BinaryOperation : ExpressionNode, IVisitable
     public string Operator { get; }
     public ExpressionNode Right { get; }
 
-    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right)
+    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false)
     {
         Left = left;
         Operator = op;
         Right = right;
+        IsLogicalExp = isLogicalExp;
+        IsNumericExp = isNumericExp;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -550,16 +558,16 @@ public class EffectInvocationNode : ASTNode, IVisitable
 
 public class EffectField : ASTNode, IVisitable
 {
-    public string Name { get; }
+    public IdentifierNode Name { get; }
     public List<CardParam>? Params { get; }
 
-    public EffectField(string name)
+    public EffectField(IdentifierNode name)
     {
         Name = name;
         Params = null;
     }
 
-    public EffectField(string name, List<CardParam>? param)
+    public EffectField(IdentifierNode name, List<CardParam>? param)
     {
         Name = name;
         Params = param;
@@ -588,9 +596,9 @@ public class EffectField : ASTNode, IVisitable
 public class CardParam : ASTNode, IVisitable
 {
     public IdentifierNode Name { get; }
-    public string Value { get; }
+    public object Value { get; }
 
-    public CardParam(string name, string value)
+    public CardParam(string name, object value)
     {
         Name = new IdentifierNode(name);
         Value = value;
@@ -657,7 +665,7 @@ public class MyPredicate : ASTNode, IVisitable
 
     public MyPredicate(string param, ExpressionNode condition)
     {
-        Param = new IdentifierNode(param,true,false,true);
+        Param = new IdentifierNode(param,false,false,true);
         Condition = condition;
     }
 

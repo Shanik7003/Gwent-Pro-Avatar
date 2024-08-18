@@ -24,6 +24,10 @@ public class Compiling
                 __LexicalProcess.RegisterOperator(";", TokenValues.StatementSeparator);
                 __LexicalProcess.RegisterOperator(",", TokenValues.ValueSeparator);
                 __LexicalProcess.RegisterOperator("=", TokenValues.Assign);
+                __LexicalProcess.RegisterOperator("+", TokenValues.Add); 
+                __LexicalProcess.RegisterOperator("-", TokenValues.Sub); 
+                __LexicalProcess.RegisterOperator("*", TokenValues.Mul); 
+                __LexicalProcess.RegisterOperator("/", TokenValues.Div); 
                 __LexicalProcess.RegisterOperator("==", TokenValues.LogicEqual);
                 __LexicalProcess.RegisterOperator("+=", TokenValues.AddAssign);
                 __LexicalProcess.RegisterOperator("-=", TokenValues.SubstAssign);

@@ -60,7 +60,7 @@ public class LexicalAnalyzer
                 if (stream.Match(start))
                 {
                     if (!stream.ReadUntil(texts[start], out text))
-                        errors.Add(new CompilingError(stream.Location, ErrorCode.Expected, texts[start]));
+                        errors.Add(new CompilingError(stream.Location, ErrorCode.LexicalError, texts[start]));
                     tokens.Add(new Token(TokenType.Text, text, stream.Location));
                     return true;
                 }
@@ -97,7 +97,7 @@ public class LexicalAnalyzer
                 {
                     double d;
                     if (!double.TryParse(value, out d))
-                        errors.Add(new CompilingError(stream.Location, ErrorCode.Invalid, "Number format"));
+                        errors.Add(new CompilingError(stream.Location, ErrorCode.LexicalError, "Number format"));
                     tokens.Add(new Token(TokenType.Number, value, stream.Location));
                     continue;
                 }
@@ -109,7 +109,7 @@ public class LexicalAnalyzer
                     continue;
 
                 var unkOp = stream.ReadAny();
-                errors.Add(new CompilingError(stream.Location, ErrorCode.Unknown, unkOp.ToString()));
+                errors.Add(new CompilingError(stream.Location, ErrorCode.LexicalError, "Se encontro un simbolo desconocido: " + unkOp.ToString()));
             }
 
             return tokens;

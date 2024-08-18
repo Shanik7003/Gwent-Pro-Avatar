@@ -13,7 +13,7 @@ class Program
         sb.AppendLine("```");
 
         File.WriteAllText(filePath, sb.ToString());
-        Console.WriteLine($"Mermaid diagram written to {filePath}");
+        //Console.WriteLine($"Mermaid diagram written to {filePath}");
     }
     static bool HandleErrors(List<CompilingError> errors)
     {
@@ -21,7 +21,7 @@ class Program
         {
             foreach (var error in errors)
             {
-                Console.WriteLine($"Error ({error.Location.Line},{error.Location.Column}): {error.Message}");
+                Console.WriteLine($"Error Code: {error.Code} Location: ({error.Location.Line},{error.Location.Column}): {error.Message}");
             }
             return true;
         }
@@ -35,14 +35,11 @@ class Program
 
         LexicalAnalyzer lexer = Compiling.Lexical;
         string text = File.ReadAllText("./code.txt");  
-
         IEnumerable<Token> tokens = lexer.GetTokens("code", text, LexicalErrors);
         if(HandleErrors(LexicalErrors)) return;
      
-        TokenList Tokens = new TokenList(tokens);
-
         // Parser
-        Parser parser = new Parser(Tokens,ParsingErrors);
+        Parser parser = new Parser(new TokenList(tokens),ParsingErrors);
         RootNode ast = parser.ParseCode();
         if(HandleErrors(ParsingErrors)) return;
 
