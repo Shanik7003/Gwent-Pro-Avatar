@@ -7,13 +7,15 @@ using System.Xml;
 
 class Parser
 {
-    public TokenList Tokens { get; private set; }
+    public static TokenList Tokens { get; private set; }
+    public static ASTNodeFactory NodeFactory {get; set; }
     private List<CompilingError> parsingErrors;
 
     public Parser(TokenList tokens, List<CompilingError> errors)
     {
         Tokens = tokens;
         parsingErrors = errors;
+        NodeFactory = new(Tokens);
     }
 
     // Método para agregar errores
@@ -66,7 +68,7 @@ class Parser
             Tokens.Expect("{");
             CardType type = ParseType();
             Tokens.Expect(",");
-            string name = ParseNameField();
+            IdentifierNode name = ParseNameField();
             Tokens.Expect(",");
             Faction faction = ParseFaction();
             Tokens.Expect(",");
@@ -76,7 +78,7 @@ class Parser
             Tokens.Expect(",");
             List<EffectInvocationNode> effects = ParseOnActivationBody();
             Tokens.Expect("}");
-            return new CardNode(name, type, faction, power, range, effects);
+            return NodeFactory.CreateCardNode(name, type, faction, power, range, effects);
         }
         catch (Exception ex)
         {
@@ -200,7 +202,7 @@ class Parser
             }
         }
         Tokens.Expect("}");
-        EffectInvocationNode effect = new EffectInvocationNode(effectfield,selector,postAction);
+        EffectInvocationNode effect = NodeFactory.CreateEffectInvocationNode(effectfield,selector,postAction);
         return effect;
     }
 
@@ -210,12 +212,12 @@ class Parser
         Tokens.Expect(":");
         if (Tokens.LookAhead().Type == TokenType.Text)
         {
-            IdentifierNode Name = new IdentifierNode(Tokens.LookAhead().Value);
+            IdentifierNode Name = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
             Tokens.Next();
-            return new EffectField(Name);
+            return NodeFactory.CreateEffectFieldNode(Name);
         }
         Tokens.Expect("{");
-        IdentifierNode name = new IdentifierNode(ParseNameField());
+        IdentifierNode name = ParseNameField();
         List<CardParam> cardParams = [];
         while (Tokens.LookAhead().Value != "}")
         {
@@ -228,17 +230,17 @@ class Parser
             }
         }
         Tokens.Expect("}");
-        EffectField effectField = new EffectField(name,cardParams);
+        EffectField effectField = NodeFactory.CreateEffectFieldNode(name,cardParams);
         return effectField;
     }
 
     public CardParam ParseCardParam()
     {
-        string name = Tokens.Expect(TokenType.Identifier).Value;
+        IdentifierNode name = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
         Tokens.Expect(":");
         object value = ConvertString(Tokens.LookAhead().Value);
         Tokens.Next();//consume el value
-        return new CardParam(name, value);
+        return NodeFactory.CreateCardParamNode(name, value);
     }
     public static object ConvertString(string input)
     {
@@ -268,7 +270,7 @@ class Parser
             bool single = ParseSingle();
             MyPredicate predicate  = ParsePredicate();
             Tokens.Expect("}");
-            return new SelectorNode(source,single,predicate);
+            return NodeFactory.CreateSelectorNode(source,single,predicate);
         }
         return null;
     }
@@ -309,11 +311,11 @@ class Parser
         Tokens.Expect("Predicate");
         Tokens.Expect(":");
         Tokens.Expect("(");
-        string param = Tokens.Expect(TokenType.Identifier).Value;
+        IdentifierNode param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
         Tokens.Expect(")");
         Tokens.Expect("=>");
         var condition = ParseExpression();
-        return new MyPredicate(param,condition);
+        return NodeFactory.CreateMyPredicateNode(param,condition);
     }
 
     public EffectInvocationNode? ParsePostAction()
@@ -356,15 +358,15 @@ class Parser
         }
 
         var action = ParseActionField();
-        return new EffectNode(name, parameters, action);
+        return NodeFactory.CreateEffectNode(name, parameters, action);
     }
 
-    public string ParseNameField()
+    public IdentifierNode ParseNameField()
     {
     
         Tokens.Expect("Name");
         Tokens.Expect(":");
-        var name = Tokens.Expect(TokenType.Text).Value;
+        IdentifierNode name = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Text).Value);
         return name;
     }
 
@@ -400,7 +402,7 @@ class Parser
         var name = Tokens.Expect(TokenType.Identifier).Value;
         Tokens.Expect(":");
         var type = Tokens.Expect(TokenType.Type).Value;
-        return new ParamNode(name, type);
+        return NodeFactory.CreateParamNode(name, type);
     }
 
     public ActionNode ParseActionField()
@@ -414,9 +416,9 @@ class Parser
     public ActionNode ParseFunction()
     {
         Tokens.Expect("(");
-        IdentifierNode targets = new(Tokens.Expect(TokenType.Identifier).Value, false,false,false,true);
+        IdentifierNode targets = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value, false,false,false,true);
         Tokens.Expect(",");
-        IdentifierNode context = new(Tokens.Expect(TokenType.Identifier).Value, true, true);
+        IdentifierNode context = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value, false, true);
         Tokens.Expect(")");
         Tokens.Expect("=>");
         Tokens.Expect("{");
@@ -460,14 +462,14 @@ class Parser
     public ForStatement ParseForStatement()
     {
         Tokens.Expect("for");
-        var variable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value, false,false,true);
+        var variable = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value, false,false,true);
         Tokens.Expect("in");
-        IdentifierNode iterable = new IdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
+        IdentifierNode iterable = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
 
         if (Tokens.LookAhead().Value != "{")
         {
             var body = new List<ASTNode> { ParseStatement() };
-            return new ForStatement(variable, iterable, body);
+            return NodeFactory.CreateForStatementNode(variable, iterable, body);
         }
         else
         {
@@ -484,7 +486,7 @@ class Parser
             }
             Tokens.Expect("}");
             Tokens.Expect(";");
-            return new ForStatement(variable, iterable, body);
+            return NodeFactory.CreateForStatementNode(variable, iterable, body);
         }
     }
 
@@ -497,7 +499,7 @@ class Parser
         if (Tokens.LookAhead().Value != "{")
         {
             var body = new List<ASTNode> { ParseStatement() };
-            return new WhileStatement(condition, body);
+            return NodeFactory.CreateWhileStatementNode(condition, body);
         }
         else
         {
@@ -513,7 +515,7 @@ class Parser
                 }
             }
             Tokens.Expect("}");
-            return new WhileStatement(condition, body);
+            return NodeFactory.CreateWhileStatementNode(condition, body);
         }
     }
 
@@ -526,7 +528,7 @@ class Parser
             Tokens.Next();
             var value = ParseExpression();
             Tokens.Expect(";");
-            return new CompoundAssignmentNode(variable, op, value);
+            return NodeFactory.CreateCompoundAssignmentNode(variable, op, value);
         }
         else if (Tokens.LookAhead().Value == "(")
         {
@@ -538,12 +540,12 @@ class Parser
             var value = ParseExpression();
             if (Tokens.LookAhead().Value == "(")
             {
-                return new Assignment(variable, ParseExpressionMethodCall(value as PropertyAccessNode));
+                return NodeFactory.CreateAssignmentNode(variable, ParseExpressionMethodCall(value as PropertyAccessNode));
             }
             else
             {
                 Tokens.Expect(";");
-                return new Assignment(variable, value);
+                return NodeFactory.CreateAssignmentNode(variable, value);
             }
         }
     }
@@ -554,14 +556,14 @@ class Parser
         Tokens.Next();
         if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)
         {
-            var param = Tokens.Expect(TokenType.Identifier);
+            var param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
             Tokens.Expect(")");
             Tokens.Expect(";");
-            return new MethodCallNode(call.Property.Name, param.Value, call.Target);
+            return NodeFactory.CreateMethodCallNode(call.Property, param, call.Target);
         }
         Tokens.Expect(")");
         Tokens.Expect(";");
-        return new MethodCallNode(call.Property.Name, call.Target);
+        return NodeFactory.CreateMethodCallNode(call.Property, call.Target);
     }
 
     public ExpressionMethodCall ParseExpressionMethodCall(PropertyAccessNode call)
@@ -570,14 +572,14 @@ class Parser
         Tokens.Next();
         if (Tokens.CanLookAhead() && Tokens.LookAhead().Type == TokenType.Identifier)
         {
-            var param = Tokens.Expect(TokenType.Identifier);
+            var param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
             Tokens.Expect(")");
             Tokens.Expect(";");
-            return new ExpressionMethodCall(call.Property.Name, param.Value, call.Target);
+            return NodeFactory.CreateExpressionMethodCallNode(call.Property, param, call.Target);
         }
         Tokens.Expect(")");
         Tokens.Expect(";");
-        return new ExpressionMethodCall(call.Property.Name, call.Target);
+        return NodeFactory.CreateExpressionMethodCallNode(call.Property, call.Target);
     }
 
     #region ParseEspression
@@ -595,7 +597,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseLogicalFactor();
-            node = new BinaryOperation(node, op, right,true);
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right,true);
         }
         return node;
     }
@@ -608,7 +610,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseEqualityExpr();
-            node = new BinaryOperation(node, op, right,true);
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right,true);
         }
         return node;
     }
@@ -621,7 +623,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseRelationalExpr();
-            node = new BinaryOperation(node, op, right,true);
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right,true);
         }
         return node;
     }
@@ -634,7 +636,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseAdditiveExpr();
-            node = new BinaryOperation(node, op, right,true);
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right,true);
         }
         return node;
     }
@@ -647,7 +649,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseMultiplicativeExpr();
-            node = new BinaryOperation(node, op, right,false,true);
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right,false,true);
         }
         return node;
     }
@@ -660,7 +662,7 @@ class Parser
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParsePrimary();
-            node = new BinaryOperation(node, op, right,false,true);
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right,false,true);
         }
         return node;
     }
@@ -672,20 +674,20 @@ class Parser
         if (token.Type == TokenType.Number)
         {
             Tokens.Next(); // Consume el número
-            return new Number(double.Parse(token.Value));
+            return NodeFactory.CreateNumberNode(double.Parse(token.Value));
         }
 
         if (token.Type == TokenType.Identifier || token.Type == TokenType.Text)
         {
-            ExpressionNode target = new IdentifierNode(Tokens.LookAhead().Value);
+            ExpressionNode target = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
             Tokens.Next(); // Consume el identificador o el texto
 
             while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == ".")
             {
                 Tokens.Next(); // Consume '.'
-                string property = Tokens.LookAhead().Value;
+                var property = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
                 Tokens.Next();
-                target = new PropertyAccessNode(property, target);
+                target = NodeFactory.CreatePropertyAccessNode(property, target);
             }
             return target;
         }

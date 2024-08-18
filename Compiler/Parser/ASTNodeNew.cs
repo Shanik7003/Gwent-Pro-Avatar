@@ -5,6 +5,7 @@ using System.Text;
 
 public abstract class ASTNode : IVisitable
 {
+    public CodeLocation Location {get; set;}
     public abstract void PrintMermaid(StringBuilder sb, string parentId);
 
     public abstract void Accept(ASTVisitor visitor);
@@ -60,15 +61,16 @@ public class RootNode : ASTNode, IVisitable
 
 public class EffectNode : ASTNode, IVisitable
 {
-    public string Name { get; }
+    public IdentifierNode Name { get; }
     public List<ParamNode> Params { get; }
     public ActionNode Action { get; }
 
-    public EffectNode(string name, List<ParamNode> @params, ActionNode action)
+    public EffectNode(IdentifierNode name, List<ParamNode> @params, ActionNode action,CodeLocation location)
     {
         Name = name;
         Params = @params;
         Action = action;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -96,10 +98,11 @@ public class ParamNode : ASTNode, IVisitable
     public string Name { get; }
     public string Type { get; }
 
-    public ParamNode(string name, string type)
+    public ParamNode(string name, string type, CodeLocation location)
     {
         Name = name;
         Type = type;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -157,16 +160,24 @@ public class Assignment : AssignmentOrMethodCall, IVisitable
     public ExpressionNode Variable { get; }
     public ExpressionNode? Value { get; }
 
+    public Assignment(ExpressionNode variable, ExpressionNode value,CodeLocation location)
+    {
+        Variable = variable;
+        Value = value;
+        Location = location;
+    }
+
     public Assignment(ExpressionNode variable, ExpressionNode value)
     {
         Variable = variable;
         Value = value;
     }
 
-    public Assignment(ExpressionNode variable)
+    public Assignment(ExpressionNode variable,CodeLocation location)
     {
         Variable = variable;
         Value = null;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -191,18 +202,20 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
     public ExpressionNode Target { get; }
     public IdentifierNode? Param { get; }
 
-    public MethodCallNode(string funtion, string param, ExpressionNode target)
+    public MethodCallNode(IdentifierNode funtion, IdentifierNode param, ExpressionNode target, CodeLocation location)
     {
-        Funtion = new IdentifierNode(funtion);
-        Param = new IdentifierNode(param);
+        Funtion = funtion;
+        Param = param;
         Target = target;
+        Location = location;
     }
 
-    public MethodCallNode(string funtion, ExpressionNode target)
+    public MethodCallNode( IdentifierNode funtion, ExpressionNode target,CodeLocation location)
     {
-        Funtion = new IdentifierNode(funtion);
+        Funtion = funtion;     
         Param = null;
         Target = target;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -227,18 +240,20 @@ public class ExpressionMethodCall : ExpressionNode,IVisitable
     public ExpressionNode Target { get; }
     public IdentifierNode? Param { get; }
 
-    public ExpressionMethodCall(string funtion, string param, ExpressionNode target)
+    public ExpressionMethodCall(IdentifierNode funtion, IdentifierNode param, ExpressionNode target,CodeLocation location)
     {
-        Funtion = new IdentifierNode(funtion);
-        Param = new IdentifierNode(param);
+        Funtion = funtion;
+        Param = param;
         Target = target;
+        Location = location;
     }
 
-    public ExpressionMethodCall(string funtion, ExpressionNode target)
+    public ExpressionMethodCall(IdentifierNode funtion, ExpressionNode target,CodeLocation location)
     {
-        Funtion = new IdentifierNode(funtion);
+        Funtion = funtion;
         Param = null;
         Target = target;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -264,11 +279,12 @@ public class ForStatement : StatementNode, IVisitable
     public IdentifierNode Iterable { get; }
     public List<ASTNode> Body { get; }
 
-    public ForStatement(IdentifierNode variable, IdentifierNode iterable, List<ASTNode> body)
-    {
+    public ForStatement(IdentifierNode variable, IdentifierNode iterable, List<ASTNode> body,CodeLocation location)
+    { 
         Variable = variable;
         Iterable = iterable;
         Body = body;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -296,10 +312,11 @@ public class WhileStatement : StatementNode, IVisitable
     public ExpressionNode Condition { get; }
     public List<ASTNode> Body { get; }
 
-    public WhileStatement(ExpressionNode condition, List<ASTNode> body)
+    public WhileStatement(ExpressionNode condition, List<ASTNode> body,CodeLocation location)
     {
         Condition = condition;
         Body = body;
+        Location = Location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -324,9 +341,10 @@ public class WhileStatement : StatementNode, IVisitable
 public class Number : ExpressionNode, IVisitable
 {
     public double Value { get; }
-    public Number(double value)
+    public Number(double value, CodeLocation location)
     {
         Value = value;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -350,13 +368,14 @@ public class IdentifierNode : ExpressionNode, IVisitable
     public bool IsCardList { get; set; }
     public bool IsCard { get; set; }
 
-    public IdentifierNode(string name, bool isDynamic = false,bool isContext = false,bool isCard = false, bool isCardList = false)
+    public IdentifierNode(string name, CodeLocation location,bool isDynamic = false,bool isContext = false,bool isCard = false, bool isCardList = false)
     {
         Name = name;
         IsDynamic = isDynamic;
         IsContext = isContext;
         IsCard = isCard;
         IsCardList = isCardList;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -377,10 +396,11 @@ public class PropertyAccessNode : ExpressionNode, IVisitable
     public IdentifierNode Property { get; }
     public ExpressionNode Target { get; }
 
-    public PropertyAccessNode(string property, ExpressionNode target)
+    public PropertyAccessNode(IdentifierNode property, ExpressionNode target,CodeLocation location)
     {
-        Property = new IdentifierNode(property);
+        Property = property;
         Target = target;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -419,13 +439,14 @@ public class BinaryOperation : ExpressionNode, IVisitable
     public string Operator { get; }
     public ExpressionNode Right { get; }
 
-    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false)
+    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right,CodeLocation location, bool isLogicalExp = false , bool isNumericExp = false)
     {
         Left = left;
         Operator = op;
         Right = right;
         IsLogicalExp = isLogicalExp;
         IsNumericExp = isNumericExp;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -448,9 +469,10 @@ public class CompoundAssignmentNode : Assignment
 {
     public string Operator { get; }
 
-    public CompoundAssignmentNode(ExpressionNode variable, string op, ExpressionNode value) : base(variable, value)
+    public CompoundAssignmentNode(ExpressionNode variable, string op, ExpressionNode value, CodeLocation location) : base(variable,value)
     {
         Operator = op;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -471,14 +493,14 @@ public class CompoundAssignmentNode : Assignment
 
 public class CardNode : ASTNode, IVisitable
 {
-    public string Name { get; }
+    public IdentifierNode Name { get; }
     public CardType Type { get; }
     public Faction Faction { get; }
     public int Power { get; }
     public Position[] Position { get; }
     public List<EffectInvocationNode> EffectList { get; }
 
-    public CardNode(string name, CardType type, Faction faction, int power, Position[] position, List<EffectInvocationNode> effectList)
+    public CardNode(IdentifierNode name, CardType type, Faction faction, int power, Position[] position, List<EffectInvocationNode> effectList,CodeLocation location)
     {
         Name = name;
         Type = type;
@@ -486,6 +508,7 @@ public class CardNode : ASTNode, IVisitable
         Power = power;
         Position = position;
         EffectList = effectList;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -532,11 +555,12 @@ public class EffectInvocationNode : ASTNode, IVisitable
     public SelectorNode? Selector { get; }
     public EffectInvocationNode? PostAction { get; }
 
-    public EffectInvocationNode(EffectField effectField, SelectorNode? selector, EffectInvocationNode? postAction)
+    public EffectInvocationNode(EffectField effectField, SelectorNode? selector, EffectInvocationNode? postAction,CodeLocation location)
     {
         EffectField = effectField;
         Selector = selector;
         PostAction = postAction;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -561,16 +585,18 @@ public class EffectField : ASTNode, IVisitable
     public IdentifierNode Name { get; }
     public List<CardParam>? Params { get; }
 
-    public EffectField(IdentifierNode name)
+    public EffectField(IdentifierNode name,CodeLocation location)
     {
         Name = name;
         Params = null;
+        Location = location;
     }
 
-    public EffectField(IdentifierNode name, List<CardParam>? param)
+    public EffectField(IdentifierNode name, List<CardParam>? param, CodeLocation location)
     {
         Name = name;
         Params = param;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -598,10 +624,11 @@ public class CardParam : ASTNode, IVisitable
     public IdentifierNode Name { get; }
     public object Value { get; }
 
-    public CardParam(string name, object value)
+    public CardParam(IdentifierNode name, object value,CodeLocation location)
     {
-        Name = new IdentifierNode(name);
+        Name = name;
         Value = value;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -628,11 +655,12 @@ public class SelectorNode : ASTNode, IVisitable
     public bool Single { get; }
     public MyPredicate? Predicate { get; }
 
-    public SelectorNode(Source source, bool single, MyPredicate predicate)
+    public SelectorNode(Source source, bool single, MyPredicate predicate,CodeLocation location)
     {
         Source = source;
         Single = single;
         Predicate = predicate;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)
@@ -663,10 +691,12 @@ public class MyPredicate : ASTNode, IVisitable
     public IdentifierNode Param { get; }
     public ExpressionNode Condition { get; }
 
-    public MyPredicate(string param, ExpressionNode condition)
+    public MyPredicate(IdentifierNode param, ExpressionNode condition,CodeLocation location)
     {
-        Param = new IdentifierNode(param,false,false,true);
+        Param = param;
+        Param.IsCard = true;
         Condition = condition;
+        Location = location;
     }
 
     public override void PrintMermaid(StringBuilder sb, string parentId)

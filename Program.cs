@@ -13,7 +13,7 @@ class Program
         sb.AppendLine("```");
 
         File.WriteAllText(filePath, sb.ToString());
-        //Console.WriteLine($"Mermaid diagram written to {filePath}");
+        Console.WriteLine($"Mermaid diagram written to {filePath}");
     }
     static bool HandleErrors(List<CompilingError> errors)
     {
@@ -44,8 +44,9 @@ class Program
         if(HandleErrors(ParsingErrors)) return;
 
         // Realizar el análisis semántico
-        var semanticVisitor = new SemanticVisitor();
+        SemanticVisitor semanticVisitor = new SemanticVisitor(SemanticErrors);
         semanticVisitor.Visit(ast);
+        
 
         GenerateMermaidDiagram(ast,"effectNodeDiagram.md");
 

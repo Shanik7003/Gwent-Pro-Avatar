@@ -118,13 +118,14 @@ public class SymbolTable
     }
 
     public void PrintActualSymbolTable()
-    {
+    { 
+        Console.ForegroundColor = ConsoleColor.DarkMagenta;
         Console.WriteLine("Símbolos en el alcance actual:");
+        Console.ResetColor();
         foreach (var kvp in symbols)
         {
             Console.WriteLine($"  {kvp.Value}");
         }
-        //Parent?.PrintActualSymbolTable();
     }
 
     public void PrintAllScopes()
@@ -188,6 +189,7 @@ public class SemanticVisitor : ASTVisitor
 {
     private SymbolTable currentSymbolTable;
     private static SymbolTable globalSymbolTable; 
+    private List<CompilingError> semanticErrors;
 
     private static readonly Dictionary<string, Type> TypeMapping = new Dictionary<string, Type>
     {
@@ -205,11 +207,12 @@ public class SemanticVisitor : ASTVisitor
         {"Player", typeof(Player)}
         // Agrega otros tipos primitivos o personalizados según sea necesario
     };
-    public SemanticVisitor()
+    public SemanticVisitor(List<CompilingError> errors)
     {
         globalSymbolTable = new SymbolTable();
         RegisterGlobalSymbols();
         currentSymbolTable = new SymbolTable(globalSymbolTable);
+        
     }
     private void RegisterGlobalSymbols()
     {
@@ -496,8 +499,8 @@ public class SemanticVisitor : ASTVisitor
     public override void Visit(EffectNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
-        globalSymbolTable.AddSymbol(node.Name,new Symbol(node.Name,typeof(Effect)));
-        Symbol Effect = globalSymbolTable.GetSymbol(node.Name);//creo que a este se le puede quitar lo amarillo porque nunca va a ser
+        globalSymbolTable.AddSymbol(node.Name.Name,new Symbol(node.Name.Name,typeof(Effect)));
+        Symbol Effect = globalSymbolTable.GetSymbol(node.Name.Name);//creo que a este se le puede quitar lo amarillo porque nunca va a ser
 
         foreach (var param in node.Params)
         {
