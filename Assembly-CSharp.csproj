@@ -59,7 +59,7 @@
     <UnityVersion>2022.3.19f1</UnityVersion>
   </PropertyGroup>
   <ItemGroup>
-    <Analyzer Include="/Users/shanik/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.0.2/Analyzers/Microsoft.Unity.Analyzers.dll" />
+    <Analyzer Include="/Users/shanik/.vscode/extensions/visualstudiotoolsforunity.vstuc-1.0.3/Analyzers/Microsoft.Unity.Analyzers.dll" />
     <Analyzer Include="/Applications/Unity/Hub/Editor/2022.3.19f1/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.SourceGenerators.dll" />
     <Analyzer Include="/Applications/Unity/Hub/Editor/2022.3.19f1/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
@@ -69,15 +69,23 @@
     <Compile Include="Assets/Scripts/UI/BattleRow.cs" />
     <Compile Include="Assets/Scripts/UI/DragableCard.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerData.cs" />
+    <Compile Include="Assets/API/Engine/Game.cs" />
     <Compile Include="Assets/API/obj/Debug/net8.0/API.AssemblyInfo.cs" />
-    <Compile Include="Assets/API/Engine.cs" />
+    <Compile Include="Assets/API/Engine/WheatherSpace.cs" />
+    <Compile Include="Assets/API/Engine/Board.cs" />
     <Compile Include="Assets/Scripts/UI/SceneLoader.cs" />
+    <Compile Include="Assets/Scripts/UI/LineYesNumbering.cs" />
+    <Compile Include="Assets/API/Engine/Player.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerDisplay.cs" />
     <Compile Include="Assets/Scripts/UI/WheatherSpace.cs" />
     <Compile Include="Assets/Scripts/UI/ShowHidePanel.cs" />
+    <Compile Include="Assets/Scripts/UI/SyncScroll.cs" />
     <Compile Include="Assets/Scripts/UI/DetailedCardDisplay.cs" />
+    <Compile Include="Assets/API/Engine/Position.cs" />
     <Compile Include="Assets/Scripts/Managers/PlayerManager.cs" />
+    <Compile Include="Assets/API/Engine/Faction.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManagerWrapper.cs" />
+    <Compile Include="Assets/API/Engine/Card.cs" />
     <Compile Include="Assets/Scripts/Managers/BoardManager.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManager.cs" />
     <Compile Include="Assets/Scripts/UI/CardDisplay.cs" />
@@ -85,12 +93,15 @@
     <Compile Include="Assets/Scripts/UI/ShowPanel.cs" />
     <Compile Include="Assets/Scripts/GameLogic/PlayerFactory.cs" />
     <Compile Include="Assets/Scripts/Managers/TurnManeger.cs" />
+    <Compile Include="Assets/Scripts/UI/NewBehaviourScript.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardFactory.cs" />
     <Compile Include="Assets/Scripts/UI/GameSetup.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerSetup.cs" />
     <Compile Include="Assets/Scripts/Managers/CardManager.cs" />
     <Compile Include="Assets/Scripts/Managers/BattleField.cs" />
+    <Compile Include="Assets/Scripts/UI/LineNumberManager.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardData.cs" />
+    <Compile Include="Assets/API/Engine/Habilities.cs" />
     <Compile Include="Assets/Scripts/UI/UIHability.cs" />
   </ItemGroup>
   <ItemGroup>

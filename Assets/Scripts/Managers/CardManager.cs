@@ -15,7 +15,7 @@ public class CardManager : MonoBehaviour
     //Constructor privado para evitar instanciación externa
     private CardManager() 
     {
-        cardFactory =new();
+        cardFactory = new();
     }
 
     // // Propiedad pública para acceder a la instancia
