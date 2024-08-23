@@ -74,12 +74,10 @@
     <Compile Include="Assets/API/Engine/WheatherSpace.cs" />
     <Compile Include="Assets/API/Engine/Board.cs" />
     <Compile Include="Assets/Scripts/UI/SceneLoader.cs" />
-    <Compile Include="Assets/Scripts/UI/LineYesNumbering.cs" />
     <Compile Include="Assets/API/Engine/Player.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerDisplay.cs" />
     <Compile Include="Assets/Scripts/UI/WheatherSpace.cs" />
     <Compile Include="Assets/Scripts/UI/ShowHidePanel.cs" />
-    <Compile Include="Assets/Scripts/UI/SyncScroll.cs" />
     <Compile Include="Assets/Scripts/UI/DetailedCardDisplay.cs" />
     <Compile Include="Assets/API/Engine/Position.cs" />
     <Compile Include="Assets/Scripts/Managers/PlayerManager.cs" />
@@ -93,14 +91,13 @@
     <Compile Include="Assets/Scripts/UI/ShowPanel.cs" />
     <Compile Include="Assets/Scripts/GameLogic/PlayerFactory.cs" />
     <Compile Include="Assets/Scripts/Managers/TurnManeger.cs" />
-    <Compile Include="Assets/Scripts/UI/NewBehaviourScript.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardFactory.cs" />
     <Compile Include="Assets/Scripts/UI/GameSetup.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerSetup.cs" />
     <Compile Include="Assets/Scripts/Managers/CardManager.cs" />
     <Compile Include="Assets/Scripts/Managers/BattleField.cs" />
-    <Compile Include="Assets/Scripts/UI/LineNumberManager.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardData.cs" />
+    <Compile Include="Assets/Scripts/UI/LineCounter.cs" />
     <Compile Include="Assets/API/Engine/Habilities.cs" />
     <Compile Include="Assets/Scripts/UI/UIHability.cs" />
   </ItemGroup>
