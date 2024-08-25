@@ -14,7 +14,8 @@ public class PlayerSetup : MonoBehaviour
     private Button currentlySelectedButton = null;
     public TMP_InputField nameInputField; // Referencia al InputField de TMP.
     private Faction selectedFaction; // Para almacenar el nombre de la facción seleccionada.
-    private Faction Player1Faction,Player2Faction;private string player1Name, player2Name;
+    private Faction Player1Faction,Player2Faction;
+    private string player1Name, player2Name;
     private bool isSettingPlayer1 = true; // Indica si estamos configurando el Jugador 1
 
     public Button WaterButton, FireButton, AirButton, EarthButton;
