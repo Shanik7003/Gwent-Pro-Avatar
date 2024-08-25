@@ -8,7 +8,7 @@ public abstract class ASTNode : IVisitable
     public CodeLocation Location {get; set;}
     public abstract void PrintMermaid(StringBuilder sb, string parentId);
 
-    public abstract void Accept(ASTVisitor visitor);
+    public abstract void Accept(IASTVisitor visitor);
 }
 
 public abstract class ExpressionNode : ASTNode, IVisitable
@@ -16,7 +16,7 @@ public abstract class ExpressionNode : ASTNode, IVisitable
     public bool IsLogicalExp{ get; set ;}
     public bool IsNumericExp{ get; set; }
 
-    public override void Accept(ASTVisitor visitor)
+    public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -53,7 +53,7 @@ public class RootNode : ASTNode, IVisitable
         }
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -87,7 +87,7 @@ public class EffectNode : ASTNode, IVisitable
         Action.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -112,7 +112,7 @@ public class ParamNode : ASTNode, IVisitable
         sb.AppendLine($"{parentId} --> {nodeId}");
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -145,7 +145,7 @@ public class ActionNode : ASTNode, IVisitable
         }
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -190,7 +190,7 @@ public class Assignment : AssignmentOrMethodCall, IVisitable
         Value?.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -229,7 +229,7 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
         Target.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -267,7 +267,7 @@ public class ExpressionMethodCall : ExpressionNode,IVisitable
         Target.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -301,7 +301,7 @@ public class ForStatement : StatementNode, IVisitable
         }
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -332,7 +332,7 @@ public class WhileStatement : StatementNode, IVisitable
         }
     }
     
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -354,7 +354,7 @@ public class Number : ExpressionNode, IVisitable
         sb.AppendLine($"{parentId} --> {nodeId}");
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -385,7 +385,7 @@ public class IdentifierNode : ExpressionNode, IVisitable
         sb.AppendLine($"{parentId} --> {nodeId}");
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -427,7 +427,7 @@ public class PropertyAccessNode : ExpressionNode, IVisitable
         Target.PrintMermaid(sb, targetId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -459,7 +459,7 @@ public class BinaryOperation : ExpressionNode, IVisitable
         Right.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -485,7 +485,7 @@ public class CompoundAssignmentNode : Assignment
         Value.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -543,7 +543,7 @@ public class CardNode : ASTNode, IVisitable
         }
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -574,7 +574,7 @@ public class EffectInvocationNode : ASTNode, IVisitable
         PostAction?.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -613,7 +613,7 @@ public class EffectField : ASTNode, IVisitable
         }
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -643,7 +643,7 @@ public class CardParam : ASTNode, IVisitable
         sb.AppendLine($"{nodeId} --> {valueId}");
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -680,7 +680,7 @@ public class SelectorNode : ASTNode, IVisitable
         Predicate?.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -713,7 +713,7 @@ public class MyPredicate : ASTNode, IVisitable
         Condition.PrintMermaid(sb, nodeId);
     }
 
-    public override void Accept(ASTVisitor visitor)
+    public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }

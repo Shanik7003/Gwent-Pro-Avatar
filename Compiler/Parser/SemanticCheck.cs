@@ -7,7 +7,7 @@ public class Symbol
 {
     public string Name { get; }
     public Type Type { get; set;}
-    public bool IsFunction { get; }
+    public bool IsFunction { get; } 
     public List<Symbol> Parameters { get; }
     public List<Type> FunctionParametersType { get; }
     public Dictionary<string, Symbol> Members { get; } 
@@ -26,7 +26,7 @@ public class Symbol
     {
         Name = name;
         Type = type;
-        IsFunction = isFunction;
+        IsFunction = isFunction; 
         FunctionParametersType = [parameterType];
         Parameters = [];
         Members = new Dictionary<string, Symbol>(); 
@@ -49,7 +49,7 @@ public class Symbol
         return memberSymbol;
     }
 
-    public override string ToString()
+    public string ToString()
     {
         return $"Symbol(Name: {Name}, Type: {Type}, IsFunction: {IsFunction}, FunctionParametersTypes: {string.Join(", ", FunctionParametersType)})";
     }
@@ -59,11 +59,14 @@ public class SymbolTable
 {
     private Dictionary<string, Symbol> symbols;
     public SymbolTable Parent { get; private set; }
+    public List<SymbolTable> Children { get; private set; } 
 
     public SymbolTable(SymbolTable parent = null)
     {
         symbols = new Dictionary<string, Symbol>();
+        Children = new List<SymbolTable>();
         Parent = parent;
+        Parent?.Children.Add(this);  // Agregar este `SymbolTable` a los hijos del padre
     }
 
     public void AddSymbol(string name, Symbol symbol)
@@ -148,14 +151,13 @@ public class SymbolTable
 
 public interface IVisitable
 {
-    void Accept(ASTVisitor visitor);
+    void Accept(IASTVisitor visitor);
 }
 
 // Clase abstracta que representa el visitante
-public abstract class ASTVisitor
+public interface IASTVisitor
 {
     // Definir métodos para cada tipo de nodo que quieras visitar
-    
     public abstract void Visit(RootNode node);
     public abstract void Visit(Assignment node);
     public abstract void Visit(MethodCallNode node);
@@ -175,17 +177,9 @@ public abstract class ASTVisitor
     public abstract void Visit(CardParam node);
     public abstract void Visit(SelectorNode node);
     public abstract void Visit(MyPredicate node);
-    
-    // Agrega más métodos para otros tipos de nodos según sea necesario
-
-    // Opcional: Proporcionar una implementación predeterminada
-    protected virtual void DefaultVisit(ASTNode node)
-    {
-        Console.WriteLine($"Visiting node of type {node.GetType().Name}");
-    }
 }
 
-public class SemanticVisitor : ASTVisitor
+public class SemanticVisitor : IASTVisitor
 {
     private SymbolTable currentSymbolTable;
     private static SymbolTable globalSymbolTable; 
@@ -231,7 +225,7 @@ public class SemanticVisitor : ASTVisitor
 
         //Registrar el tipo Context con sus propiedades
         var context = new Symbol("Context", typeof(Context));
-        context.AddMember("TriggerPlayer", new Symbol("Triggerplayer",typeof(Number)));        // Otros tipos y propiedades
+        context.AddMember("TriggerPlayer", new Symbol("Triggerplayer",typeof(Number)));  
         context.AddMember("Board", new Symbol("Board",typeof(CardList))); 
         context.AddMember("HandOfPlayer", new Symbol("HandOfPlayer",typeof(CardList)));
         context.AddMember("FieldOfPlayer", new Symbol("FieldOfPlayer",typeof(CardList)));
@@ -387,7 +381,7 @@ public class SemanticVisitor : ASTVisitor
         return type1 == type2; // Placeholder para lógica más compleja
     }
 
-    public override void Visit(RootNode node)
+    public void Visit(RootNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
@@ -404,7 +398,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(Assignment node)
+    public  void Visit(Assignment node)
     {
         // Primero, obtenemos el nombre de la variable que está siendo asignada
         if (node.Variable is PropertyAccessNode)
@@ -465,7 +459,7 @@ public class SemanticVisitor : ASTVisitor
     }
 
 
-    public override void Visit(MethodCallNode node)
+    public void Visit(MethodCallNode node)
     {
         string targetType = EvaluateType(node.Target);
         Symbol targetTypeSymbol = currentSymbolTable.GetSymbol(targetType);
@@ -506,9 +500,10 @@ public class SemanticVisitor : ASTVisitor
 
     }
 
-    public override void Visit(EffectNode node)
+    public void Visit(EffectNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
+        
         globalSymbolTable.AddSymbol(node.Name.Name,new Symbol(node.Name.Name,typeof(Effect)));
         Symbol Effect = globalSymbolTable.GetSymbol(node.Name.Name);//creo que a este se le puede quitar lo amarillo porque nunca va a ser
 
@@ -531,7 +526,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(ParamNode node)
+    public void Visit(ParamNode node)
     {
         var paramName = node.Name;
         var paramType = node.Type;
@@ -553,7 +548,7 @@ public class SemanticVisitor : ASTVisitor
         }
     }
 
-    public override void Visit(ActionNode node)
+    public void Visit(ActionNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
@@ -568,7 +563,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(ForStatement node)
+    public void Visit(ForStatement node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
@@ -582,7 +577,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(WhileStatement node)
+    public void Visit(WhileStatement node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
@@ -600,7 +595,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(BinaryOperation node)
+    public void Visit(BinaryOperation node)
     {
         var leftType = EvaluateType(node.Left);
         var rightType = EvaluateType(node.Right);
@@ -613,7 +608,7 @@ public class SemanticVisitor : ASTVisitor
         node.Right.Accept(this);
     }
 
-    public override void Visit(IdentifierNode node)
+    public void Visit(IdentifierNode node)
     {
         // Verifica si el identificador es dinámico
         if (node.IsContext)
@@ -644,12 +639,12 @@ public class SemanticVisitor : ASTVisitor
         }
     }
 
-    public override void Visit(Number node)
+    public void Visit(Number node)
     {
         // Nothing to check for a number literal
     }
 
-    public override void Visit(PropertyAccessNode node)
+    public void Visit(PropertyAccessNode node)
     {
         // Evaluar el tipo del objetivo
         var targetType = EvaluateType(node.Target);
@@ -669,7 +664,7 @@ public class SemanticVisitor : ASTVisitor
         }
     }
 
-    public override void Visit(CardNode node)
+    public void Visit(CardNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
         
@@ -681,7 +676,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(EffectInvocationNode node)
+    public void Visit(EffectInvocationNode node)
     {
         node.EffectField.Accept(this);
         if (node.Selector != null)
@@ -694,7 +689,7 @@ public class SemanticVisitor : ASTVisitor
         }
     }
 
-    public override void Visit(EffectField node)
+    public void Visit(EffectField node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
@@ -728,7 +723,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();   
     }
 
-    public override void Visit(CardParam node)
+    public void Visit(CardParam node)
     {
         node.Name.Accept(this);
         //si llego aqui es porque estaba declarado ya entonces hay que verificar que sea el tipo que debe ser
@@ -737,7 +732,7 @@ public class SemanticVisitor : ASTVisitor
 
     }
 
-    public override void Visit(SelectorNode node)
+    public void Visit(SelectorNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
 
@@ -749,7 +744,7 @@ public class SemanticVisitor : ASTVisitor
         currentSymbolTable = currentSymbolTable.ExitScope();
     }
 
-    public override void Visit(MyPredicate node)
+    public void Visit(MyPredicate node)
     {
         node.Param.Accept(this);
         if (!node.Condition.IsLogicalExp)
@@ -759,7 +754,7 @@ public class SemanticVisitor : ASTVisitor
         node.Condition.Accept(this);
     }
 
-    public override void Visit(ExpressionNode node)
+    public void Visit(ExpressionNode node)
     {
        // System.Console.WriteLine("Todavia no implemetado el Visit(ExpressionNode)");
     }
