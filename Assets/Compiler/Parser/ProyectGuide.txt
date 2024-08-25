@@ -1,0 +1,54 @@
+1. Creación del Editor de Texto en Unity:
+
+    Utiliza un componente TMP_InputField (TextMeshPro) para crear un editor de texto dentro de Unity donde 
+    el jugador pueda escribir el código DSL para las cartas.
+    Puedes añadir funcionalidades como resaltado de sintaxis para mejorar la experiencia del usuario al 
+    escribir el código.
+
+2. Guardado del Código DSL:
+
+    Cuando el jugador termine de escribir el código para una carta, guarda este código en un archivo o 
+    una base de datos local dentro del juego.
+    Esto permite que el jugador recupere y edite cartas en futuras sesiones.
+
+3. Compilación del Código DSL a C#:
+
+    Implementa un proceso que se active cuando el jugador termine de crear sus cartas. Este proceso 
+    tomará el código DSL que ha escrito, lo analizará (léxico, sintáctico, y semántico) y generará código C#.
+    Este código C# debe representar las cartas de forma que Unity pueda instanciarlas y usarlas en el juego.
+
+4. Generación y Carga de las Cartas en Unity:
+
+    Una vez generado el código C#, compílalo dentro de Unity. Unity tiene la capacidad de compilar 
+    scripts en tiempo de ejecución si están correctamente integrados en el proyecto.
+    Puedes usar System.Reflection.Emit o crear scripts predefinidos que carguen los datos
+     generados desde el DSL para crear instancias de las cartas.
+
+5. Validación del Código:
+
+    Antes de convertir el código DSL en código C#, realiza una validación para asegurarte de que no
+     hay errores. Si se encuentran errores, notifícalos al jugador para que pueda corregirlos.
+    Esto puede incluir verificar que todos los atributos de las cartas están definidos correctamente
+     y que las habilidades referenciadas existen.
+
+6. Uso de las Cartas en el Juego:
+
+    Una vez que el código es validado y convertido, las cartas se integran automáticamente en el juego.
+    Cuando el jugador elija “Empezar a jugar”, las cartas creadas estarán disponibles en su mazo, listas 
+    para ser usadas en las partidas.
+
+7. Persistencia de las Cartas:
+
+    Guarda las cartas generadas para que estén disponibles en futuras sesiones. Esto se puede hacer 
+    almacenando las cartas en archivos serializados, JSON, o en una base de datos local.
+
+8. Pruebas y Mejora Continua:
+
+    Realiza pruebas continuas para asegurar que el flujo de creación de cartas es fluido y que cualquier
+     carta creada funciona correctamente dentro del juego.
+    Añade funcionalidades adicionales como importar/exportar mazos o compartir creaciones con otros
+     jugadores.
+
+Este sistema permitiría a los jugadores crear sus propias cartas de forma personalizada dentro del juego,
+ con la posibilidad de ver sus creaciones reflejadas en las partidas. Es una manera poderosa de añadir
+  personalización y profundidad a tu juego de cartas en Unity.

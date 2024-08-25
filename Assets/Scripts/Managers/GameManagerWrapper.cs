@@ -26,7 +26,7 @@ public class GameManagerWrapper : MonoBehaviour
         }
     }
 
-    public void SetPlayersInfo1(string PlayerName,Engine.Faction Faction)
+    public void SetPlayersInfo1(string PlayerName,Faction Faction)
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
@@ -35,13 +35,19 @@ public class GameManagerWrapper : MonoBehaviour
         }
         Game.GameInstance.Player1.Name = PlayerName;
         Game.GameInstance.Player1.Faction = Faction;
-        foreach (var card in Faction.Deck)
+
+        foreach (var card in Game.AllCards.Values)
         {
-            card.player = Game.GameInstance.Player1;
+            if (card.faction == Faction)
+            {
+                card.player = Game.GameInstance.Player1;
+                Game.GameInstance.Player1.Deck.Add(card);
+                Game.GameInstance.Board.Add(card);
+            }
         }
        
     }
-      public void SetPlayersInfo2(string PlayerName,Engine.Faction Faction)
+    public void SetPlayersInfo2(string PlayerName,Engine.Faction Faction)
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
@@ -50,19 +56,21 @@ public class GameManagerWrapper : MonoBehaviour
         }
         Game.GameInstance.Player2.Name = PlayerName;
         Game.GameInstance.Player2.Faction = Faction;
-        foreach (var card in Faction.Deck)
+        
+        foreach (var card in Game.AllCards.Values)
         {
-            card.player = Game.GameInstance.Player2;
+            if (card.faction == Faction)
+            {
+                card.player = Game.GameInstance.Player2;
+                Game.GameInstance.Player2.Deck.Add(card);
+                Game.GameInstance.Board.Add(card);
+            }
         }
        
     }
-   
 
-    
     public void StartGame()
     {
         //gameInstance.StartNewGame();
     }
-
-    // Puedes añadir más métodos aquí para exponer más funcionalidades de Game
 }

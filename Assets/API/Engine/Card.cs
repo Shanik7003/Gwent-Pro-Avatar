@@ -26,60 +26,81 @@ namespace Engine
         public string description{get;private set;}
         public Position position{get; set;}
         public double points{get; set;}
+        public Guid Id {get; private set; }
         public Player player{get;set;}
         public Habilities hability{get; private set;}
-        public int ID{get;private set;} 
         public CardType CardType{get;private set;}
-            public Card(){}
-            //constructor sin puntos sin posisicion con habilidad con tipo
-            public Card(string name,string description,Player player,Habilities hability,int id,CardType cardType)
-            {
+        public Faction faction { get; private set; } 
+        public Card(){}
+
+        //Constructor para las cartas creadas por el usuario
+        public Card(CardType type,string name, Faction faction, int points, Position position,Guid id)
+        {
+            CardType = type;
             this.name = name;
-            this.description= description;
+            this.faction = faction;
+            this.points = points;
+            this.position = position;
+            Id = id;
+            hability = Habilities.Personalized;
+        }
+        // Constructor sin puntos, sin posición, con habilidad y con tipo
+        public Card(string name, string description, Player player, Habilities hability, Guid id, CardType cardType, Faction faction)
+        {
+            this.name = name;
+            this.description = description;
             this.position = Position.MRS;
             this.points = 0;
-            this.player=player;
-            this.hability=hability;
-            this.ID = id;
+            this.player = player;
+            this.hability = hability;
+            this.Id = id;
             this.CardType = cardType;
-            }
-        // constructor con puntos  con habilidad y tipo sin posicion(por defecto MRS)para construir las cartas especiales de aumento
-        public Card(string name,string description,int points,Player player,Habilities hability,int id,CardType cardType)
+            this.faction = faction; // Asignar la nueva propiedad
+        }
+
+        // Constructor con puntos, con habilidad y tipo, sin posición (por defecto MRS) para construir las cartas especiales de aumento
+        public Card(string name, string description, int points, Player player, Habilities hability, Guid id, CardType cardType, Faction faction)
         {
             this.name = name;
-            this.description= description;
+            this.description = description;
             this.position = Position.MRS;
             this.points = points;
-            this.player=player;
-            this.hability=hability;
-            this.ID = id;
+            this.player = player;
+            this.hability = hability;
+            this.Id = id;
             this.CardType = cardType;
+            this.faction = faction; // Asignar la nueva propiedad
         }
-        //constructor con habilidad y sin tipo (por defecto es UnitCard)para construir las cartas que tienen habilidades pero son normales
-        public Card(string name,string description, Position position,int points,Player player,Habilities hability,int id)
-        {
-            this.name = name;
-            this.description= description;
-            this.position = position;
-            this.points = points;
-            this.player=player;
-            this.hability=hability;
-            this.ID = id;
-            this.CardType = CardType.UnitCard;
-        }
-        //constructor sin habilidad (por defecto es None) sin tipo (por defecto es UnitCard)para construir las cartas normales
-        public Card(string name,string description, Position position,int points,Player player,int id)
-        {
-            this.name = name;
-            this.description= description;
-            this.position = position;
-            this.points = points;
-            this.player=player;
-            this.hability = Habilities.None;
-            this.ID = id;
-            this.CardType = CardType.UnitCard;
 
+        // Constructor con habilidad y sin tipo (por defecto es UnitCard) para construir las cartas que tienen habilidades pero son normales
+        public Card(string name, string description, Position position, int points, Player player, Habilities hability, Guid id, Faction faction)
+        {
+            this.name = name;
+            this.description = description;
+            this.position = position;
+            this.points = points;
+            this.player = player;
+            this.hability = hability;
+            this.Id = id;
+            this.CardType = CardType.UnitCard;
+            this.faction = faction; // Asignar la nueva propiedad
         }
+
+        // Constructor sin habilidad (por defecto es None) y sin tipo (por defecto es UnitCard) para construir las cartas normales
+        public Card(string name, string description, Position position, int points, Player player, Guid id, Faction faction)
+        {
+            this.name = name;
+            this.description = description;
+            this.position = position;
+            this.points = points;
+            this.player = player;
+            this.hability = Habilities.None;
+            this.Id = id;
+            this.CardType = CardType.UnitCard;
+            this.faction = faction; // Asignar la nueva propiedad
+        }
+
+
         #region Habilidades de las Cartas Especiales
         public void Eclipse (Card card, int row, Player enemy)//para las cartas de clima 
         {
@@ -142,9 +163,9 @@ namespace Engine
         public static Card CardTheft(Player player) //robar una carta 
         {
             System.Random random = new System.Random();
-            Card stolenCard = player.Faction.Deck[random.Next(1,player.Faction.Deck.Count)];
+            Card stolenCard = player.Deck[random.Next(1,player.Deck.Count)];
             player.Hand.Add(stolenCard);
-            player.Faction.Deck.Remove(stolenCard);
+            player.Deck.Remove(stolenCard);
             return stolenCard;
         }
         public  void IncreaseMyRow(Card card, int row)
@@ -152,7 +173,7 @@ namespace Engine
             int count = 0; //para saber cuantas cartas hay en esa fila 
             foreach (var item in card.player.Board.rows[row])
             {
-                if (item.ID != card.ID)//para que no pueda contar la propia carta de aumento
+                if (item.Id != card.Id)//para que no pueda contar la propia carta de aumento
                 {
                     item.points += card.points;//sumale 5 ptos a cada carta
                     count ++;
@@ -161,10 +182,10 @@ namespace Engine
             }
             card.player.Points += count * card.points; //+5 por cada carta 
         }
-        public static int EliminateMostPowerful(Player enemy)
+        public static Guid EliminateMostPowerful(Player enemy)
         {
             double maxPoints = 0;
-            int mostPowerfulID = 0;
+            Guid mostPowerfulID = new();
             for (int i = 0; i < enemy.Board.rows.Length ; i++)
             {
                 foreach (var item in enemy.Board.rows[i])//este ciclo identifica la mayor catidad de puntos que hay en el tablero, pero no la carta 
@@ -176,7 +197,7 @@ namespace Engine
                     if (item.points > maxPoints)//si la carta por la que vas iterando es mayor que la q tienes 
                     {
                         maxPoints = item.points;
-                        mostPowerfulID = item.ID;
+                        mostPowerfulID = item.Id;
                     }
                 }
             }
@@ -185,22 +206,23 @@ namespace Engine
             {
                 foreach (var item in enemy.Board.rows[i])
                 {
-                    if(item.ID == mostPowerfulID)
+                    if(item.Id == mostPowerfulID)
                     {
-                        enemy.Board.rows[i].Remove(item);
+                        enemy.Board.RemoveCard(enemy.Board.rows[i],item);
+                        //enemy.Board.rows[i].Remove(item);
                         enemy.Points -= item.points;//reduce los puntos del jugador 
-                        enemy.Board.cemetery.Add(item);
-                        mostPowerfulID = item.ID;
+                        enemy.Graveyard.Add(item);
+                        mostPowerfulID = item.Id;
                         break;
                     }
                 }
             }
             return mostPowerfulID;//en la interfaz anejar el caso en el que mostPowerfulID sea cero que sognifica que no habia ninguna carta en al campo del rival y entonces no se hace nada visualmente 
         }
-        public static int  EliminateLeastPowerful(Player enemy)
+        public static Guid  EliminateLeastPowerful(Player enemy)
         {
             double minPoints = Int32.MaxValue;
-            int lessPowerfulID = 0;
+            Guid lessPowerfulID = new();
             for (int i = 0; i < enemy.Board.rows.Length ; i++)
             {
                 foreach (var item in enemy.Board.rows[i])//este ciclo identifica la mayor catidad de puntos que hay en el tablero, pero no la carta 
@@ -222,10 +244,10 @@ namespace Engine
                 
                     if(item.points == minPoints)
                     {
-                        enemy.Board.rows[i].Remove(item);
-                        enemy.Board.cemetery.Add(item);
+                        enemy.Board.RemoveCard(enemy.Board.rows[i],item);
+                        enemy.Graveyard.Add(item);
                         enemy.Points -= item.points;//reduce los puntos del jugador 
-                        lessPowerfulID = item.ID;
+                        lessPowerfulID = item.Id;
                         break;
                     }
                 }

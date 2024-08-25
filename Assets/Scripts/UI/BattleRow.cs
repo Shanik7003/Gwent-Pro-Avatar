@@ -68,7 +68,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
     {
         foreach (var item in cardDisplay.cardData.Card.player.Board.rows[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow])
         {
-            if (item.CardType == CardType.IncreaseCard && item.ID != cardDisplay.cardData.Card.ID)//verifica en el engine si la fila posee alguna carta de aumento
+            if (item.CardType == CardType.IncreaseCard && item.Id != cardDisplay.cardData.Card.Id)//verifica en el engine si la fila posee alguna carta de aumento
             {
                 Debug.Log(" existe un incremento pasivo");
                 double SumPoints = item.points;
@@ -161,7 +161,8 @@ public class BattleRow : MonoBehaviour, IDropHandler
     public void PlaceCardinBoardEngine(Draggable card)// coloca la carta que el usuario coloco en una fila de batalla en el board del engine y ademas le suma lso puntos al jugador del engine  
     {
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
-        cardDisplay.cardData.Card.player.Board.rows[(int)CombatRow].Add(cardDisplay.cardData.Card); // añade la carta al board del jugador del engine
+        cardDisplay.cardData.Card.player.Board.AddCard(cardDisplay.cardData.Card.player.Board.rows[(int)CombatRow],cardDisplay.cardData.Card);
+        // cardDisplay.cardData.Card.player.Board.rows[(int)CombatRow].Add(cardDisplay.cardData.Card); //esta era l alinea antigua
         cardDisplay.cardData.Card.player.Points += cardDisplay.cardData.Card.points; //incrementa los puntos del jugador
    
     }

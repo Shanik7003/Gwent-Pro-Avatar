@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -127,13 +128,13 @@ public class CardManager : MonoBehaviour
         {
             // Aquí debes implementar la lógica para obtener las cartas del deck del jugador desde el motor
             // Debug.Log("entré a GetCardFromEngine");
-            return Game.GameInstance.Player2.Faction.Deck;
+            return Game.GameInstance.Player2.Deck;
 
         }
         else
         {
             P1CardsGenerated = true;
-            return Game.GameInstance.Player1.Faction.Deck;
+            return Game.GameInstance.Player1.Deck;
         }
      }
     public static bool CanPlaceCard(Card card, BattleField battleField)
@@ -299,14 +300,14 @@ public class CardManager : MonoBehaviour
     }
     public void UIEliminateMostPowerful(Player enemy)
     {
-        int MostPowerfulID = Card.EliminateMostPowerful(enemy);
+        Guid MostPowerfulID = Card.EliminateMostPowerful(enemy);
         if (Game.GameInstance.Player1 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
         {
             for (int i = 0; i < GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows.Length; i++)
             {
                  foreach (var item in GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows[i].row)
                 {
-                    if (item.cardData.Card.ID == MostPowerfulID)
+                    if (item.cardData.Card.Id == MostPowerfulID)
                     {
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
@@ -326,7 +327,7 @@ public class CardManager : MonoBehaviour
             {
                 foreach (var item in GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row)
                 {
-                    if (item.cardData.Card.ID == MostPowerfulID)
+                    if (item.cardData.Card.Id == MostPowerfulID)
                     {
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
@@ -342,14 +343,14 @@ public class CardManager : MonoBehaviour
     }
     public void UIEliminateLeastPowerful(Player enemy)
     {
-        int MostPowerfulID = Card.EliminateLeastPowerful(enemy);
+        Guid MostPowerfulID = Card.EliminateLeastPowerful(enemy);
         if (Game.GameInstance.Player1 == TurnManager.Instance.GetCurrentPlayer())//el enemigo va a ser el jugador contrario al que esta jugando ahora 
         {
             for (int i = 0; i < GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows.Length; i++)
             {
                  foreach (var item in GameObject.Find("FIELD2").GetComponent<BattleField>().battleRows[i].row)
                 {
-                    if (item.cardData.Card.ID == MostPowerfulID)
+                    if (item.cardData.Card.Id == MostPowerfulID)
                     {
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 
@@ -367,7 +368,7 @@ public class CardManager : MonoBehaviour
             {
                  foreach (var item in GameObject.Find("FIELD1").GetComponent<BattleField>().battleRows[i].row)
                 {
-                    if (item.cardData.Card.ID == MostPowerfulID)
+                    if (item.cardData.Card.Id == MostPowerfulID)
                     {
                         // Debug.Log ("entre al if para llamar al metodo de eliminar la carta ");
                         //saca la carta de las filas de combate y ponla en el cementerio 

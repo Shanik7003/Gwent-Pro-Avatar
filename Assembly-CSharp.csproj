@@ -64,7 +64,6 @@
     <Analyzer Include="/Applications/Unity/Hub/Editor/2022.3.19f1/Unity.app/Contents/Tools/Unity.SourceGenerators/Unity.Properties.SourceGenerator.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets/Scripts/UI/DropZone.cs" />
     <Compile Include="Assets/Scripts/Managers/UI Manager.cs" />
     <Compile Include="Assets/Scripts/UI/BattleRow.cs" />
     <Compile Include="Assets/Scripts/UI/DragableCard.cs" />
@@ -73,33 +72,40 @@
     <Compile Include="Assets/API/obj/Debug/net8.0/API.AssemblyInfo.cs" />
     <Compile Include="Assets/API/Engine/WheatherSpace.cs" />
     <Compile Include="Assets/API/Engine/Board.cs" />
+    <Compile Include="Assets/Compiler/Parser/Evaluate.cs" />
+    <Compile Include="Assets/Compiler/Lexical/TokenList.cs" />
     <Compile Include="Assets/Scripts/UI/SceneLoader.cs" />
     <Compile Include="Assets/API/Engine/Player.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerDisplay.cs" />
+    <Compile Include="Assets/Compiler/Parser/ASTNodeFactory.cs" />
     <Compile Include="Assets/Scripts/UI/WheatherSpace.cs" />
     <Compile Include="Assets/Scripts/UI/ShowHidePanel.cs" />
     <Compile Include="Assets/Scripts/UI/DetailedCardDisplay.cs" />
     <Compile Include="Assets/API/Engine/Position.cs" />
+    <Compile Include="Assets/Compiler/Lexical/LexicalAnalysisProcess.cs" />
+    <Compile Include="Assets/Compiler/Parser/SemanticCheck.cs" />
     <Compile Include="Assets/Scripts/Managers/PlayerManager.cs" />
+    <Compile Include="Assets/Compiler/Parser/Parser.cs" />
     <Compile Include="Assets/API/Engine/Faction.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManagerWrapper.cs" />
     <Compile Include="Assets/API/Engine/Card.cs" />
     <Compile Include="Assets/Scripts/Managers/BoardManager.cs" />
-    <Compile Include="Assets/Scripts/Managers/GameManager.cs" />
+    <Compile Include="Assets/Compiler/Parser/ASTNode.cs" />
     <Compile Include="Assets/Scripts/UI/CardDisplay.cs" />
-    <Compile Include="Assets/Scripts/UI/CardZoom.cs" />
+    <Compile Include="Assets/Scripts/UI/RunButtonScript.cs" />
     <Compile Include="Assets/Scripts/UI/ShowPanel.cs" />
     <Compile Include="Assets/Scripts/GameLogic/PlayerFactory.cs" />
+    <Compile Include="Assets/Compiler/Lexical/LexicalAnalyzer.cs" />
     <Compile Include="Assets/Scripts/Managers/TurnManeger.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardFactory.cs" />
-    <Compile Include="Assets/Scripts/UI/GameSetup.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerSetup.cs" />
     <Compile Include="Assets/Scripts/Managers/CardManager.cs" />
+    <Compile Include="Assets/Compiler/Error/CompilingError.cs" />
     <Compile Include="Assets/Scripts/Managers/BattleField.cs" />
+    <Compile Include="Assets/Compiler/Lexical/Token.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardData.cs" />
     <Compile Include="Assets/Scripts/UI/LineCounter.cs" />
     <Compile Include="Assets/API/Engine/Habilities.cs" />
-    <Compile Include="Assets/Scripts/UI/UIHability.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets/TextMesh Pro/Shaders/TMPro.cginc" />
@@ -112,10 +118,12 @@
     <None Include="Assets/TextMesh Pro/Sprites/EmojiOne Attribution.txt" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_Bitmap-Custom-Atlas.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF.shader" />
+    <None Include="Assets/Compiler/Parser/TodoList.txt" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile SSD.shader" />
     <None Include="Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro_Properties.cginc" />
     <None Include="Assets/TextMesh Pro/Shaders/TMPro_Surface.cginc" />
+    <None Include="Assets/Compiler/Parser/ProyectGuide.txt" />
     <None Include="Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF-Mobile Masking.shader" />
     <None Include="Assets/TextMesh Pro/Shaders/TMP_SDF Overlay.shader" />

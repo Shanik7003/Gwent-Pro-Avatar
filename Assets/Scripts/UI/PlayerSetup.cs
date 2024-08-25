@@ -5,7 +5,8 @@ using Engine;
 using System.Text;
 using System;
 using UnityEngine.SceneManagement;
-using System.Linq; // Asegúrate de incluir este namespace para trabajar con TextMeshPro.
+using System.Linq;
+using JetBrains.Annotations; // Asegúrate de incluir este namespace para trabajar con TextMeshPro.
 
 public class PlayerSetup : MonoBehaviour
 {
@@ -26,7 +27,7 @@ public class PlayerSetup : MonoBehaviour
         
         if (selectedButton == WaterButton)
         {
-            selectedFaction = Game.WaterTribe;
+            selectedFaction = Faction.WaterTribe;
             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
                 selectedButton = null;
@@ -37,7 +38,7 @@ public class PlayerSetup : MonoBehaviour
         }
         if (selectedButton == FireButton)
         {
-            selectedFaction = Game.FireNation;
+            selectedFaction = Faction.FireNation;
             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
                 selectedButton = null;
@@ -48,7 +49,7 @@ public class PlayerSetup : MonoBehaviour
         }
         if (selectedButton == EarthButton)
         {
-            selectedFaction = Game.EarthKingdom;
+            selectedFaction = Faction.EarthKingdom;
              if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
                 selectedButton =null;
@@ -58,8 +59,10 @@ public class PlayerSetup : MonoBehaviour
         }
         if (selectedButton == AirButton)
         {
-            selectedFaction = Game.AirNomads;
-             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
+        
+            selectedFaction = Faction.AirNomads;
+            
+            if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
                 selectedButton =null;
                 return;
@@ -131,7 +134,7 @@ public class PlayerSetup : MonoBehaviour
         nameInputField.text = "";
         currentlySelectedButton.transform.localScale = Vector3.one; // Resetear la escala si es necesario
         currentlySelectedButton = null;
-        selectedFaction = null; 
+        selectedFaction = Faction.None; 
         // Debug.Log("escena reseteada: introduce los datos de player2"); 
     }
 }

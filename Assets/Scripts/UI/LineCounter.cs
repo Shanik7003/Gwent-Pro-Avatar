@@ -3,7 +3,6 @@ using UnityEngine.UI;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Linq;
-using System.Net.Http.Headers;
 using UnityEngine;
 using TMPro;
 
@@ -13,10 +12,12 @@ public class CodeInputManager : MonoBehaviour
     public TextMeshProUGUI lineNumberText;
     public ScrollRect scrollRect;
     private int currentLine = 1;
+
     void Start()
     {
         lineNumberText.text = "1";
         inputField.onValueChanged.AddListener(OnInputFieldChanged);
+        scrollRect.onValueChanged.AddListener(OnScrollChanged); // Sincroniza el scroll
     }
 
     void Update()
@@ -36,12 +37,12 @@ public class CodeInputManager : MonoBehaviour
             }
         }
     }
+
     void EnterPressed()
     {
         int caretPosition = inputField.caretPosition;
         int textLength = inputField.text.Length;
 
-        // Solo inserta un salto de línea si no esta ya en un salto de línea
         if (caretPosition < textLength)
         {
             if (inputField.text[caretPosition] != '\n')
@@ -51,11 +52,11 @@ public class CodeInputManager : MonoBehaviour
             }
         }
     }
+
     void BackspacePressed()
     {
         int caretPosition = inputField.caretPosition;
 
-        // COmprueba si se ha eliminado una línea
         if (caretPosition > 0 && inputField.text[caretPosition - 1] == '\n')
         {
             inputField.text = inputField.text.Remove(caretPosition - 1, 1);
@@ -69,7 +70,6 @@ public class CodeInputManager : MonoBehaviour
 
         if (lineCount != currentLine)
         {
-            // Actualizamos el texto del contador de líneas
             lineNumberText.text = "";
             for (int i = 1; i <= lineCount; i++)
             {
@@ -78,6 +78,11 @@ public class CodeInputManager : MonoBehaviour
 
             currentLine = lineCount;
         }
+    }
 
+    void OnScrollChanged(Vector2 pos)
+    {
+        // Sincroniza el scroll del inputField con el de los números de línea
+        scrollRect.verticalNormalizedPosition = pos.y;
     }
 }

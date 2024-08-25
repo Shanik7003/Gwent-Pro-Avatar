@@ -30,25 +30,6 @@ public class TurnManager : MonoBehaviour
     public void StartTurn()
     {
         Player currentPlayer = GetCurrentPlayer();
-        // if(currentPlayer == Game.GameInstance.Player1)
-        // {
-        //     Debug.Log("ESTOY AQUI, QUERIENDOTE ");
-        //     currentPlayer.Name = name1 + " X"; 
-        //     Game.GameInstance.Player2.Name = name2;
-
-        //     GameObject.Find("Player1").GetComponentInChildren<PlayerData>().Name = Game.GameInstance.Player1.Name;
-        //     GameObject.Find("Player1").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
-        //     GameObject.Find("Player2").GetComponentInChildren<PlayerData>().Name = Game.GameInstance.Player2.Name;
-        //     GameObject.Find("Player2").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
-        // }
-        // else if (currentPlayer == Game.GameInstance.Player2)
-        // {
-        //     currentPlayer.Name = name2 + " X"; 
-        //     Game.GameInstance.Player1.Name = name1;
-        //     GameObject.Find("Player1").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
-        //     GameObject.Find("Player2").GetComponentInChildren<PlayerDisplay>().UpdatePlayer();
-        // }
-        
     }
     public void EndTurn()
     {
