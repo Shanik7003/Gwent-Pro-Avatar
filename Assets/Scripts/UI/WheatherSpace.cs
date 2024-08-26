@@ -40,12 +40,12 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
         else
         {
             card.dropSuccess = false;
-            // Debug.LogError("Drop no permitido en " + transform.name);
+            Debug.LogError("Drop no permitido en " + transform.name);
         }
     }
     public bool IsDropAllowed(Draggable card)
     {
-        // Debug.Log("entre a IsDropAllowed");
+        Debug.Log("entre a IsDropAllowed");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
      
         if (space.Count == 1)//para no poder poner mas de una carta en un espacio de clima 
@@ -55,7 +55,7 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
         
         if (cardDisplay == null)
         {
-            // Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
+            Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
         }
         if (cardDisplay.cardData.Card.CardType == CardType.WheatherCard)//si es una carta de clima?
@@ -87,7 +87,7 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
     }
     public void FreeWheather (Draggable card)
     {
-        // Debug.Log("Entre a FreeWheather");
+        Debug.Log("Entre a FreeWheather");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if(cardDisplay.cardData.Card.hability == Habilities.Eclipse)
         {

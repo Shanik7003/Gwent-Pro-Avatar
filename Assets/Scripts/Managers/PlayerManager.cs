@@ -32,7 +32,7 @@ public class PlayerManager : MonoBehaviour
     {
             if (playerFactory == null)
             {
-                // Debug.LogError("PlayerFactory reference is not set in the inspector!");
+                Debug.LogError("PlayerFactory reference is not set in the inspector!");
                 return;
             }
             newPlayerData = playerFactory.CreatePlayerData(player);
@@ -47,11 +47,11 @@ public class PlayerManager : MonoBehaviour
             {
                 display.playerData = newPlayerData;
                 display.UpdatePlayer();
-                // Debug.Log("Player creado: " + newPlayerData.Name);
+                Debug.Log("Player creado: " + newPlayerData.Name);
             }
             else
             {
-                // Debug.LogError("Componente PlayerDisplay o datos de player faltantes.");
+                Debug.LogError("Componente PlayerDisplay o datos de player faltantes.");
             }
       }   
 }

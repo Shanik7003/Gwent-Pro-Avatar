@@ -34,13 +34,14 @@ namespace Engine
         // Constructor privado para prevenir instanciación externa
         private Game()
         {
+            Debug.Log("Creando el Game del Engine");
             Player1 = new Player();
             Player2 = new Player();
             WheatherSpace = new();
 
             // Inicializar el diccionario de cartas
             AllCards = new Dictionary<Guid, Card>();
-
+            Board = new List<Card>();
             // Agregar las cartas fijas al diccionario
             InitializeDefaultCards();
 

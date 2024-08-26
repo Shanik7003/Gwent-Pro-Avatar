@@ -5,17 +5,16 @@ using UnityEngine.Pool;
 
 public class ExecutionVisitor : IASTVisitor
 {
-    private Dictionary<string,object> ObjectsMapping ;
+    private Dictionary<string,object> ObjectsMapping;
 
     public ExecutionVisitor(Dictionary<string,object> objectsMapping)
     {
         ObjectsMapping = objectsMapping;
+        InicializedObjectsMapping();
     }
 
     public void InicializedObjectsMapping()
     {
-        ObjectsMapping.Add(Game.GameInstance.Player1.Name,Game.GameInstance.Player1);
-        ObjectsMapping.Add(Game.GameInstance.Player1.Name,Game.GameInstance.Player1);
         ObjectsMapping.Add("TriggerPlayer",TurnManager.Instance.GetCurrentPlayer());
         ObjectsMapping.Add("Hand",TurnManager.Instance.GetCurrentPlayer().Hand);
         ObjectsMapping.Add("Deck",TurnManager.Instance.GetCurrentPlayer().Deck);

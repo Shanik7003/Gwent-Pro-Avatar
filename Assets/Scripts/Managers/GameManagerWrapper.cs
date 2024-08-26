@@ -7,21 +7,21 @@ public class GameManagerWrapper : MonoBehaviour
 {
     void Start()
     {
-        // Debug.Log("GameManagerWrapper attached and running");
+        Debug.Log("GameManagerWrapper attached and running");
     }
     public static GameManagerWrapper Instance { get; private set; }
     void Awake()
     {
-        // Debug.Log("Awake called in GameManagerWrapper");
+        Debug.Log("Awake called in GameManagerWrapper");
         if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(gameObject);
-            // Debug.Log("GameManagerWrapper instance set and marked as DontDestroyOnLoad");
+            Debug.Log("GameManagerWrapper instance set and marked as DontDestroyOnLoad");
         }
         else
         {
-            // Debug.Log("Instance already exists, destroying duplicate");
+            Debug.Log("Instance already exists, destroying duplicate");
             Destroy(gameObject);
         }
     }
@@ -30,7 +30,7 @@ public class GameManagerWrapper : MonoBehaviour
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
-            // Debug.LogError("Players are not initialized.");
+            Debug.LogError("Players are not initialized.");
             return;
         }
         Game.GameInstance.Player1.Name = PlayerName;
@@ -51,7 +51,7 @@ public class GameManagerWrapper : MonoBehaviour
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
-            // Debug.LogError("Players are not initialized.");
+            Debug.LogError("Players are not initialized.");
             return;
         }
         Game.GameInstance.Player2.Name = PlayerName;

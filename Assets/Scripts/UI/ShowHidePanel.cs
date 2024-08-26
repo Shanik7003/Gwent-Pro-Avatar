@@ -16,7 +16,7 @@ public class ShowHidePanel : MonoBehaviour
     // Método público para mostrar el panel con un texto específico
     public void ShowPanelWithMessage(string message)
     {
-        // Debug.Log("Attempting to show panel with message: " + message);
+        Debug.Log("Attempting to show panel with message: " + message);
         dynamicText.text = message; // Establece el texto
         panel.SetActive(true); // Muestra el panel
         StartCoroutine(HidePanelAfterDelay()); // Inicia la coroutine para ocultar el panel

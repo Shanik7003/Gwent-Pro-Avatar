@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Timers;
+using UnityEngine;
 public class Symbol
 {
     public string Name { get; }
@@ -27,11 +29,13 @@ public class Symbol
     {
         Name = name;
         Type = type;
-        IsFunction = isFunction; 
-        FunctionParametersType.Add(parameterType);
+        IsFunction = isFunction;
+        UnityEngine.Debug.Log("Creando nuevo symbol: "+ "name: "+ name +"Type: "+ type.ToString()+" parameterType: " + parameterType); 
+        FunctionParametersType = new List<Type>{parameterType};
         Parameters = new List<Symbol>();
         Members = new Dictionary<string, Symbol>(); 
     }
+
     public void AddMember(string memberName, Symbol memberSymbol)
     {
         if (!Members.ContainsKey(memberName))
@@ -190,18 +194,18 @@ public class SemanticVisitor : IASTVisitor
     {
         { "Number", typeof(Number) },
         { "string", typeof(string) },
-        {"String", typeof(string) },
+        { "String", typeof(string) },
         { "bool", typeof(bool) },
         { "Bool", typeof(bool) },
         { "float", typeof(float) },
         { "double", typeof(double) },
-        { "CardType", typeof(Engine.CardType) },
+        { "Engine.CardType", typeof(Engine.CardType) },
         { "Context", typeof(Context) },
         { "CardList", typeof(CardList ) },
         { "Method", typeof(Method) }, 
         { "Effect", typeof(Effect) },
-        {"Null", typeof(Null) },
-        {"Player", typeof(Engine.Player) }
+        { "Null", typeof(Null) },
+        { "Engine.Player", typeof(Engine.Player) }
         // Agrega otros tipos primitivos o personalizados según sea necesario
     };
     public SemanticVisitor(List<CompilingError> errors)
@@ -215,14 +219,14 @@ public class SemanticVisitor : IASTVisitor
     private void RegisterGlobalSymbols()
     {
         // Registrar el tipo 'Card' con sus propiedades
-        var cardSymbol = new Symbol("Card", typeof(Engine.Card));
+        var cardSymbol = new Symbol("Engine.Card", typeof(Engine.Card));
         cardSymbol.AddMember("Name", new Symbol("Name", typeof(string)));
         cardSymbol.AddMember("Power", new Symbol("Power", typeof(Number)));
         cardSymbol.AddMember("Faction", new Symbol("Faction", typeof(Engine.Faction)));
         cardSymbol.AddMember("CardType", new Symbol("CardType", typeof(Engine.CardType)));
         cardSymbol.AddMember("Range",new Symbol("Range",typeof(CompilerPosition[])));
         cardSymbol.AddMember("Owner",new Symbol("Owner",typeof(Engine.Player)));        
-        globalSymbolTable.AddSymbol("Card", cardSymbol);
+        globalSymbolTable.AddSymbol("Engine.Card", cardSymbol);
 
         //Registrar el tipo Context con sus propiedades
         var context = new Symbol("Context", typeof(Context));

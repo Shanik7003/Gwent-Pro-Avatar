@@ -85,6 +85,7 @@
     <Compile Include="Assets/Compiler/Lexical/LexicalAnalysisProcess.cs" />
     <Compile Include="Assets/Compiler/Parser/SemanticCheck.cs" />
     <Compile Include="Assets/Scripts/Managers/PlayerManager.cs" />
+    <Compile Include="Assets/Scripts/UI/TerminalScript.cs" />
     <Compile Include="Assets/Compiler/Parser/Parser.cs" />
     <Compile Include="Assets/API/Engine/Faction.cs" />
     <Compile Include="Assets/Scripts/Managers/GameManagerWrapper.cs" />

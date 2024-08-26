@@ -1,11 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 
 public class RunButtonScript : MonoBehaviour
 {
     public Button runButton;
     public TMPro.TMP_InputField codeInputField;
+    public TerminalScript terminalScript;  // Referencia al script de la terminal
+    public static RootNode ast;
 
     void Start()
     {
@@ -17,23 +20,24 @@ public class RunButtonScript : MonoBehaviour
 
     void OnRunButtonClick()
     {
+        terminalScript.ClearTerminal();  // Limpia la terminal antes de ejecutar
         Debug.Log("Entre a OnRunButtonClick");
+
         List<CompilingError> LexicalErrors = new List<CompilingError>();
         List<CompilingError> ParsingErrors = new List<CompilingError>();
         List<CompilingError> SemanticErrors = new List<CompilingError>();
 
-
         LexicalAnalyzer lexer = Compiling.Lexical;
         string text = codeInputField.text;  // Obtener el texto del InputField
 
-        Debug.Log("text: "+text);
+        Debug.Log("text: " + text);
 
         IEnumerable<Token> tokens = lexer.GetTokens("code", text, LexicalErrors);
         if (HandleErrors(LexicalErrors)) return;
 
         // Parser
         Parser parser = new Parser(new TokenList(tokens), ParsingErrors);
-        RootNode ast = parser.ParseCode();
+        ast = parser.ParseCode();
         if (HandleErrors(ParsingErrors)) return;
 
         // Realizar el análisis semántico
@@ -41,18 +45,27 @@ public class RunButtonScript : MonoBehaviour
         semanticVisitor.Visit(ast);
         if (HandleErrors(SemanticErrors)) return;
 
+        // //*!este es el codigo que hay que hacerlo despues de que ya se halla hecho el player setup
+
+        // ExecutionVisitor executionVisitor = new(new Dictionary<string, object>());
+        // executionVisitor.Visit(ast);
     }
 
-    static bool HandleErrors(List<CompilingError> errors)
+    bool HandleErrors(List<CompilingError> errors)
     {
         if (errors.Count > 0)
         {
             foreach (var error in errors)
             {
-                Debug.Log($"Error Code: {error.Code} Location: ({error.Location.Line},{error.Location.Column}): {error.Message}");
+                terminalScript.DisplayError($"Error Code: {error.Code} Location: ({error.Location.Line},{error.Location.Column}): {error.Message}");
             }
-            return true;
+            return true;  // Hay errores, no se procede al cambio de escena
         }
-        return false;
+        return false;  // No hay errores, se puede proceder al cambio de escena
+    }
+
+    void LoadBoardScene()
+    {
+        SceneManager.LoadScene("FactionSelection");
     }
 }

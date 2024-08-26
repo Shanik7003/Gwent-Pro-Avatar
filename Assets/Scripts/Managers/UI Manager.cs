@@ -41,8 +41,8 @@ public class UIManager : MonoBehaviour
     }
     public string RoundWinner()
     {
-        // Debug.Log("Entre a RoundWinner");
-        // Debug.Log("el nombre es >>>>>>>>>>>>>>>>>>>>>>" + Game.GameInstance.Player1.Name);
+        Debug.Log("Entre a RoundWinner");
+        Debug.Log("el nombre es >>>>>>>>>>>>>>>>>>>>>>" + Game.GameInstance.Player1.Name);
         if (Game.GameInstance.Player1.Points > Game.GameInstance.Player2.Points)
         {
             Game.GameInstance.Player1.Gems.Add(1);//sumale una gema 
@@ -66,14 +66,14 @@ public class UIManager : MonoBehaviour
         {
             //hacer las cosas para terminar el juego
             PanelGameOver.ShowPanelWithMessage("GAME OVER, El ganador es " + Game.GameInstance.Player1.Name);
-            // Debug.Log("el ganador del juego es el player1");
+            Debug.Log("el ganador del juego es el player1");
             return true;
         }
         if(Game.GameInstance.Player2.Gems.Count >= 2 )
         {
             //hacer las cosas para terminar el juego 
             PanelGameOver.ShowPanelWithMessage("GAME OVER, El ganador es " + Game.GameInstance.Player2.Name);
-            // Debug.Log("el ganador del juego es el player2");
+            Debug.Log("el ganador del juego es el player2");
             return true;
         }
         return false;
@@ -82,7 +82,7 @@ public class UIManager : MonoBehaviour
     {
         for (int i = 0; i < Rows.Length; i++)
         {
-            // Debug.Log("No esta vacio Rows");
+            Debug.Log("No esta vacio Rows");
             foreach (var item in Rows[i].GetComponent<BattleRow>().row)
             {
                 //Debug.Log("No esta vacio Rows[i]");
