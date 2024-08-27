@@ -41,12 +41,14 @@ namespace Engine
         public List<Card> GetHand()
         {
             System.Random random = new();
+            List<Card> container = new();
             for (int i = 0; i < 10; i++)
             {
-                Card card = Deck[random.Next(0,14)];
+                Card card = Deck[random. Next(0,Deck.Count)];
                 Hand.Add(card);
                 Deck.Remove(card);
             }
+            
             return Hand;
         }
     }

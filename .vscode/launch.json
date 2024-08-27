@@ -2,9 +2,26 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "Attach to Unity (Editor)",
+            "type": "mono",
+            "request": "attach",
+            "address": "localhost",
+            "port": 56000,
+            "sourceMaps": true,
+            "cwd": "${workspaceFolder}",
+            "runtimeExecutable": null,
+            "runtimeArgs": [],
+            "env": {},
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false
+            }
+        },
+        {
             "name": "Attach to Unity",
             "type": "vstuc",
             "request": "attach"
         }
-     ]
+    ]
 }

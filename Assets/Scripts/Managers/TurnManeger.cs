@@ -13,6 +13,7 @@ public class TurnManager : MonoBehaviour
     {
         if (Instance == null)
         {
+            //Debug.Log("Creando una instancia de TurnManager");
             Instance = this;
             DontDestroyOnLoad(gameObject); // Opcional: Hace que el objeto no se destruya al cargar nuevas escenas.
         }
@@ -34,7 +35,7 @@ public class TurnManager : MonoBehaviour
     public void EndTurn()
     {
 
-        Debug.Log($"Turno {turnCount}: Termina.");
+        //Debug.Log($"Turno {turnCount}: Termina.");
         turnCount++; // Incrementa el contador de turnos
         StartTurn(); // Inicia el siguiente turno automáticamente
     }
@@ -42,7 +43,7 @@ public class TurnManager : MonoBehaviour
     public Player GetCurrentPlayer()
     {
         // Determina el jugador actual basado en si el número de turno es par o impar
-        Debug.Log("entre al metodo GetCurrentPlayer");
+        //Debug.Log("entre al metodo GetCurrentPlayer");
         return turnCount % 2 == 0 ? Game.GameInstance.Player1 : Game.GameInstance.Player2;//La estructura es condición ? resultado_si_verdadero : resultado_si_falso. (Par:Player1)
     }
     public Player GetCurrentEnemy()

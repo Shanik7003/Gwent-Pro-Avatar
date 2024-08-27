@@ -34,7 +34,7 @@ namespace Engine
         // Constructor privado para prevenir instanciación externa
         private Game()
         {
-            Debug.Log("Creando el Game del Engine");
+            //Debug.Log("Creando el Game del Engine");
             Player1 = new Player();
             Player2 = new Player();
             WheatherSpace = new();
@@ -169,7 +169,7 @@ namespace Engine
             }
             else
             {
-                Debug.LogError("La carta ya existe o el ID es inválido.");
+                //Debug.LogError("La carta ya existe o el ID es inválido.");
             }
         }
 
@@ -193,7 +193,7 @@ namespace Engine
                 return card;
             }
 
-            Debug.LogError("No se encontró ninguna carta con ese ID.");
+            //Debug.LogError("No se encontró ninguna carta con ese ID.");
             return null;
         }
     }

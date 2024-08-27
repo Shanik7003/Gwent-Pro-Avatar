@@ -21,7 +21,7 @@ public class RunButtonScript : MonoBehaviour
     void OnRunButtonClick()
     {
         terminalScript.ClearTerminal();  // Limpia la terminal antes de ejecutar
-        Debug.Log("Entre a OnRunButtonClick");
+        //Debug.Log("Entre a OnRunButtonClick");
 
         List<CompilingError> LexicalErrors = new List<CompilingError>();
         List<CompilingError> ParsingErrors = new List<CompilingError>();
@@ -30,7 +30,7 @@ public class RunButtonScript : MonoBehaviour
         LexicalAnalyzer lexer = Compiling.Lexical;
         string text = codeInputField.text;  // Obtener el texto del InputField
 
-        Debug.Log("text: " + text);
+        //Debug.Log("text: " + text);
 
         IEnumerable<Token> tokens = lexer.GetTokens("code", text, LexicalErrors);
         if (HandleErrors(LexicalErrors)) return;
@@ -46,9 +46,11 @@ public class RunButtonScript : MonoBehaviour
         if (HandleErrors(SemanticErrors)) return;
 
         // //*!este es el codigo que hay que hacerlo despues de que ya se halla hecho el player setup
-
         // ExecutionVisitor executionVisitor = new(new Dictionary<string, object>());
         // executionVisitor.Visit(ast);
+        //*!esta hecho en el PlayerSetupScript
+        
+        LoadFactionSelectionScene();
     }
 
     bool HandleErrors(List<CompilingError> errors)
@@ -64,7 +66,7 @@ public class RunButtonScript : MonoBehaviour
         return false;  // No hay errores, se puede proceder al cambio de escena
     }
 
-    void LoadBoardScene()
+    void LoadFactionSelectionScene()
     {
         SceneManager.LoadScene("FactionSelection");
     }

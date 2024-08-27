@@ -19,7 +19,7 @@ public class PlayerSetup : MonoBehaviour
     private Faction Player1Faction,Player2Faction;
     private string player1Name, player2Name;
     private bool isSettingPlayer1 = true; // Indica si estamos configurando el Jugador 1
-    private RunButtonScript runButtonScript;
+
 
     public Button WaterButton, FireButton, AirButton, EarthButton;
 
@@ -35,29 +35,30 @@ public class PlayerSetup : MonoBehaviour
                 selectedButton = null;
                 return;
             }
-           
-            Debug.Log("Seleccionaste la Faccion WaterTribe");
+            //Debug.Log("Seleccionaste la Faccion WaterTribe");
         }
         if (selectedButton == FireButton)
         {
             selectedFaction = Faction.FireNation;
+            Faction prueba = Game.GameInstance.Player1.Faction;
             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
                 selectedButton = null;
                 return;
             }
-
-            Debug.Log("Seleccionaste la Faccion FireNation");
+            
+            //Debug.Log("Seleccionaste la Faccion FireNation");
         }
         if (selectedButton == EarthButton)
         {
             selectedFaction = Faction.EarthKingdom;
-             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
+            if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
                 selectedButton =null;
                 return;
             }
-            Debug.Log("Seleccionaste la Faccion EarthKindom");
+          
+            //Debug.Log("Seleccionaste la Faccion EarthKindom");
         }
         if (selectedButton == AirButton)
         {
@@ -66,10 +67,11 @@ public class PlayerSetup : MonoBehaviour
             
             if (!isSettingPlayer1 && selectedFaction == Game.GameInstance.Player1.Faction)
             {
-                selectedButton =null;
+                selectedButton = null;
                 return;
             }
-            Debug.Log("Seleccionaste la Faccion AirNomads");
+            
+            //Debug.Log("Seleccionaste la Faccion AirNomads");
         }
         if (currentlySelectedButton != null && currentlySelectedButton != selectedButton)
         {
@@ -85,21 +87,18 @@ public class PlayerSetup : MonoBehaviour
     {
         if (string.IsNullOrEmpty(nameInputField.text) || currentlySelectedButton == null)
         {
-            Debug.Log("You must fill in your name and select a faction to continue.");
+            //Debug.Log("You must fill in your name and select a faction to continue.");
             // Aquí podrías también mostrar algún mensaje en la UI informando al jugador.
             return;
         }
         else
         {
-             if (isSettingPlayer1)
+            if (isSettingPlayer1)
             {
                 // Guardar los datos del Jugador 1
                 player1Name = nameInputField.text;
                 Player1Faction = selectedFaction;
-                GameManagerWrapper.Instance.SetPlayersInfo1(player1Name,  Player1Faction);
-                Debug.Log("Player 1 set: " + player1Name + ", " + Player1Faction);
-                // Resetear la interfaz para el Jugador 2
-                ResetUI();
+                ResetUI(); //*! Resetear la interfaz para el Jugador 2
                 isSettingPlayer1 = false;
             }
             else
@@ -107,35 +106,35 @@ public class PlayerSetup : MonoBehaviour
                 // Guardar los datos del Jugador 2 y procesar
                 player2Name = nameInputField.text;
                 Player2Faction = selectedFaction;
-                GameManagerWrapper.Instance.SetPlayersInfo2(player2Name,  Player2Faction);
-                Debug.Log("Player 2 set: " + player2Name + ", " + Player2Faction);
         
+                GameManagerWrapper.Instance.SetPlayersInfo(player1Name,Player1Faction,player2Name,Player2Faction);
+
                 if (GameManagerWrapper.Instance == null)
                 {
-                    Debug.LogError("GameManagerWrapper instance is null");
+                    //Debug.LogError("GameManagerWrapper instance is null");
                 }
                 else
                 {
-                    Debug.Log("nombre del player1:" + Game.GameInstance.Player1.Name);
-                    Debug.Log("nombre del player2:" + Game.GameInstance.Player2.Name);
-                    Debug.Log("faccion del player1:" + Game.GameInstance.Player1.Faction);
-                    Debug.Log("faccion del player2:" + Game.GameInstance.Player2.Faction);
+                    //Debug.Log("nombre del player1:" + Game.GameInstance.Player1.Name);
+                    //Debug.Log("nombre del player2:" + Game.GameInstance.Player2.Name);
+                    //Debug.Log("faccion del player1:" + Game.GameInstance.Player1.Faction);
+                    //Debug.Log("faccion del player2:" + Game.GameInstance.Player2.Faction);
                     Game.GameInstance.Player1.GetHand();
-                    Debug.Log("Hand1 Añadida al Player1");
+                    //Debug.Log("Hand1 Añadida al Player1");
                     Game.GameInstance.Player2.GetHand();
-                    Debug.Log("Hand2 Añadida al Player2");
+                    //Debug.Log("Hand2 Añadida al Player2");
+
+                    //*?esto es para ver todas las cartas que hay en el deck y la mano del jugador 1 
                     foreach (var card in Game.GameInstance.Player1.Deck)
                     {
-                        Debug.Log($"DeckCard: {card.name}");
+                        //Debug.Log($"DeckCard: {card.name}");
                     }
                     foreach (var card in Game.GameInstance.Player1.Hand)
                     {
-                        Debug.Log($"HandCard: {card.name}");
+                        //Debug.Log($"HandCard: {card.name}");
                     }
 
-                    //*!este es el codigo que hay que hacerlo despues de que ya se halla hecho el player setup
-                    ExecutionVisitor executionVisitor = new(new Dictionary<string, object>());
-                    executionVisitor.Visit(runButtonScript.ast);
+
 
                     SceneManager.LoadScene("Board",LoadSceneMode.Single);
                 }
@@ -147,8 +146,9 @@ public class PlayerSetup : MonoBehaviour
     {
         nameInputField.text = "";
         currentlySelectedButton.transform.localScale = Vector3.one; // Resetear la escala si es necesario
+        currentlySelectedButton.interactable = false;
         currentlySelectedButton = null;
         selectedFaction = Faction.None; 
-        Debug.Log("escena reseteada: introduce los datos de player2"); 
+        //Debug.Log("escena reseteada: introduce los datos de player2"); 
     }
 }

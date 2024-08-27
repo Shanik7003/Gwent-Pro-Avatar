@@ -10,8 +10,8 @@ public class PlayerDisplay : MonoBehaviour
 
 public void UpdatePlayer()
 {
-    Debug.Log(playerData.Name);
-    Debug.Log(playerData.Points);
+    //Debug.Log(playerData.Name);
+    //Debug.Log(playerData.Points);
     nameText.text = playerData.Name;
     points.text = playerData.Points.ToString();
     Canvas.ForceUpdateCanvases();
@@ -34,11 +34,11 @@ public void UpdatePlayer()
 //     {
 //         if (playerData == null)
 //         {
-//             Debug.LogError("Player data not set.");
+//             //Debug.LogError("Player data not set.");
 //             return;
 //         }
 
-//         Debug.Log($"Updating display for {playerData.Name} with {playerData.Points} points.");
+//         //Debug.Log($"Updating display for {playerData.Name} with {playerData.Points} points.");
 //         nameText.text = playerData.Name;
 //         points.text = playerData.Points.ToString();
 //         Canvas.ForceUpdateCanvases();
@@ -48,7 +48,7 @@ public void UpdatePlayer()
 //     {
 //         if (nameText == null || points == null)
 //         {
-//             Debug.LogError("Text components are not assigned.");
+//             //Debug.LogError("Text components are not assigned.");
 //             return;
 //         }
 //         UpdatePlayer();

@@ -30,7 +30,7 @@ public class Symbol
         Name = name;
         Type = type;
         IsFunction = isFunction;
-        UnityEngine.Debug.Log("Creando nuevo symbol: "+ "name: "+ name +"Type: "+ type.ToString()+" parameterType: " + parameterType); 
+        //UnityEngine.Debug.Log("Creando nuevo symbol: "+ "name: "+ name +"Type: "+ type.ToString()+" parameterType: " + parameterType); 
         FunctionParametersType = new List<Type>{parameterType};
         Parameters = new List<Symbol>();
         Members = new Dictionary<string, Symbol>(); 

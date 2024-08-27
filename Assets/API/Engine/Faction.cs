@@ -13,11 +13,11 @@ namespace Engine
 {
     public enum Faction
     {
+        None,
         WaterTribe,
         FireNation,
         AirNomads,
         EarthKingdom,
-        None
     }
 
 }

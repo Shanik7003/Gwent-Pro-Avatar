@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Engine;
 using UnityEngine.Pool;
 
@@ -15,13 +16,12 @@ public class ExecutionVisitor : IASTVisitor
 
     public void InicializedObjectsMapping()
     {
-        ObjectsMapping.Add("TriggerPlayer",TurnManager.Instance.GetCurrentPlayer());
-        ObjectsMapping.Add("Hand",TurnManager.Instance.GetCurrentPlayer().Hand);
-        ObjectsMapping.Add("Deck",TurnManager.Instance.GetCurrentPlayer().Deck);
-        ObjectsMapping.Add("Field",TurnManager.Instance.GetCurrentPlayer().Field);
-        ObjectsMapping.Add("Graveyard",TurnManager.Instance.GetCurrentPlayer().Graveyard);
+        ObjectsMapping.Add("TriggerPlayer",GetTriggerPlayer());
+        ObjectsMapping.Add("Hand",GetTriggerPlayerHand());
+        ObjectsMapping.Add("Deck",GetTriggerPlayerDeck());
+        ObjectsMapping.Add("Field",GetTriggerPlayerField());
+        ObjectsMapping.Add("Graveyard",GetTriggerPlayerGraveyard());
         ObjectsMapping.Add("Board",Game.GameInstance.Board);
-
     }
 
     public void Visit(RootNode node)
@@ -30,7 +30,7 @@ public class ExecutionVisitor : IASTVisitor
         // {
         //     effect.Accept(this);
         // }
-
+   
         foreach (var card in node.Cards)
         {
             card.Accept(this);
@@ -43,15 +43,11 @@ public class ExecutionVisitor : IASTVisitor
         Card card = new(node.Type,node.Name.Name,node.Faction,node.Power,AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid());
         Game.GameInstance.AddCard(card);//la añade al diccionario de todas las cartas del juego;
 
-        // foreach (var effect in node.EffectList)
-        // {
-        //     effect.Accept(this);
-        // }
     }
     public Position AdecuatePosition(CompilerPosition[] Range)
     {
         string range = "";
-        foreach (var pos in range)
+        foreach (var pos in Range)
         {
             range += pos.ToString();
         }
@@ -211,6 +207,46 @@ public class ExecutionVisitor : IASTVisitor
     private void ExecuteMethod(MethodCallNode node)
     {
         // Implementación de la ejecución de métodos
+    }
+    private Player GetTriggerPlayer()
+    {
+        if (TurnManager.Instance != null)
+        {
+            return TurnManager.Instance.GetCurrentPlayer();
+        }
+        return null;
+    }
+    private List<Card> GetTriggerPlayerHand()
+    {
+        if (TurnManager.Instance != null)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Hand;
+        }
+        return null;
+    }
+    private List<Card> GetTriggerPlayerDeck()
+    {
+        if (TurnManager.Instance != null)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Deck;
+        }
+        return null;
+    }
+    private List<Card> GetTriggerPlayerField()
+    {
+        if (TurnManager.Instance != null)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Field;
+        }
+        return null;
+    }
+    private List<Card> GetTriggerPlayerGraveyard()
+    {
+        if (TurnManager.Instance != null)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Graveyard;
+        }
+        return null;
     }
 
 }

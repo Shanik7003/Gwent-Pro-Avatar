@@ -29,7 +29,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (card != null)
         {
-            Debug.Log("Intentando colocar la carta en BattleRow");
+            //Debug.Log("Intentando colocar la carta en BattleRow");
             if (IsDropAllowed(card))
             {
                 card.GetComponent<CanvasGroup>().blocksRaycasts = true;// poniendo el componente canvas group y el blockraycast a true para que no inetrfiera con la visualizacion
@@ -49,7 +49,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString(); 
                 if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)//si tu enemigo paso :juega todas las cartas que quieres hasta que decidas pasar
                 {
-                    Debug.Log("entre al if ");
+                    //Debug.Log("entre al if ");
                     return;//y no entras al EndTurn de abajo
                 }
                 TurnManager.Instance.EndTurn();//pasar de turno
@@ -59,7 +59,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
             else
             {
                 card.dropSuccess = false;
-                Debug.LogError("Drop no permitido en " + transform.name);
+                //Debug.LogError("Drop no permitido en " + transform.name);
             }
         }
     }
@@ -70,7 +70,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
         {
             if (item.CardType == CardType.IncreaseCard && item.Id != cardDisplay.cardData.Card.Id)//verifica en el engine si la fila posee alguna carta de aumento
             {
-                Debug.Log(" existe un incremento pasivo");
+                //Debug.Log(" existe un incremento pasivo");
                 double SumPoints = item.points;
                 cardDisplay.cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
                 cardDisplay.UpdateCard();//actualiza los puntos visuales de la carta
@@ -81,15 +81,15 @@ public class BattleRow : MonoBehaviour, IDropHandler
     }
     public void  ExistsPasiveWheather(CardDisplay cardDisplay)//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
     {
-        Debug.Log("aqui tiene q entro");
+        //Debug.Log("aqui tiene q entro");
         if (Game.GameInstance.WheatherSpace.Spaces[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow] != null)//si el espacio de clima correspondiente a la carta no esta vacio
         {
-            Debug.Log("aqui entro");
+            //Debug.Log("aqui entro");
             //actualiza la carta y el jugador del engine 
             double discount = (double)(cardDisplay.cardData.Card.points/2.0);
             cardDisplay.cardData.Card.points /= 2;//actualiza los puntos de la carta del engine
             cardDisplay.cardData.points = cardDisplay.cardData.Card.points;//actualiza los puntos de la carta visual 
-            Debug.Log("el descuneto es ... " + discount);
+            //Debug.Log("el descuneto es ... " + discount);
             cardDisplay.UpdateCard();
             cardDisplay.cardData.Card.player.Points -= discount;//actualiza los del player
             //actualiza los puntos de los jugadores visuales
@@ -102,11 +102,11 @@ public class BattleRow : MonoBehaviour, IDropHandler
 
     public bool IsDropAllowed(Draggable card)
     {
-        Debug.Log("entre a IsDropAllowed");
+        //Debug.Log("entre a IsDropAllowed");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay == null)
         {
-            Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
+            //Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
         }
         if (IncreasePlace)//si es un espacio de cartas de aumento
@@ -135,12 +135,12 @@ public class BattleRow : MonoBehaviour, IDropHandler
         bool correctOwner = (rowOwner == Owner.Player1 && cardOwner == Game.GameInstance.Player1) || (rowOwner == Owner.Player2 && cardOwner == Game.GameInstance.Player2);
         bool positionAllowed = cardDisplay.cardData.Card.position.ToString().Contains(CombatRow.ToString());//verifica si la string de la posicion de la carta contiene la letra de la fila en que se esta queriendo colocar
         //bool CardType = 
-        Debug.Log("isPlayerTurn" + isPlayerTurn);
-        Debug.Log("correct owner" + correctOwner);
-        Debug.Log("positionallowed" + positionAllowed);
-        Debug.Log(!TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
-            Debug.Log(TurnManager.Instance.GetCurrentPlayer().Name);
-            Debug.Log( !TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
+        //Debug.Log("isPlayerTurn" + isPlayerTurn);
+        //Debug.Log("correct owner" + correctOwner);
+        //Debug.Log("positionallowed" + positionAllowed);
+        //Debug.Log(!TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
+            //Debug.Log(TurnManager.Instance.GetCurrentPlayer().Name);
+            //Debug.Log( !TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
 
         return isPlayerTurn && correctOwner && positionAllowed && !TurnManager.Instance.GetCurrentPlayer().AlreadyPass;
     }
@@ -179,18 +179,18 @@ public class BattleRow : MonoBehaviour, IDropHandler
     }
     public void FreeHability(Draggable card)
     {
-        Debug.Log("Entre a FreeHability!!!!!!!!!!!!!!!!!!!!!!!!");
+        //Debug.Log("Entre a FreeHability!!!!!!!!!!!!!!!!!!!!!!!!");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay.cardData.Card.hability == Habilities.CardTheft)
         {
             if(cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
             {
-                Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
+                //Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
                 CardManager.Instance.UICardTheft(Game.GameInstance.Player1);
             }
             if(cardDisplay.cardData.Card.player == Game.GameInstance.Player2)
             {
-                Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
+                //Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
                 CardManager.Instance.UICardTheft(Game.GameInstance.Player2);
             }
         }
@@ -232,12 +232,12 @@ public class BattleRow : MonoBehaviour, IDropHandler
         }
         if (cardDisplay.cardData.Card.hability == Habilities.CleanRow)
         {
-            Debug.Log(message: "Count de la fila M"+TurnManager.Instance.GetCurrentPlayer().Board.rows[0].Count);
-            Debug.Log(message: "Count de la fila R"+TurnManager.Instance.GetCurrentPlayer().Board.rows[1].Count);
-            Debug.Log(message: "Count de la fila S"+TurnManager.Instance.GetCurrentPlayer().Board.rows[2].Count);
-            Debug.Log(message: "Count de la fila M"+TurnManager.Instance.GetCurrentEnemy().Board.rows[0].Count);
-            Debug.Log(message: "Count de la fila R"+TurnManager.Instance.GetCurrentEnemy().Board.rows[1].Count);
-            Debug.Log(message: "Count de la fila S"+TurnManager.Instance.GetCurrentEnemy().Board.rows[2].Count);
+            //Debug.Log(message: "Count de la fila M"+TurnManager.Instance.GetCurrentPlayer().Board.rows[0].Count);
+            //Debug.Log(message: "Count de la fila R"+TurnManager.Instance.GetCurrentPlayer().Board.rows[1].Count);
+            //Debug.Log(message: "Count de la fila S"+TurnManager.Instance.GetCurrentPlayer().Board.rows[2].Count);
+            //Debug.Log(message: "Count de la fila M"+TurnManager.Instance.GetCurrentEnemy().Board.rows[0].Count);
+            //Debug.Log(message: "Count de la fila R"+TurnManager.Instance.GetCurrentEnemy().Board.rows[1].Count);
+            //Debug.Log(message: "Count de la fila S"+TurnManager.Instance.GetCurrentEnemy().Board.rows[2].Count);
             //cardDisplay.cardData.Card.player = TurnManager.Instance.GetCurrentPlayer();
             CardManager.Instance.UICleanRow(card);
             int count = 0;
@@ -245,25 +245,25 @@ public class BattleRow : MonoBehaviour, IDropHandler
             int rowPlayer = -1;
                 for (int i = 0; i < cardDisplay.cardData.Card.player.Board.rows.Length; i++)
                 {
-                    Debug.Log("entre al for, la i vale "+ i);
-                    Debug.Log("El count de la fila es: " + i + " " +cardDisplay.cardData.Card.player.Board.rows[i].Count);
+                    //Debug.Log("entre al for, la i vale "+ i);
+                    //Debug.Log("El count de la fila es: " + i + " " +cardDisplay.cardData.Card.player.Board.rows[i].Count);
                     foreach (var item in cardDisplay.cardData.Card.player.Board.rows[i])//cuenta la cantidad de cartas en el board del juagador 
                     {
                         count ++;
-                        //Debug.Log("count es: " + count);
-                         Debug.Log("Count   " + count);
+                        ////Debug.Log("count es: " + count);
+                         //Debug.Log("Count   " + count);
                         
                     }
                     if (cardsAmountPerRow > count && count != 0)
                     {
                         cardsAmountPerRow = count; //se queda con la fila que menor cantidad de cartas tenga 
-                            Debug.Log("cantida de cartas por fila      " + cardsAmountPerRow);
+                            //Debug.Log("cantida de cartas por fila      " + cardsAmountPerRow);
                         rowPlayer = i;
                     }
                     count = 0;                    
                 }  
              
-            Debug.Log("la fila que tiene menos cartas es:     " + rowPlayer);
+            //Debug.Log("la fila que tiene menos cartas es:     " + rowPlayer);
         }
      
     }
@@ -274,11 +274,11 @@ public class BattleRow : MonoBehaviour, IDropHandler
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if (cardDisplay == null)
         {
-            Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
+            //Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
         }
-        Debug.Log("El NOMBRE DEL DUEÑO DE LA CARTA DE ESTE CARDDISPLAY ES " + cardDisplay.cardData.Card.player.Name);
-        Debug.Log("REPETIMOS EL NOMBRE DE DUEÑO DE LA CARTA ES ..................  " +cardDisplay.cardData.owner.Name);
+        //Debug.Log("El NOMBRE DEL DUEÑO DE LA CARTA DE ESTE CARDDISPLAY ES " + cardDisplay.cardData.Card.player.Name);
+        //Debug.Log("REPETIMOS EL NOMBRE DE DUEÑO DE LA CARTA ES ..................  " +cardDisplay.cardData.owner.Name);
         Player cardOwner  = cardDisplay.cardData.owner;
         foreach (var item in cardOwner.Hand)
         {
