@@ -43,7 +43,8 @@ namespace Engine
 
         public void RemoveObserver(IObserver observer)
         {
-            observers.Remove(observer);
+            observers = new List<IObserver>();
+            //observers.Remove(observer);
         }
 
         private void NotifyObservers(EventType eventType, object data)
@@ -68,7 +69,7 @@ namespace Engine
 
             player.Field.Remove(this);
             Game.GameInstance.Board.Remove(this);
-            
+
             this.player.Graveyard.Add(this);
             this.Ubication = this.player.Graveyard;
             NotifyObservers(EventType.CardRemoved, this.player); 

@@ -132,13 +132,17 @@ public class CardManager : MonoBehaviour
 
     public void EliminateCard(CardDisplay cardDisplay)//este metoo es para ser usado por la habilidad de eliminar la carta mas o menos poderosa, ya que elimina la carta que le indiques del campo del jugador que no este jugando en este turno 
     {
-        if (cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
+        if (cardDisplay.card.player == Game.GameInstance.Player1)
         {
+            // Game.GameInstance.Player1.Field.Remove(cardDisplay.card);
+            // Game.GameInstance.Board.Remove(cardDisplay.card);
             StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery1").transform));
             Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
         }
-        if ( cardDisplay.cardData.Card.player == Game.GameInstance.Player2)
+        if ( cardDisplay.card.player == Game.GameInstance.Player2)
         {
+            // Game.GameInstance.Player2.Field.Remove(cardDisplay.card);
+            // Game.GameInstance.Board.Remove(cardDisplay.card);
             StartCoroutine(MoveCardToCemetery(cardDisplay.transform, GameObject.Find("Cemetery2").transform));
             Destroy(cardDisplay.gameObject, 1.0f); // Asumiendo que hay un delay para ver la animación antes de destruir el objeto.
         }

@@ -169,7 +169,7 @@ namespace Engine
             }
             else
             {
-                Debug.LogError("La carta ya existe o el ID es inválido.");
+                //Debug.LogError("La carta ya existe o el ID es inválido.");
             }
         }
 

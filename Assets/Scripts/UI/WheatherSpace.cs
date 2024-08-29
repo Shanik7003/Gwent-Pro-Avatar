@@ -9,7 +9,7 @@ using UnityEngine.Analytics;
 using UnityEngine.EventSystems;
 public class WheatherSpace : MonoBehaviour, IDropHandler
 {
-    public List<CardDisplay> space = new();
+    //public List<CardDisplay> space = new();
     public CombatRow CombatRow;
     public BattleRow BattleRowPlayer1;
     public BattleRow BattleRowPlayer2;
@@ -24,7 +24,7 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
             card.transform.SetParent(transform);
             card.transform.localPosition = Vector3.zero;
             card.dropSuccess = true; // si la carta fue colocada en el tablero 
-            space.Add(cardDisplay);//añade la carta visual (CardDisplay) a el espacio de wheather
+           // space.Add(cardDisplay);//añade la carta visual (CardDisplay) a el espacio de wheather
             PlaceCardInWheatherSpace(card);
             FreeWheather(card);
             card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
@@ -46,7 +46,7 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
         //Debug.Log("entre a IsDropAllowed");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
      
-        if (space.Count == 1)//para no poder poner mas de una carta en un espacio de clima 
+        if (Game.GameInstance.WheatherSpace.Spaces[(int)CombatRow] != null)//para no poder poner mas de una carta en un espacio de clima 
         {
             return false;
         }

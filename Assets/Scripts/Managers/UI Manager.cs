@@ -6,6 +6,7 @@ using JetBrains.Annotations;
 using UnityEngine.UI;
 using System.Linq;
 using System;
+using System.ComponentModel;
 public class UIManager : MonoBehaviour
 {
     public ShowHidePanel PanelEndRound; // Referencia al script ShowHidePanel
@@ -21,10 +22,11 @@ public class UIManager : MonoBehaviour
             {
                 return;
             }
-
+            Debug.Log("cartas en el board "+ Game.GameInstance.Board.Count);
             //resetear la escena de tablero para la segunda ronda 
             PanelEndRound.ShowPanelWithMessage($"This Round is over, the winner of the round is {WinnerName} continue to next round");
             ResetBoard();
+            Debug.Log("cartas en el board "+ Game.GameInstance.Board.Count);
             ResetWheatherSpaces();
             Game.GameInstance.Player1.AlreadyPass = false;
             Game.GameInstance.Player2.AlreadyPass = false; 
@@ -79,20 +81,38 @@ public class UIManager : MonoBehaviour
     }
     public void ResetBoard()//mueve al cementerio todas las cartas de las filas 
     {
-        for (int i = 0; i < Game.GameInstance.Player1.Field.Count; i++)
+        // for (int i = 0; i < Game.GameInstance.Player1.Field.Count; i++)
+        // {
+        //     if ( Game.GameInstance.Player1.Field[i] != null)
+        //     {
+        //         Game.GameInstance.Player1.Points -= Game.GameInstance.Player1.Field[i].points;
+        //         Game.GameInstance.Player1.Field[i].RemoveCard();
+        //     }
+        // }
+        // for (int i = 0; i < Game.GameInstance.Player2.Field.Count; i++)
+        // {
+        //     if (Game.GameInstance.Player2.Field[i] != null)
+        //     {
+        //         Game.GameInstance.Player2.Points -= Game.GameInstance.Player2.Field[i].points;
+        //         Game.GameInstance.Player2.Field[i].RemoveCard(); 
+        //     }
+        // }
+        List<Card> container = new List<Card>();
+        for (int i = 0; i < Game.GameInstance.Board.Count; i++)
         {
-            if ( Game.GameInstance.Player1.Field[i] != null)
+            if(Game.GameInstance.Board[i] != null)
             {
-                Game.GameInstance.Player1.Points -= Game.GameInstance.Player1.Field[i].points;
-                Game.GameInstance.Player1.Field[i].RemoveCard();
+                Debug.Log("elimine una ");
+                //Game.GameInstance.Board[i].RemoveCard();
+                container.Add(Game.GameInstance.Board[i]);
             }
         }
-        for (int i = 0; i < Game.GameInstance.Player2.Field.Count; i++)
+        foreach (var item in container)
         {
-            if (Game.GameInstance.Player2.Field[i] != null)
+            if (Game.GameInstance.Board.Contains(item))
             {
-                Game.GameInstance.Player2.Points -= Game.GameInstance.Player2.Field[i].points;
-                Game.GameInstance.Player2.Field[i].RemoveCard(); 
+                item.player.Points -= item.points;
+                item.RemoveCard();
             }
         }
     }
@@ -100,12 +120,12 @@ public class UIManager : MonoBehaviour
     {
         for (int i = 0; i < Game.GameInstance.WheatherSpace.Spaces.Length; i++)
         {
-            if (Game.GameInstance.WheatherSpace.Spaces[i]!=null)
+            if (Game.GameInstance.WheatherSpace.Spaces[i] != null)
             {
                 Game.GameInstance.WheatherSpace.Spaces[i].RemoveCard();
             }
         }
- 
+        Game.GameInstance.WheatherSpace.Spaces = new Card[3];
     }
 
 }
