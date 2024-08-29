@@ -16,7 +16,7 @@ public class DetailedCardDisplay : MonoBehaviour
         artworkImage.sprite = cardData.cardImage;
         nameText.text = cardData.cardName;
         descriptionText.text = cardData.description;
-        pointsText.text = cardData.points.ToString();
+        pointsText.text = cardData.Card.points.ToString();
         position.text = cardData.Card.position.ToString();
     }
 }

@@ -115,15 +115,10 @@ public class PlayerSetup : MonoBehaviour
                 }
                 else
                 {
-                    //Debug.Log("nombre del player1:" + Game.GameInstance.Player1.Name);
-                    //Debug.Log("nombre del player2:" + Game.GameInstance.Player2.Name);
-                    //Debug.Log("faccion del player1:" + Game.GameInstance.Player1.Faction);
-                    //Debug.Log("faccion del player2:" + Game.GameInstance.Player2.Faction);
+           
                     Game.GameInstance.Player1.GetHand();
-                    //Debug.Log("Hand1 Añadida al Player1");
                     Game.GameInstance.Player2.GetHand();
-                    //Debug.Log("Hand2 Añadida al Player2");
-
+               
                     //*?esto es para ver todas las cartas que hay en el deck y la mano del jugador 1 
                     foreach (var card in Game.GameInstance.Player1.Deck)
                     {
@@ -133,8 +128,6 @@ public class PlayerSetup : MonoBehaviour
                     {
                         //Debug.Log($"HandCard: {card.name}");
                     }
-
-
 
                     SceneManager.LoadScene("Board",LoadSceneMode.Single);
                 }

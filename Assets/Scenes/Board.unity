@@ -3053,9 +3053,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9b92da5eb757c439c819661c8cc56b60, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player1BattleField: {fileID: 293088831}
-  player2BattleField: {fileID: 0}
-  GameManagerInstance: {fileID: 0}
 --- !u!1 &1108336857
 GameObject:
   m_ObjectHideFlags: 0
@@ -5111,6 +5108,7 @@ GameObject:
   - component: {fileID: 1949142403}
   - component: {fileID: 1949142404}
   - component: {fileID: 1949142406}
+  - component: {fileID: 1949142407}
   m_Layer: 5
   m_Name: board (panel)
   m_TagString: Untagged
@@ -5253,6 +5251,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1fb0424f1e5a49feb79beb5feaae230, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1949142407
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1949142398}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8681495d6d836434fbd49be11484f5e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Player1Deck: {fileID: 1385848748}
+  Player2Deck: {fileID: 108666056}
+  Player1Graveyard: {fileID: 1988153382}
+  Player2Graveyard: {fileID: 1994888805}
+  Player1Hand: {fileID: 31834962}
+  Player2Hand: {fileID: 2066780919}
+  M1: {fileID: 958302305}
+  R1: {fileID: 747774266}
+  S1: {fileID: 2038016113}
+  M2: {fileID: 70840877}
+  R2: {fileID: 2069917852}
+  S2: {fileID: 1348606131}
 --- !u!1 &1956348797
 GameObject:
   m_ObjectHideFlags: 0

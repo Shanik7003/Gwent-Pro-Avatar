@@ -14,7 +14,6 @@ namespace Engine
     public class Player
     {
         public string Name;
-        public double Points;
         public Faction Faction;
         public List<Card> Graveyard;
         public List<Card> Deck;
@@ -24,6 +23,17 @@ namespace Engine
         public int Id;
         public List<int> Gems;
         public bool AlreadyPass;
+        private List<IObserver> observers = new List<IObserver>();
+        private double points;
+        public double Points
+        {
+            get => points;
+            set
+            {
+                points = value;
+                NotifyObservers(EventType.PlayerPointsChanged, this); // Notifica que los puntos del jugador han cambiado
+            }
+        }
 
         public Player()//nuevo constructor para poder inicializar los players sin tener todos sus datos
         {
@@ -37,6 +47,24 @@ namespace Engine
             Board = new Board(this);
             Field = new List<Card>();
             Id = random.Next(0, 1000);
+        }
+
+        public void AddObserver(IObserver observer)
+        {
+            observers.Add(observer);
+        }
+
+        public void RemoveObserver(IObserver observer)
+        {
+            observers.Remove(observer);
+        }
+
+        private void NotifyObservers(EventType eventType, object data)
+        {
+            foreach (var observer in observers)
+            {
+                observer.OnNotify(eventType, data);
+            }
         }
         public List<Card> GetHand()
         {

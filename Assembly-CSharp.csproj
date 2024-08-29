@@ -73,7 +73,9 @@
     <Compile Include="Assets/API/Engine/WheatherSpace.cs" />
     <Compile Include="Assets/API/Engine/Board.cs" />
     <Compile Include="Assets/Compiler/Parser/Evaluate.cs" />
+    <Compile Include="Assets/Scripts/Managers/VisualBoard.cs" />
     <Compile Include="Assets/Compiler/Lexical/TokenList.cs" />
+    <Compile Include="Assets/API/Engine/IObserver.cs" />
     <Compile Include="Assets/Scripts/UI/SceneLoader.cs" />
     <Compile Include="Assets/API/Engine/Player.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerDisplay.cs" />

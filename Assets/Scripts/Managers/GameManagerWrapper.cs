@@ -31,7 +31,7 @@ public class GameManagerWrapper : MonoBehaviour
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
-            //Debug.LogError("Players are not initialized.");
+
             return;
         }
         Game.GameInstance.Player1.Name = Player1Name;
@@ -55,10 +55,9 @@ public class GameManagerWrapper : MonoBehaviour
             if (card.faction == Faction1)
             {
                 card.player = Game.GameInstance.Player1;
-                Game.GameInstance.Player1.Deck.Add(card);
+                card.MoveCard(Game.GameInstance.Player1.Deck);
                 Debug.Log(count + " " +card.name);
                 count++;
-                Game.GameInstance.Board.Add(card);
             }
         }
 
@@ -67,16 +66,9 @@ public class GameManagerWrapper : MonoBehaviour
             if (card.faction == Faction2)
             {
                 card.player = Game.GameInstance.Player2;
-                Game.GameInstance.Player2.Deck.Add(card);
-                Game.GameInstance.Board.Add(card);
+                card.MoveCard(Game.GameInstance.Player2.Deck);
             }
         }
        
-    }
-
-
-    public void StartGame()
-    {
-        //gameInstance.StartNewGame();
     }
 }

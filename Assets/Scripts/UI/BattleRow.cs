@@ -18,7 +18,7 @@ public enum CombatRow{
 }
 public class BattleRow : MonoBehaviour, IDropHandler
 {
-    public List<CardDisplay> row;
+    //public List<CardDisplay> row;
     public Owner rowOwner;  // Propietario de la fila (Player1 o Player2)
     public CombatRow CombatRow;
     public bool IncreasePlace;
@@ -37,16 +37,13 @@ public class BattleRow : MonoBehaviour, IDropHandler
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
                 PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
-                row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow 
+                //row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow 
                 ExistsPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
                 ExistsPasiveWheather(cardDisplay);
                 FreeHability(card);
-                UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
                 card.isDraggable = false;//para que el usuarioa no la pueda mover mas
                 card.GetComponent<CanvasGroup>().interactable = false;
-                //aqui!!!!!!!!!
-                PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-                PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString(); 
+       
                 if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)//si tu enemigo paso :juega todas las cartas que quieres hasta que decidas pasar
                 {
                     //Debug.Log("entre al if ");
@@ -70,32 +67,19 @@ public class BattleRow : MonoBehaviour, IDropHandler
         {
             if (item.CardType == CardType.IncreaseCard && item.Id != cardDisplay.cardData.Card.Id)//verifica en el engine si la fila posee alguna carta de aumento
             {
-                //Debug.Log(" existe un incremento pasivo");
                 double SumPoints = item.points;
-                cardDisplay.cardData.points += SumPoints ;//sumale los puntos de la carta que esta efectuando el incremento
-                cardDisplay.UpdateCard();//actualiza los puntos visuales de la carta
-                cardDisplay.cardData.Card.points += SumPoints;//actualiza la carta del engine
-                cardDisplay.cardData.Card.player.Points += SumPoints; //actualiza los puntos del jugador del engine;  
+                cardDisplay.card.points += SumPoints;
+                cardDisplay.card.player.Points += SumPoints; //actualiza los puntos del jugador del engine;  
             }
         }
     }
     public void  ExistsPasiveWheather(CardDisplay cardDisplay)//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
     {
-        //Debug.Log("aqui tiene q entro");
+        //cuando pregunats si existe un pasiveWheather ya la pusiste en el tablero del engine , es decir que ya sumaste los puntos que tenia la carta al jugador, ahora tienes que quitarle al jugador la mitad 
         if (Game.GameInstance.WheatherSpace.Spaces[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow] != null)//si el espacio de clima correspondiente a la carta no esta vacio
         {
-            //Debug.Log("aqui entro");
-            //actualiza la carta y el jugador del engine 
-            double discount = (double)(cardDisplay.cardData.Card.points/2.0);
-            cardDisplay.cardData.Card.points /= 2;//actualiza los puntos de la carta del engine
-            cardDisplay.cardData.points = cardDisplay.cardData.Card.points;//actualiza los puntos de la carta visual 
-            //Debug.Log("el descuneto es ... " + discount);
-            cardDisplay.UpdateCard();
-            cardDisplay.cardData.Card.player.Points -= discount;//actualiza los del player
-            //actualiza los puntos de los jugadores visuales
-            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-            
+            cardDisplay.card.points /= 2;//actualiza los puntos de la carta del engine
+            cardDisplay.card.player.Points -= cardDisplay.card.points;//actualiza los del player
         } 
         else return;  
     }
@@ -111,16 +95,24 @@ public class BattleRow : MonoBehaviour, IDropHandler
         }
         if (IncreasePlace)//si es un espacio de cartas de aumento
         {
-            if (row.Count == 1)
+            
+            foreach (var item in cardDisplay.card.player.Board.rows[(int)CombatRow])
             {
-                return false;
+                if (item.CardType == CardType.IncreaseCard)//*!ya existe una carta de aumento en esa fila 
+                {
+                    return false;
+                }
             }
+            // if (row.Count == 1)
+            // {
+            //     return false;
+            // }
         }
-        if (cardDisplay.cardData.Card.CardType == CardType.WheatherCard)
+        if (cardDisplay.card.CardType == CardType.WheatherCard)
         {
             return false;
         }
-        if (cardDisplay.cardData.Card.CardType == CardType.IncreaseCard)//es una carta de aumento?
+        if (cardDisplay.card.CardType == CardType.IncreaseCard)//es una carta de aumento?
         {
            if (!IncreasePlace)//no la estas colocando en un lugar de aumneto?
            {
@@ -134,16 +126,9 @@ public class BattleRow : MonoBehaviour, IDropHandler
         // Chequeo de que el propietario de la carta y el propietario de la fila coinciden
         bool correctOwner = (rowOwner == Owner.Player1 && cardOwner == Game.GameInstance.Player1) || (rowOwner == Owner.Player2 && cardOwner == Game.GameInstance.Player2);
         bool positionAllowed = cardDisplay.cardData.Card.position.ToString().Contains(CombatRow.ToString());//verifica si la string de la posicion de la carta contiene la letra de la fila en que se esta queriendo colocar
-        //bool CardType = 
-        //Debug.Log("isPlayerTurn" + isPlayerTurn);
-        //Debug.Log("correct owner" + correctOwner);
-        //Debug.Log("positionallowed" + positionAllowed);
-        //Debug.Log(!TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
-            //Debug.Log(TurnManager.Instance.GetCurrentPlayer().Name);
-            //Debug.Log( !TurnManager.Instance.GetCurrentPlayer().AlreadyPass);
-
         return isPlayerTurn && correctOwner && positionAllowed && !TurnManager.Instance.GetCurrentPlayer().AlreadyPass;
     }
+
      // Método para obtener todas las cartas en esta fila específica
     public List<Draggable> GetCardsInRow()
     {
@@ -161,109 +146,74 @@ public class BattleRow : MonoBehaviour, IDropHandler
     public void PlaceCardinBoardEngine(Draggable card)// coloca la carta que el usuario coloco en una fila de batalla en el board del engine y ademas le suma lso puntos al jugador del engine  
     {
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
-        cardDisplay.cardData.Card.player.Board.AddCard(cardDisplay.cardData.Card.player.Board.rows[(int)CombatRow],cardDisplay.cardData.Card);
-        // cardDisplay.cardData.Card.player.Board.rows[(int)CombatRow].Add(cardDisplay.cardData.Card); //esta era l alinea antigua
-        cardDisplay.cardData.Card.player.Points += cardDisplay.cardData.Card.points; //incrementa los puntos del jugador
+        List<Card>Destino = cardDisplay.card.player.Board.rows[(int)CombatRow];
+        
+        cardDisplay.card.Ubication.Remove( cardDisplay.card);
+        Destino.Add( cardDisplay.card);
+        cardDisplay.card.Ubication = Destino;
+        
+        cardDisplay.card.player.Field.Add(cardDisplay.card);//añadela siempre a  el field del player 
+        Game.GameInstance.Board.Add(cardDisplay.card);
+
+        cardDisplay.card.player.Points += cardDisplay.card.points; //incrementa los puntos del jugador
    
     }
-    public void UpdatePlayerDisplay(Draggable card)//actualiza los puntos de los jugadores visuales
-    {
-        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
-        {
-            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-        }
-        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
-        {
-            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-        }
-    }
+
     public void FreeHability(Draggable card)
     {
-        //Debug.Log("Entre a FreeHability!!!!!!!!!!!!!!!!!!!!!!!!");
+
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
-        if (cardDisplay.cardData.Card.hability == Habilities.CardTheft)
+        Player player = cardDisplay.cardData.Card.player;
+
+        if (cardDisplay.card.hability == Habilities.CardTheft)
         {
-            if(cardDisplay.cardData.Card.player == Game.GameInstance.Player1)
-            {
-                //Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
-                CardManager.Instance.UICardTheft(Game.GameInstance.Player1);
-            }
-            if(cardDisplay.cardData.Card.player == Game.GameInstance.Player2)
-            {
-                //Debug.Log(" imprimiendocardFactory .................. => "+CardManager.Instance.cardFactory);
-                CardManager.Instance.UICardTheft(Game.GameInstance.Player2);
-            }
+           Card.CardTheft(player);
         }
+
         if (cardDisplay.cardData.Card.hability == Habilities.IncreaseMyRow)
         {
-            CardManager.Instance.UIIncreaseMyRow(card);
+            cardDisplay.card.IncreaseMyRow(cardDisplay.card,(int)card.GetComponentInParent<BattleRow>().CombatRow);//llamando a esta funcion para que haga lo que tiene que hacer en el engine
         }
+
         if (cardDisplay.cardData.Card.hability == Habilities.EliminateMostPowerful)
         {
+            //*! en esta los jugadores estan invertidos, arreglar la logica 
             if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
             {
-                CardManager.Instance.UIEliminateMostPowerful(Game.GameInstance.Player2);//que seria el enemy
+                Card.EliminateMostPowerful(Game.GameInstance.Player2);
             }
-             if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
+            if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
             {
-                CardManager.Instance.UIEliminateMostPowerful(Game.GameInstance.Player1);//que seria el enemy 
+                Card.EliminateMostPowerful(Game.GameInstance.Player1);
             }
-            
         }
+
         if (cardDisplay.cardData.Card.hability == Habilities.EliminateLeastPowerful)
         {
             if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
             {
-                CardManager.Instance.UIEliminateLeastPowerful(Game.GameInstance.Player2);//que seria el enemy
+                Card.EliminateLeastPowerful(Game.GameInstance.Player2);
             }
             if (TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
             {
-                CardManager.Instance.UIEliminateLeastPowerful(Game.GameInstance.Player1);//que seria el enemy 
+                Card.EliminateLeastPowerful(Game.GameInstance.Player1);
             }
             
         }
+
         if (cardDisplay.cardData.Card.hability == Habilities.MultiPoints)
         {
-            CardManager.Instance.UIMultiPoints(cardDisplay);
+            Card.Multipoints(cardDisplay.card);
         }
+
         if (cardDisplay.cardData.Card.hability == Habilities.Clearence)
         {
-            CardManager.Instance.UIClearence(card,TurnManager.Instance.GetCurrentEnemy());
+            cardDisplay.card.Clearence(cardDisplay.card,(int)card.GetComponentInParent<BattleRow>().CombatRow,TurnManager.Instance.GetCurrentEnemy());
         }
+
         if (cardDisplay.cardData.Card.hability == Habilities.CleanRow)
         {
-            //Debug.Log(message: "Count de la fila M"+TurnManager.Instance.GetCurrentPlayer().Board.rows[0].Count);
-            //Debug.Log(message: "Count de la fila R"+TurnManager.Instance.GetCurrentPlayer().Board.rows[1].Count);
-            //Debug.Log(message: "Count de la fila S"+TurnManager.Instance.GetCurrentPlayer().Board.rows[2].Count);
-            //Debug.Log(message: "Count de la fila M"+TurnManager.Instance.GetCurrentEnemy().Board.rows[0].Count);
-            //Debug.Log(message: "Count de la fila R"+TurnManager.Instance.GetCurrentEnemy().Board.rows[1].Count);
-            //Debug.Log(message: "Count de la fila S"+TurnManager.Instance.GetCurrentEnemy().Board.rows[2].Count);
-            //cardDisplay.cardData.Card.player = TurnManager.Instance.GetCurrentPlayer();
-            CardManager.Instance.UICleanRow(card);
-            int count = 0;
-            int cardsAmountPerRow = Int16.MaxValue;
-            int rowPlayer = -1;
-                for (int i = 0; i < cardDisplay.cardData.Card.player.Board.rows.Length; i++)
-                {
-                    //Debug.Log("entre al for, la i vale "+ i);
-                    //Debug.Log("El count de la fila es: " + i + " " +cardDisplay.cardData.Card.player.Board.rows[i].Count);
-                    foreach (var item in cardDisplay.cardData.Card.player.Board.rows[i])//cuenta la cantidad de cartas en el board del juagador 
-                    {
-                        count ++;
-                        ////Debug.Log("count es: " + count);
-                         //Debug.Log("Count   " + count);
-                        
-                    }
-                    if (cardsAmountPerRow > count && count != 0)
-                    {
-                        cardsAmountPerRow = count; //se queda con la fila que menor cantidad de cartas tenga 
-                            //Debug.Log("cantida de cartas por fila      " + cardsAmountPerRow);
-                        rowPlayer = i;
-                    }
-                    count = 0;                    
-                }  
-             
-            //Debug.Log("la fila que tiene menos cartas es:     " + rowPlayer);
+            Card.CleanRow(cardDisplay.card);
         }
      
     }
@@ -277,8 +227,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
             //Debug.LogError("El objeto arrastrado no tiene un componente CardDisplay asociado.");
             return false;
         }
-        //Debug.Log("El NOMBRE DEL DUEÑO DE LA CARTA DE ESTE CARDDISPLAY ES " + cardDisplay.cardData.Card.player.Name);
-        //Debug.Log("REPETIMOS EL NOMBRE DE DUEÑO DE LA CARTA ES ..................  " +cardDisplay.cardData.owner.Name);
+  
         Player cardOwner  = cardDisplay.cardData.owner;
         foreach (var item in cardOwner.Hand)
         {

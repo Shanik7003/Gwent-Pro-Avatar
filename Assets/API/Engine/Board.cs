@@ -23,23 +23,5 @@ namespace Engine
                 rows[i] = new List<Card>();
             }
         }
-        public void ResetEngineBoard()
-        {
-            for (int i = 0; i < rows.Length; i++)
-            {
-                rows[i] = new List<Card>();
-            }
-        }
-        public void AddCard(List<Card> row, Card card)
-        {
-            row.Add(card);
-            Player.Field.Add(card);
-        }
-
-        public void RemoveCard(List<Card> row, Card card)
-        {
-            row.Remove(card);
-            Player.Field.Remove(card);
-        }
     }  
 }

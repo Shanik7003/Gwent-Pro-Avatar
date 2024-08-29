@@ -1,15 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Diagnostics.Tracing;
-using System.Linq;
-using TMPro;
-using Unity.VisualScripting;
-using UnityEditor.Experimental.GraphView;
-using UnityEngine;
-using UnityEngine.Playables;
+
 namespace Engine
 {
     public enum CardType
@@ -20,18 +11,74 @@ namespace Engine
         ClearanceCard = 3
 
     }
+
     public class Card
     {
         public string name{get;private set;}
         public string description{get;private set;}
+        private double Points;
         public Position position{get; set;}
-        public double points{get; set;}
         public Guid Id {get; private set; }
         public Player player{get;set;}
         public Habilities hability{get; private set;}
         public CardType CardType{get;private set;}
         public Faction faction { get; private set; } 
-        public Card(){}
+        private List<IObserver> observers = new List<IObserver>();
+        public List<Card> Ubication {get; set;}
+
+        public double points
+        {
+            get => Points;
+            set
+            {
+                Points = value;
+                NotifyObservers(EventType.CardPointsChanged, this); // Notifica que los puntos de la carta han cambiado
+            }
+        }
+
+        public void AddObserver(IObserver observer)
+        {
+            observers.Add(observer);
+        }
+
+        public void RemoveObserver(IObserver observer)
+        {
+            observers.Remove(observer);
+        }
+
+        private void NotifyObservers(EventType eventType, object data)
+        {
+            foreach (var observer in observers)
+            {
+                observer.OnNotify(eventType, data);
+            }
+        }
+
+        public void MoveCard(List<Card>Destino)
+        {
+            // Mover la carta a una nueva posición en el tablero
+            Ubication.Remove(this);
+            Destino.Add(this);
+            this.Ubication = Destino;
+            NotifyObservers(EventType.CardMoved, Destino); // Notifica que la carta se ha movido
+        }
+        public void RemoveCard()//*?siempre la manda para el cementerio
+        {
+            Ubication.Remove(this);
+
+            player.Field.Remove(this);
+            Game.GameInstance.Board.Remove(this);
+            
+            this.player.Graveyard.Add(this);
+            this.Ubication = this.player.Graveyard;
+            NotifyObservers(EventType.CardRemoved, this.player); 
+        }
+
+
+        #region Constructors
+        public Card(){
+            Ubication = new List<Card>();
+        }
 
         //Constructor para las cartas creadas por el usuario
         public Card(CardType type,string name, Faction faction, int points, Position position,Guid id)
@@ -43,6 +90,7 @@ namespace Engine
             this.position = position;
             Id = id;
             hability = Habilities.Personalized;
+            Ubication = new List<Card>();
         }
         // Constructor sin puntos, sin posición, con habilidad y con tipo
         public Card(string name, string description, Player player, Habilities hability, Guid id, CardType cardType, Faction faction)
@@ -56,6 +104,7 @@ namespace Engine
             this.Id = id;
             this.CardType = cardType;
             this.faction = faction; // Asignar la nueva propiedad
+            Ubication = new List<Card>();
         }
 
         // Constructor con puntos, con habilidad y tipo, sin posición (por defecto MRS) para construir las cartas especiales de aumento
@@ -70,6 +119,7 @@ namespace Engine
             this.Id = id;
             this.CardType = cardType;
             this.faction = faction; // Asignar la nueva propiedad
+            Ubication = new List<Card>();
         }
 
         // Constructor con habilidad y sin tipo (por defecto es UnitCard) para construir las cartas que tienen habilidades pero son normales
@@ -84,6 +134,7 @@ namespace Engine
             this.Id = id;
             this.CardType = CardType.UnitCard;
             this.faction = faction; // Asignar la nueva propiedad
+            Ubication = new List<Card>();
         }
 
         // Constructor sin habilidad (por defecto es None) y sin tipo (por defecto es UnitCard) para construir las cartas normales
@@ -98,33 +149,37 @@ namespace Engine
             this.Id = id;
             this.CardType = CardType.UnitCard;
             this.faction = faction; // Asignar la nueva propiedad
+            Ubication = new List<Card>();
         }
-
+    
+        #endregion
+        
 
         #region Habilidades de las Cartas Especiales
-        public void Eclipse (Card card, int row, Player enemy)//para las cartas de clima 
+        public void Eclipse (Card card, int row)//para las cartas de clima 
         {
-            System.Console.WriteLine("Entre a Eclipse del Engine");
-            Game.GameInstance.WheatherSpace.Spaces[row] = card;//añade la carta a lso espacios de clima del engine
-            foreach (var item in card.player.Board.rows[row])
+            //Game.GameInstance.WheatherSpace.Spaces[row] = card;//añade la carta a los espacios de clima del engine
+            foreach (var item in Game.GameInstance.Player1.Board.rows[row])
             {
                 if (item.CardType == CardType.IncreaseCard)
                 {
                     continue;
                 }
-                double discount = item.points/2;
-                item.points = item.points/2;//reduce sus puntos a la mitad 
-                card.player.Points -= discount;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador  
+                if (item.points == 0) continue;
+                // double discount = item.points/2;
+                item.points /= 2;//reduce sus puntos a la mitad 
+                Game.GameInstance.Player1.Points -= item.points;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador  
             }
-            foreach (var item in enemy.Board.rows[row])//aplica tambien el clima en la fila correspondiente del otro jugador 
+            foreach (var item in Game.GameInstance.Player2.Board.rows[row])//aplica tambien el clima en la fila correspondiente del otro jugador 
             {
                 if (item.CardType == CardType.IncreaseCard)
                 {
                     continue;
                 }
-                double discount = item.points/2;
-                item.points = item.points/2;//reduce sus puntos a la mitad 
-                enemy.Points -= discount;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador 
+                if (item.points==0) continue;
+                // double discount = item.points/2;
+                item.points /= 2;//reduce sus puntos a la mitad 
+                Game.GameInstance.Player2.Points -= item.points;//quitale la misma cantidad de puntos que le qutaste a la carta al jugador 
             }
 
         }
@@ -132,18 +187,17 @@ namespace Engine
         {
             if(Game.GameInstance.WheatherSpace.Spaces[row] != null)//si existe una carta de clima afectando esa fila : despeja lo que su habilidad estaba ocasionando 
             {
-                double count = 0;
+               
                 foreach (var item in card.player.Board.rows[row])
                 {
                     if (item.CardType == CardType.IncreaseCard)
                     {
                         continue;
                     }
-                    item.points += item.points;//duplica los puntos para eliminar el efecto del eclipse 
-                    count += item.points/2;//para ponerle al jugador los puntos que se esta recuperando 
+                    item.points += item.points; //duplica los puntos para eliminar el efecto del eclipse 
+                    item.player.Points += item.points/2; //para ponerle al jugador los puntos que se esta recuperando 
                 }
-                card.player.Points += count;//actualiza lo spuntos del juagdor 
-                count = 0;//actualizo count para el jugador 2
+             
                 foreach (var item in enemy.Board.rows[row])
                 {
                     if (item.CardType == CardType.IncreaseCard)
@@ -151,23 +205,22 @@ namespace Engine
                         continue;
                     }
                     item.points += item.points;
-                    count += item.points/2;//para ponerle al jugador los puntos que se esta recuperando 
+                    item.player.Points += item.points/2;//para ponerle al jugador los puntos que se esta recuperando 
                 }
-                enemy.Points += count;//actualiza lo spuntos del juagdor 
-                Game.GameInstance.WheatherSpace.Spaces[row] = null; //quitar la carta de clima 
+                
+                Game.GameInstance.WheatherSpace.Spaces[row].RemoveCard(); //quitar la carta de clima 
             }
         }
         #endregion
     
         #region Habilidades de las Unidades
-        public static Card CardTheft(Player player) //robar una carta 
+        public static void CardTheft(Player player) //robar una carta extra del mazo
         {
-            System.Random random = new System.Random();
-            Card stolenCard = player.Deck[random.Next(1,player.Deck.Count)];
-            player.Hand.Add(stolenCard);
-            player.Deck.Remove(stolenCard);
-            return stolenCard;
+            System.Random random = new();
+            Card stolenCard = player.Deck[random.Next(1,player.Deck.Count)];//escoge una carta random para robar del deck
+            stolenCard.MoveCard(player.Hand);//la mueve a la mano del jugador
         }
+
         public  void IncreaseMyRow(Card card, int row)
         {
             int count = 0; //para saber cuantas cartas hay en esa fila 
@@ -175,14 +228,14 @@ namespace Engine
             {
                 if (item.Id != card.Id)//para que no pueda contar la propia carta de aumento
                 {
-                    item.points += card.points;//sumale 5 ptos a cada carta
+                    item.points += card.points;//sumale a cada una los puntos de la carta de aumento 
                     count ++;
                 }
-            
             }
-            card.player.Points += count * card.points; //+5 por cada carta 
+            card.player.Points += count * card.points;
         }
-        public static Guid EliminateMostPowerful(Player enemy)
+
+        public static void EliminateMostPowerful(Player enemy)
         {
             double maxPoints = 0;
             Guid mostPowerfulID = new();
@@ -208,18 +261,17 @@ namespace Engine
                 {
                     if(item.Id == mostPowerfulID)
                     {
-                        enemy.Board.RemoveCard(enemy.Board.rows[i],item);
-                        //enemy.Board.rows[i].Remove(item);
                         enemy.Points -= item.points;//reduce los puntos del jugador 
-                        enemy.Graveyard.Add(item);
-                        mostPowerfulID = item.Id;
-                        break;
+                        item.RemoveCard();
+                        return;
                     }
+    
                 }
             }
-            return mostPowerfulID;//en la interfaz anejar el caso en el que mostPowerfulID sea cero que sognifica que no habia ninguna carta en al campo del rival y entonces no se hace nada visualmente 
+                return;
         }
-        public static Guid  EliminateLeastPowerful(Player enemy)
+
+        public static void  EliminateLeastPowerful(Player enemy)
         {
             double minPoints = Int32.MaxValue;
             Guid lessPowerfulID = new();
@@ -234,6 +286,7 @@ namespace Engine
                     if (item.points < minPoints)//si la carta por la que vas iterando es mayor que la q tienes 
                     {
                         minPoints = item.points;
+                        lessPowerfulID = item.Id;
                     }
                 }
             }
@@ -242,19 +295,17 @@ namespace Engine
                 foreach (var item in enemy.Board.rows[i])
                 {
                 
-                    if(item.points == minPoints)
+                    if(item.Id == lessPowerfulID)
                     {
-                        enemy.Board.RemoveCard(enemy.Board.rows[i],item);
-                        enemy.Graveyard.Add(item);
                         enemy.Points -= item.points;//reduce los puntos del jugador 
-                        lessPowerfulID = item.Id;
-                        break;
+                        item.RemoveCard();
+                        return;
                     }
                 }
             }
-            return lessPowerfulID;
-        
+            return;
         }
+
         public static double Multipoints(Card card)
         {
             int sameCard = 0;
@@ -278,81 +329,70 @@ namespace Engine
                 return card.points;
         }
 
-        public static  (Position,Player) CleanRow(Card card,Player enemy)//ademas de limpiar la fila que menos cartas tenga, devuelve el Row para que la UI trabaje con eso 
+        public static void CleanRow(Card card)//ademas de limpiar la fila que menos cartas tenga, devuelve el Row para que la UI trabaje con eso 
         {
-            Player ChoosePlayer = card.player;
-            int count = 0;
-            double aux = 0;
-            double discountPointsPlayer = 0;//puntos que le tengo que quitar al jugador 
-            double discountPointsEnemy = 0;
-            int MinCardsPerRow = int.MaxValue; //catntidad de cartas en esa fila 
-            int rowPlayer = -1 ;
-            int rowEnemy = -1 ;
-            Card IncreaseCardPlayer = new();
-            Card IncreaseCardEnemy = new();
-        
-            for (int i = 0; i < card.player.Board.rows.Length; i++)
+            List<Card> minRow = new();
+
+            for (int i = 0; i < Game.GameInstance.Player1.Board.rows.Length; i++)
             {
-                foreach (var item in card.player.Board.rows[i])//cuenta la cantidad de cartas en el board del juagador 
+                if (Game.GameInstance.Player1.Board.rows[i].Count > 0 && Game.GameInstance.Player1.Board.rows[i] != card.Ubication)
                 {
-                    if (item.CardType == CardType.IncreaseCard)
-                    {
-                        IncreaseCardPlayer = item;
-                        continue;
-                    }
-                    count ++;
-                    aux += item.points;
+                    minRow = Game.GameInstance.Player1.Board.rows[i];//se que da con la primera fila que tenga mas de cero 
+                    break;
                 }
-            
-                if (MinCardsPerRow > count && count != 0)
-                {
-                    MinCardsPerRow = count; //se queda con la fila que menor cantidad de cartas tenga 
-                    rowPlayer = i;
-                    ChoosePlayer = card.player;
-                    discountPointsPlayer = aux;
-                    aux = 0;
-                }
-                count = 0;                    
-            }  
-        
-            for (int i = 0; i < enemy.Board.rows.Length; i++)
+            }
+            if (minRow.Count == 0)
             {
-                foreach (var item in enemy.Board.rows[i])//cuenta la cantidad de cartas en el board del juagador 
+                for (int i = 0; i < Game.GameInstance.Player2.Board.rows.Length; i++)
                 {
-                    if (item.CardType == CardType.IncreaseCard)
+                    if (Game.GameInstance.Player2.Board.rows[i].Count > 0 && Game.GameInstance.Player2.Board.rows[i] != card.Ubication)
                     {
-                        IncreaseCardEnemy = item;
-                        continue;
+                        minRow = Game.GameInstance.Player2.Board.rows[i];//se que da con la primera fila que tenga mas de cero 
+                        break;
                     }
-                    count ++;
-                    aux += item.points;
                 }
+                
+            }
+
+            if (minRow.Count == 0)//si entra aqui es porque todas las filas tienen cero cartas 
+            {
+                return;
+            }
             
-                if (MinCardsPerRow > count && count != 0)
+
+            for(int i = 0; i < Game.GameInstance.Player1.Board.rows.Length; i++)//saca la fila que menos cartas tiene 
+            {
+    
+                if (minRow.Count > Game.GameInstance.Player1.Board.rows[i].Count && Game.GameInstance.Player1.Board.rows[i].Count > 0 &&  Game.GameInstance.Player1.Board.rows[i] != card.Ubication)
                 {
-                    MinCardsPerRow = count; //se queda con la fila que menor cantidad de cartas tenga 
-                    rowEnemy = i;
-                    ChoosePlayer = enemy;
-                    discountPointsEnemy = aux;
-                    aux = 0;
-                } 
-                count = 0;                  
+                    minRow = Game.GameInstance.Player1.Board.rows[i];
+                }
+      
+                if (minRow.Count > Game.GameInstance.Player2.Board.rows[i].Count && Game.GameInstance.Player2.Board.rows[i].Count > 0 && Game.GameInstance.Player2.Board.rows[i] != card.Ubication)
+                {
+                    minRow = Game.GameInstance.Player2.Board.rows[i];
+                }
             } 
-            if (ChoosePlayer == card.player)
+
+            if (minRow.Contains(card))//si la fila que menos crtas tiene contiene a la carta que eliminaba no se aplica el e
             {
-                card.player.Board.rows[rowPlayer] = new List<Card>();//vacia la lista de cartas 
-                card.player.Board.rows[rowPlayer].Add(IncreaseCardPlayer);
-                card.player.Points -= discountPointsPlayer;
-                return ((Position)rowPlayer,card.player);
+                return;
             }
-            else
+
+            for (int i = 0; i < minRow.Count; i++)
             {
-                enemy.Board.rows[rowEnemy] = new List<Card>();//vacia la lista de cartas 
-                enemy.Board.rows[rowEnemy].Add(IncreaseCardEnemy);
-                enemy.Points -= discountPointsEnemy;
-                return ((Position)rowEnemy,enemy);
+                if (minRow[i] != null)
+                {
+                    minRow[i].player.Points -= minRow[i].Points;
+                    minRow[i].RemoveCard();//elimina la carta 
+                }
             }
-        } 
+
+        }
+
         #endregion
     }
 }
+ 
+        
+          

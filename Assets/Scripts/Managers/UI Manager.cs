@@ -26,7 +26,6 @@ public class UIManager : MonoBehaviour
             PanelEndRound.ShowPanelWithMessage($"This Round is over, the winner of the round is {WinnerName} continue to next round");
             ResetBoard();
             ResetWheatherSpaces();
-            ResetEngineBoard();
             Game.GameInstance.Player1.AlreadyPass = false;
             Game.GameInstance.Player2.AlreadyPass = false; 
             TurnManager.Instance.GetCurrentPlayer().AlreadyPass = false;
@@ -80,72 +79,33 @@ public class UIManager : MonoBehaviour
     }
     public void ResetBoard()//mueve al cementerio todas las cartas de las filas 
     {
-        for (int i = 0; i < Rows.Length; i++)
+        for (int i = 0; i < Game.GameInstance.Player1.Field.Count; i++)
         {
-            //Debug.Log("No esta vacio Rows");
-            foreach (var item in Rows[i].GetComponent<BattleRow>().row)
+            if ( Game.GameInstance.Player1.Field[i] != null)
             {
-                ////Debug.Log("No esta vacio Rows[i]");
-                if(item == null)
-                {
-                    continue;
-                }
-                CardManager.Instance.EliminateCard(item);//se moveran al cementerio todas las cartas en la interfaz
-                //resetea los board del engine de cada juagador 
+                Game.GameInstance.Player1.Points -= Game.GameInstance.Player1.Field[i].points;
+                Game.GameInstance.Player1.Field[i].RemoveCard();
             }
-            Rows[i].GetComponent<BattleRow>().row = new List<CardDisplay>();
         }
-        //actualiza los puntos de los jugadores del engine
-        Game.GameInstance.Player1.Points =0;
-        Game.GameInstance.Player2.Points = 0;
-        //actualiza los puntos de los jugadores visuales 
-        PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-        PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
+        for (int i = 0; i < Game.GameInstance.Player2.Field.Count; i++)
+        {
+            if (Game.GameInstance.Player2.Field[i] != null)
+            {
+                Game.GameInstance.Player2.Points -= Game.GameInstance.Player2.Field[i].points;
+                Game.GameInstance.Player2.Field[i].RemoveCard(); 
+            }
+        }
     }
     public void ResetWheatherSpaces()
     {
-        foreach (var item in GameObject.Find("WM").GetComponent<WheatherSpace>().space)
+        for (int i = 0; i < Game.GameInstance.WheatherSpace.Spaces.Length; i++)
         {
-            //cambia los colores de las filas 
-             if (item == null)
+            if (Game.GameInstance.WheatherSpace.Spaces[i]!=null)
             {
-               continue; 
+                Game.GameInstance.WheatherSpace.Spaces[i].RemoveCard();
             }
-            GameObject.Find("WM").GetComponent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
-            GameObject.Find("WM").GetComponent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
-            CardManager.Instance.EliminateCard(item);//se moveran al cementerio todas las cartas en la interfaz
         }
-        GameObject.Find("WM").GetComponent<WheatherSpace>().space = new List<CardDisplay>();
-        foreach (var item in GameObject.Find("WR").GetComponent<WheatherSpace>().space)
-        {
-            //cambia los colores de las filas 
-            if (item == null)
-            {
-               continue; 
-            }
-            GameObject.Find("WR").GetComponent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
-            GameObject.Find("WR").GetComponent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
-            CardManager.Instance.EliminateCard(item);//se moveran al cementerio todas las cartas en la interfaz
-            
-        }
-        GameObject.Find("WR").GetComponent<WheatherSpace>().space=new List<CardDisplay>();
-         foreach (var item in GameObject.Find("WS").GetComponent<WheatherSpace>().space)
-        {
-            //cambia los colores de las filas 
-             if (item == null)
-            {
-               continue; 
-            }
-            GameObject.Find("WS").GetComponent<WheatherSpace>().BattleRowPlayer1.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
-            GameObject.Find("WS").GetComponent<WheatherSpace>().BattleRowPlayer2.GetComponent<Image>().color = new Color(0, 0, 0, 0.5f); // Semi-transparent black
-            CardManager.Instance.EliminateCard(item);//se moveran al cementerio todas las cartas en la interfaz
-        }
-        GameObject.Find("WS").GetComponent<WheatherSpace>().space = new List<CardDisplay>();
+ 
     }
-    public void ResetEngineBoard()
-    {
-        Game.GameInstance.Player1.Board.ResetEngineBoard();
-        Game.GameInstance.Player2.Board.ResetEngineBoard();
-        //Debug.Log("ME FUE BIEN EN RESET ENGINE BOARD");
-    }
+
 }

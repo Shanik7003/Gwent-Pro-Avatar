@@ -24,11 +24,9 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
             card.transform.SetParent(transform);
             card.transform.localPosition = Vector3.zero;
             card.dropSuccess = true; // si la carta fue colocada en el tablero 
-            //ExistsPasiveWheather(cardDisplay);
             space.Add(cardDisplay);//añade la carta visual (CardDisplay) a el espacio de wheather
             PlaceCardInWheatherSpace(card);
             FreeWheather(card);
-            UpdatePlayerDisplay(card: card);//actualiza los punto sde los jugadores visuales 
             card.isDraggable = false;//para que el usuarioa no la pueda mover mas 
             if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)
             {
@@ -71,27 +69,17 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
     public void PlaceCardInWheatherSpace(Draggable card)
     {
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
-        //coloca la carta en el espcio de clima correspondiente 
         Game.GameInstance.WheatherSpace.Spaces[(int)CombatRow] = cardDisplay.cardData.Card;
+        //*!las cartas de clima no estan en el Field de ningun jugador y por tanto tampoco en el Board
+        
     }
-    public void UpdatePlayerDisplay(Draggable card)//actualiza los puntos de los jugadores visuales
-    {
-        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player1)
-        {
-            PlayerManager.Instance.Player1.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player1.Points.ToString();
-        }
-        if(TurnManager.Instance.GetCurrentPlayer() == Game.GameInstance.Player2)
-        {
-            PlayerManager.Instance.Player2.GetComponentInChildren<PlayerDisplay>().points.text = Game.GameInstance.Player2.Points.ToString();
-        }
-    }
+
     public void FreeWheather (Draggable card)
     {
-        //Debug.Log("Entre a FreeWheather");
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         if(cardDisplay.cardData.Card.hability == Habilities.Eclipse)
         {
-            CardManager.Instance.UIDecreaseMyRow(card);
+            cardDisplay.cardData.Card.Eclipse(cardDisplay.cardData.Card,(int)card.GetComponentInParent<WheatherSpace>().CombatRow);//llamando a esta funcion para que haga lo que tiene que hacer en el engine
         }
     }
     
