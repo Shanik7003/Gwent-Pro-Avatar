@@ -84,8 +84,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     }
 
     public void OnPointerExit(PointerEventData eventData)
-    {
-                      
+    {             
         detailedCardDisplay.SetActive(false); // Oculta el panel
     }
     private void UpdateDetailedDisplay()

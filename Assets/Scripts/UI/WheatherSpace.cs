@@ -71,6 +71,7 @@ public class WheatherSpace : MonoBehaviour, IDropHandler
         CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
         Game.GameInstance.WheatherSpace.Spaces[(int)CombatRow] = cardDisplay.cardData.Card;
         //*!las cartas de clima no estan en el Field de ningun jugador y por tanto tampoco en el Board
+        //*!o estan en el field de Ambos??? preguntar a Cami
         
     }
 

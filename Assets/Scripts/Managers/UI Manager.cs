@@ -81,23 +81,7 @@ public class UIManager : MonoBehaviour
     }
     public void ResetBoard()//mueve al cementerio todas las cartas de las filas 
     {
-        // for (int i = 0; i < Game.GameInstance.Player1.Field.Count; i++)
-        // {
-        //     if ( Game.GameInstance.Player1.Field[i] != null)
-        //     {
-        //         Game.GameInstance.Player1.Points -= Game.GameInstance.Player1.Field[i].points;
-        //         Game.GameInstance.Player1.Field[i].RemoveCard();
-        //     }
-        // }
-        // for (int i = 0; i < Game.GameInstance.Player2.Field.Count; i++)
-        // {
-        //     if (Game.GameInstance.Player2.Field[i] != null)
-        //     {
-        //         Game.GameInstance.Player2.Points -= Game.GameInstance.Player2.Field[i].points;
-        //         Game.GameInstance.Player2.Field[i].RemoveCard(); 
-        //     }
-        // }
-        List<Card> container = new List<Card>();
+        List<Card> container = new();
         for (int i = 0; i < Game.GameInstance.Board.Count; i++)
         {
             if(Game.GameInstance.Board[i] != null)

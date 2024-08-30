@@ -103,10 +103,6 @@ public class BattleRow : MonoBehaviour, IDropHandler
                     return false;
                 }
             }
-            // if (row.Count == 1)
-            // {
-            //     return false;
-            // }
         }
         if (cardDisplay.card.CardType == CardType.WheatherCard)
         {
