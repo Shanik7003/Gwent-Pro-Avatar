@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "AvatarCardGameUnity.sln"
+    "dotnet.defaultSolution": "Gwent-Pro-Avatar.sln"
 }

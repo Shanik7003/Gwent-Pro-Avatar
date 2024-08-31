@@ -44,7 +44,7 @@ public class GameManagerWrapper : MonoBehaviour
         if (RunButtonScript.ast != null)
         {
             Debug.Log("estoy entrando a el execute donde se añade la carta al diccionario grande");
-            ExecutionVisitor executionVisitor = new(new Dictionary<string, object>());
+            ExecutionVisitor executionVisitor = new(RunButtonScript.ast);
             executionVisitor.Visit(RunButtonScript.ast);
         }
         int count = 1;

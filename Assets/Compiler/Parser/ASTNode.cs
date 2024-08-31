@@ -19,6 +19,7 @@ public abstract class ExpressionNode : ASTNode, IVisitable
     {
         visitor.Visit(this);
     }
+
 }
 
 public class RootNode : ASTNode, IVisitable
