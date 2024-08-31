@@ -6,7 +6,6 @@ using System.Text;
 public abstract class ASTNode : IVisitable
 {
     public CodeLocation Location {get; set;}
-    public abstract void PrintMermaid(StringBuilder sb, string parentId);
 
     public abstract void Accept(IASTVisitor visitor);
 }
@@ -20,6 +19,7 @@ public abstract class ExpressionNode : ASTNode, IVisitable
     {
         visitor.Visit(this);
     }
+
 }
 
 public class RootNode : ASTNode, IVisitable
@@ -31,26 +31,6 @@ public class RootNode : ASTNode, IVisitable
     {
         Effects = new List<EffectNode>();
         Cards = new List<CardNode>();
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Root\"]");
-        if (!string.IsNullOrEmpty(parentId))
-        {
-            sb.AppendLine($"{parentId} --> {nodeId}");
-        }
-
-        foreach (var effect in Effects)
-        {
-            effect.PrintMermaid(sb, nodeId);
-        }
-
-        foreach (var card in Cards)
-        {
-            card.PrintMermaid(sb, nodeId);
-        }
     }
 
     public override void Accept(IASTVisitor visitor)
@@ -73,19 +53,6 @@ public class EffectNode : ASTNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Effect: {Name}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        foreach (var param in Params)
-        {
-            param.PrintMermaid(sb, nodeId);
-        }
-
-        Action.PrintMermaid(sb, nodeId);
-    }
 
     public  override void Accept(IASTVisitor visitor)
     {
@@ -105,13 +72,6 @@ public class ParamNode : ASTNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Param: {Name} : {Type}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -129,20 +89,6 @@ public class ActionNode : ASTNode, IVisitable
         Targets = targets;
         Statements = statements;
         Context = context;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Action\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Targets.PrintMermaid(sb, nodeId);
-        Context.PrintMermaid(sb, nodeId);
-        foreach (var statement in Statements)
-        {
-            statement.PrintMermaid(sb, nodeId);
-        }
     }
 
     public override void Accept(IASTVisitor visitor)
@@ -180,16 +126,6 @@ public class Assignment : AssignmentOrMethodCall, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Assignment\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Variable.PrintMermaid(sb, nodeId);
-        Value?.PrintMermaid(sb, nodeId);
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -200,9 +136,9 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
 {
     public IdentifierNode Funtion { get; }
     public ExpressionNode Target { get; }
-    public IdentifierNode? Param { get; }
+    public object? Param { get; }
 
-    public MethodCallNode(IdentifierNode funtion, IdentifierNode param, ExpressionNode target, CodeLocation location)
+    public MethodCallNode(IdentifierNode funtion, object param, ExpressionNode target, CodeLocation location)
     {
         Funtion = funtion;
         Param = param;
@@ -218,16 +154,6 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"CallFuntionNode: {Funtion.Name}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Funtion.PrintMermaid(sb, nodeId);
-        Param?.PrintMermaid(sb, nodeId);
-        Target.PrintMermaid(sb, nodeId);
-    }
 
     public  override void Accept(IASTVisitor visitor)
     {
@@ -238,9 +164,9 @@ public class ExpressionMethodCall : ExpressionNode,IVisitable
 {
     public IdentifierNode Funtion { get; }
     public ExpressionNode Target { get; }
-    public IdentifierNode? Param { get; }
+    public object? Param { get; }
 
-    public ExpressionMethodCall(IdentifierNode funtion, IdentifierNode param, ExpressionNode target,CodeLocation location)
+    public ExpressionMethodCall(IdentifierNode funtion, object param, ExpressionNode target,CodeLocation location)
     {
         Funtion = funtion;
         Param = param;
@@ -254,17 +180,6 @@ public class ExpressionMethodCall : ExpressionNode,IVisitable
         Param = null;
         Target = target;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"CallFuntionNode: {Funtion.Name}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Funtion.PrintMermaid(sb, nodeId);
-        Param?.PrintMermaid(sb, nodeId);
-        Target.PrintMermaid(sb, nodeId);
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -287,19 +202,6 @@ public class ForStatement : StatementNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"For: {Variable.Name} in Iterable\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Variable.PrintMermaid(sb, nodeId);
-        Iterable.PrintMermaid(sb, nodeId);
-        foreach (var statement in Body)
-        {
-            statement.PrintMermaid(sb, nodeId);
-        }
-    }
 
     public  override void Accept(IASTVisitor visitor)
     {
@@ -318,19 +220,6 @@ public class WhileStatement : StatementNode, IVisitable
         Body = body;
         Location = Location;
     }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"While\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Condition.PrintMermaid(sb, nodeId);
-        foreach (var statement in Body)
-        {
-            statement.PrintMermaid(sb, nodeId);
-        }
-    }
     
     public  override void Accept(IASTVisitor visitor)
     {
@@ -345,13 +234,6 @@ public class Number : ExpressionNode, IVisitable
     {
         Value = value;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Number: {Value}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -378,13 +260,6 @@ public class IdentifierNode : ExpressionNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Identifier: {Name}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -401,30 +276,6 @@ public class PropertyAccessNode : ExpressionNode, IVisitable
         Property = property;
         Target = target;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        // Obtener un identificador único para el nodo PropertyAccessNode
-        string nodeId = $"{GetHashCode()}";
-        
-        // Añadir el nodo PropertyAccessNode al gráfico
-        sb.AppendLine($"{nodeId}[\"PropertyAccessNode\"]");
-        
-        // Conectar el nodo actual con su nodo padre
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        // Imprimir el nodo Property
-        string propertyId = $"{Property.GetHashCode()}";
-        sb.AppendLine($"{propertyId}[\"Property: {Property.Name}\"]");
-        sb.AppendLine($"{nodeId} --> {propertyId}");
-        Property.PrintMermaid(sb, propertyId);
-
-        // Imprimir el nodo Target
-        string targetId = $"{Target.GetHashCode()}";
-        sb.AppendLine($"{targetId}[\"Target\"]");
-        sb.AppendLine($"{nodeId} --> {targetId}");
-        Target.PrintMermaid(sb, targetId);
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -449,16 +300,6 @@ public class BinaryOperation : ExpressionNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"BinaryOperation: {Operator}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Left.PrintMermaid(sb, nodeId);
-        Right.PrintMermaid(sb, nodeId);
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -475,16 +316,6 @@ public class CompoundAssignmentNode : Assignment
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"CompoundAssignment: {Operator}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Variable.PrintMermaid(sb, nodeId);
-        Value.PrintMermaid(sb, nodeId);
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -494,13 +325,13 @@ public class CompoundAssignmentNode : Assignment
 public class CardNode : ASTNode, IVisitable
 {
     public IdentifierNode Name { get; }
-    public CardType Type { get; }
-    public Faction Faction { get; }
+    public Engine.CardType Type { get; }
+    public Engine.Faction Faction { get; }
     public int Power { get; }
-    public Position[] Position { get; }
+    public CompilerPosition[] Position { get; }
     public List<EffectInvocationNode> EffectList { get; }
 
-    public CardNode(IdentifierNode name, CardType type, Faction faction, int power, Position[] position, List<EffectInvocationNode> effectList,CodeLocation location)
+    public CardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
     {
         Name = name;
         Type = type;
@@ -509,38 +340,6 @@ public class CardNode : ASTNode, IVisitable
         Position = position;
         EffectList = effectList;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Card: {Name}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        // Crear nodos para las propiedades y conectar con el nodo de la carta
-        string typeId = $"{Type.GetHashCode()}";
-        sb.AppendLine($"{typeId}[\"Type: {Type}\"]");
-        sb.AppendLine($"{nodeId} --> {typeId}");
-
-        string factionId = $"{Faction.GetHashCode()}";
-        sb.AppendLine($"{factionId}[\"Faction: {Faction}\"]");
-        sb.AppendLine($"{nodeId} --> {factionId}");
-
-        string powerId = $"{Power.GetHashCode()}";
-        sb.AppendLine($"{powerId}[\"Power: {Power}\"]");
-        sb.AppendLine($"{nodeId} --> {powerId}");
-
-        foreach (var position in Position)
-        {
-            string positionId = $"{position.GetHashCode()}";
-            sb.AppendLine($"{positionId}[\"Position: {position}\"]");
-            sb.AppendLine($"{nodeId} --> {positionId}");
-        }
-
-        foreach (var effect in EffectList)
-        {
-            effect.PrintMermaid(sb, nodeId);
-        }
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -561,17 +360,6 @@ public class EffectInvocationNode : ASTNode, IVisitable
         Selector = selector;
         PostAction = postAction;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"EffectInvocation\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        EffectField.PrintMermaid(sb, nodeId);
-        Selector?.PrintMermaid(sb, nodeId);
-        PostAction?.PrintMermaid(sb, nodeId);
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -599,20 +387,6 @@ public class EffectField : ASTNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"EffectField: {Name}\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        if (Params == null) return;
-
-        foreach (var param in Params)
-        {
-            param.PrintMermaid(sb, nodeId);
-        }
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -629,18 +403,6 @@ public class CardParam : ASTNode, IVisitable
         Name = name;
         Value = value;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"CardParam\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        Name.PrintMermaid(sb, nodeId);
-        string valueId = $"{Value.GetHashCode()}";
-        sb.AppendLine($"{valueId}[\"Value: {Value}\"]");
-        sb.AppendLine($"{nodeId} --> {valueId}");
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -663,23 +425,6 @@ public class SelectorNode : ASTNode, IVisitable
         Location = location;
     }
 
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Selector\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        string sourceId = $"{Source.GetHashCode()}";
-        sb.AppendLine($"{sourceId}[\"Source: {Source}\"]");
-        sb.AppendLine($"{nodeId} --> {sourceId}");
-
-        string singleId = $"{Single.GetHashCode()}";
-        sb.AppendLine($"{singleId}[\"Single: {Single}\"]");
-        sb.AppendLine($"{nodeId} --> {singleId}");
-
-        Predicate?.PrintMermaid(sb, nodeId);
-    }
-
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
@@ -697,20 +442,6 @@ public class MyPredicate : ASTNode, IVisitable
         Param.IsCard = true;
         Condition = condition;
         Location = location;
-    }
-
-    public override void PrintMermaid(StringBuilder sb, string parentId)
-    {
-        string nodeId = $"{GetHashCode()}";
-        sb.AppendLine($"{nodeId}[\"Predicate\"]");
-        sb.AppendLine($"{parentId} --> {nodeId}");
-
-        string paramId = $"{Param.GetHashCode()}";
-        sb.AppendLine($"{paramId}[\"Param: {Param}\"]");
-        sb.AppendLine($"{nodeId} --> {paramId}");
-
-
-        Condition.PrintMermaid(sb, nodeId);
     }
 
     public  override void Accept(IASTVisitor visitor)

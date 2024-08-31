@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 public class ASTNodeFactory
 {
     private readonly TokenList _tokens;
@@ -42,7 +44,7 @@ public class ASTNodeFactory
         return new MethodCallNode(function, target, _tokens.LookAhead().Location);
     }
 
-    public MethodCallNode CreateMethodCallNode(IdentifierNode functionName, IdentifierNode paramName, ExpressionNode target)
+    public MethodCallNode CreateMethodCallNode(IdentifierNode functionName, object paramName, ExpressionNode target)
     {
         return new MethodCallNode(functionName, paramName, target, _tokens.LookAhead().Location);
     }
@@ -52,7 +54,7 @@ public class ASTNodeFactory
         return new ExpressionMethodCall(functionName, target, _tokens.LookAhead().Location);
     }
 
-    public ExpressionMethodCall CreateExpressionMethodCallNode(IdentifierNode functionName, IdentifierNode paramName, ExpressionNode target)
+    public ExpressionMethodCall CreateExpressionMethodCallNode(IdentifierNode functionName, object paramName, ExpressionNode target)
     {
         return new ExpressionMethodCall(functionName, paramName, target, _tokens.LookAhead().Location);
     }
@@ -77,7 +79,7 @@ public class ASTNodeFactory
         return new ParamNode(name, type, _tokens.LookAhead().Location);
     }
 
-    public CardNode CreateCardNode(IdentifierNode name, CardType type, Faction faction, int power, Position[] positions, List<EffectInvocationNode> effects)
+    public CardNode CreateCardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
     {
         return new CardNode(name, type, faction, power, positions, effects, name.Location);
     }

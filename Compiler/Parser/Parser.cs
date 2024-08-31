@@ -66,15 +66,15 @@ class Parser
         try
         {
             Tokens.Expect("{");
-            CardType type = ParseType();
+            Engine.CardType type = ParseType();
             Tokens.Expect(",");
             IdentifierNode name = ParseNameField();
             Tokens.Expect(",");
-            Faction faction = ParseFaction();
+            Engine.Faction faction = ParseFaction();
             Tokens.Expect(",");
             int power = ParsePower();
             Tokens.Expect(",");
-            Position[] range = ParseRange();
+            CompilerPosition[] range = ParseRange();
             Tokens.Expect(",");
             List<EffectInvocationNode> effects = ParseOnActivationBody();
             Tokens.Expect("}");
@@ -87,12 +87,12 @@ class Parser
         }
     }
 
-    public CardType ParseType()
+    public Engine.CardType ParseType()
     {
         Tokens.Expect("Type");
         Tokens.Expect(":");
         var type = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(type, out CardType cardType))
+        if (Enum.TryParse(type, out Engine.CardType cardType))
         {
             return cardType;
         }
@@ -103,12 +103,12 @@ class Parser
         }
     }
 
-    public Faction ParseFaction()
+    public Engine.Faction ParseFaction()
     {
         Tokens.Expect("Faction");
         Tokens.Expect(":");
         var faction = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(faction, out Faction factionType))
+        if (Enum.TryParse(faction, out Engine.Faction factionType))
         {
             return factionType;
         }
@@ -135,16 +135,16 @@ class Parser
         }
     }
 
-    public Position[] ParseRange()
+    public CompilerPosition[] ParseRange()
     {
         Tokens.Expect("Range");
         Tokens.Expect(":");
         Tokens.Expect("[");
-        List<Position> range = new List<Position>();
+        List<CompilerPosition> range = new List<CompilerPosition>();
         while (Tokens.LookAhead().Value != "]")
         {
             var position = Tokens.Expect(TokenType.Text).Value;
-            if (Enum.TryParse(position, out Position pos))
+            if (Enum.TryParse(position, out CompilerPosition pos))
             {
                 range.Add(pos);
             }
@@ -218,7 +218,7 @@ class Parser
         }
         Tokens.Expect("{");
         IdentifierNode name = ParseNameField();
-        List<CardParam> cardParams = [];
+        List<CardParam> cardParams = new List<CardParam>();
         while (Tokens.LookAhead().Value != "}")
         {
             Tokens.Expect(",");
@@ -561,6 +561,16 @@ class Parser
             Tokens.Expect(";");
             return NodeFactory.CreateMethodCallNode(call.Property, param, call.Target);
         }
+        else if (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "(")//entonces va a empezar un predicado y esta es la funcion Find :(
+        {
+            Tokens.Expect("(");
+            IdentifierNode param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
+            Tokens.Expect(")");
+            Tokens.Expect("=>");
+            var condition = ParseExpression();
+            MyPredicate predicate =  NodeFactory.CreateMyPredicateNode(param,condition);
+            return NodeFactory.CreateMethodCallNode(call.Property, predicate ,call.Target);
+        }
         Tokens.Expect(")");
         Tokens.Expect(";");
         return NodeFactory.CreateMethodCallNode(call.Property, call.Target);
@@ -576,6 +586,16 @@ class Parser
             Tokens.Expect(")");
             Tokens.Expect(";");
             return NodeFactory.CreateExpressionMethodCallNode(call.Property, param, call.Target);
+        }
+        else if (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "(")//entonces va a empezar un predicado y esta es la funcion Find :(
+        {
+            Tokens.Expect("(");
+            IdentifierNode param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
+            Tokens.Expect(")");
+            Tokens.Expect("=>");
+            var condition = ParseExpression();
+            MyPredicate predicate =  NodeFactory.CreateMyPredicateNode(param,condition);
+            return NodeFactory.CreateExpressionMethodCallNode(call.Property, predicate ,call.Target);
         }
         Tokens.Expect(")");
         Tokens.Expect(";");
@@ -593,7 +613,7 @@ class Parser
     {
         var node = ParseLogicalFactor();
         while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "||")
-        {
+        { 
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseLogicalFactor();

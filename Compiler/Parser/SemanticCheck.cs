@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Timers;
+using UnityEngine;
 public class Symbol
 {
     public string Name { get; }
@@ -17,8 +20,8 @@ public class Symbol
         Name = name;
         Type = type;
         IsFunction = isFunction;
-        FunctionParametersType =  [];
-        Parameters = [];
+        FunctionParametersType =  new List<Type>();
+        Parameters = new List<Symbol>();
         Members = new Dictionary<string, Symbol>(); 
     }
 
@@ -26,11 +29,13 @@ public class Symbol
     {
         Name = name;
         Type = type;
-        IsFunction = isFunction; 
-        FunctionParametersType = [parameterType];
-        Parameters = [];
+        IsFunction = isFunction;
+        //UnityEngine.Debug.Log("Creando nuevo symbol: "+ "name: "+ name +"Type: "+ type.ToString()+" parameterType: " + parameterType); 
+        FunctionParametersType = new List<Type>{parameterType};
+        Parameters = new List<Symbol>();
         Members = new Dictionary<string, Symbol>(); 
     }
+
     public void AddMember(string memberName, Symbol memberSymbol)
     {
         if (!Members.ContainsKey(memberName))
@@ -189,18 +194,18 @@ public class SemanticVisitor : IASTVisitor
     {
         { "Number", typeof(Number) },
         { "string", typeof(string) },
-        {"String", typeof(string) },
+        { "String", typeof(string) },
         { "bool", typeof(bool) },
         { "Bool", typeof(bool) },
         { "float", typeof(float) },
         { "double", typeof(double) },
-        { "CardType", typeof(CardType) },
+        { "Engine.CardType", typeof(Engine.CardType) },
         { "Context", typeof(Context) },
-        { "CardList", typeof(CardList) },
-        { "Method", typeof(Method) },
+        { "CardList", typeof(CardList ) },
+        { "Method", typeof(Method) }, 
         { "Effect", typeof(Effect) },
-        {"Null", typeof(Null) },
-        {"Player", typeof(Player) }
+        { "Null", typeof(Null) },
+        { "Engine.Player", typeof(Engine.Player) }
         // Agrega otros tipos primitivos o personalizados según sea necesario
     };
     public SemanticVisitor(List<CompilingError> errors)
@@ -214,14 +219,14 @@ public class SemanticVisitor : IASTVisitor
     private void RegisterGlobalSymbols()
     {
         // Registrar el tipo 'Card' con sus propiedades
-        var cardSymbol = new Symbol("Card", typeof(Card));
+        var cardSymbol = new Symbol("Engine.Card", typeof(Engine.Card));
         cardSymbol.AddMember("Name", new Symbol("Name", typeof(string)));
         cardSymbol.AddMember("Power", new Symbol("Power", typeof(Number)));
-        cardSymbol.AddMember("Faction", new Symbol("Faction", typeof(Faction)));
-        cardSymbol.AddMember("CardType", new Symbol("CardType", typeof(CardType)));
-        cardSymbol.AddMember("Range",new Symbol("Range",typeof(Position[])));
-        cardSymbol.AddMember("Owner",new Symbol("Owner",typeof(Player)));        
-        globalSymbolTable.AddSymbol("Card", cardSymbol);
+        cardSymbol.AddMember("Faction", new Symbol("Faction", typeof(Engine.Faction)));
+        cardSymbol.AddMember("CardType", new Symbol("CardType", typeof(Engine.CardType)));
+        cardSymbol.AddMember("Range",new Symbol("Range",typeof(CompilerPosition[])));
+        cardSymbol.AddMember("Owner",new Symbol("Owner",typeof(Engine.Player)));        
+        globalSymbolTable.AddSymbol("Engine.Card", cardSymbol);
 
         //Registrar el tipo Context con sus propiedades
         var context = new Symbol("Context", typeof(Context));
@@ -240,16 +245,16 @@ public class SemanticVisitor : IASTVisitor
         //Registrar el tipo CardList con sus metodos 
         var cardList = new Symbol("CardList",typeof(CardList));
         cardList.AddMember("Find",new Symbol("Find",typeof(CardList),typeof(MyPredicate),true));
-        cardList.AddMember("Push",new Symbol("Push",typeof(Null),typeof(Card),true));
-        cardList.AddMember("Add",new Symbol("Add",typeof(Null),typeof(Card),true));
-        cardList.AddMember("SendBottom",new Symbol("SendBottom",typeof(Null),typeof(Card),true));
-        cardList.AddMember("Pop",new Symbol("Pop",typeof(Card),true));
-        cardList.AddMember("Remove",new Symbol("Remove",typeof(Null),typeof(Card),true));
+        cardList.AddMember("Push",new Symbol("Push",typeof(Null),typeof(Engine.Card),true));
+        cardList.AddMember("Add",new Symbol("Add",typeof(Null),typeof(Engine.Card),true));
+        cardList.AddMember("SendBottom",new Symbol("SendBottom",typeof(Null),typeof(Engine.Card),true));
+        cardList.AddMember("Pop",new Symbol("Pop",typeof(Engine.Card),true));
+        cardList.AddMember("Remove",new Symbol("Remove",typeof(Null),typeof(Engine.Card),true));
         cardList.AddMember("Shuffle",new Symbol("Shuffle",typeof(Null),true));
         globalSymbolTable.AddSymbol("CardList",cardList);
 
         //Registrar todas las facciones y las source y todos los enum del juego 
-        var NorthernRealms = new Symbol("NorthernRealms", typeof(Faction));
+        var NorthernRealms = new Symbol("NorthernRealms", typeof(Engine.Faction));
         globalSymbolTable.AddSymbol("NorthernRealms", NorthernRealms);
     }
 
@@ -324,6 +329,41 @@ public class SemanticVisitor : IASTVisitor
                    AddSemanticError(methodCall.Location,$"No existe la propiedad {functionName} para el tipo {targeType}");
                     return "unknown";
                 }
+                
+                //verificaciones del parametro 
+                if (methodCall.Param != null && functionSymbol.FunctionParametersType.Count > 0)//si el methodCall tiene un parametro y el tipo de la funcion requiere un parametro 
+                {
+                    if (methodCall.Param is MyPredicate && functionSymbol.Name != "Find")
+                    {
+                        AddSemanticError(methodCall.Location,$"Invalid parameterType in funtion {methodCall.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
+                    }
+                    else if(methodCall.Param is MyPredicate && functionSymbol.Name == "Find")
+                    {
+                        return functionSymbol.Type.ToString();
+                    }
+                    //verificar si el parametro del methodCall es del tipo requerido 
+                    string paramType = EvaluateType((ExpressionNode)methodCall.Param);//evalua el tipo del parametro 
+                    string functionParamType = functionSymbol.FunctionParametersType[0].ToString();
+                    if (!TypesAreCompatible(paramType,functionParamType))
+                    {
+                        AddSemanticError(methodCall.Location,$"Invalid parameterType in funtion {methodCall.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
+                    }
+                }
+                else if (methodCall.Param == null)
+                {
+                    if (functionSymbol.FunctionParametersType.Count > 0)
+                    {
+                        AddSemanticError(methodCall.Location,$"There is no argument given that corresponds to the required parameter '{functionSymbol.FunctionParametersType[0].Name}' of the method {methodCall.Funtion.Name}");
+                    }
+                } 
+                else if(functionSymbol.FunctionParametersType.Count == 0)
+                {
+                    if (methodCall.Param != null)
+                    {
+                        AddSemanticError(methodCall.Location,$"Invalid expression term '{methodCall.Param}'");
+                    }
+                }
+
                 return functionSymbol.Type.ToString();
             case PropertyAccessNode propertyAccess:
                 if (propertyAccess.Target is IdentifierNode)
@@ -475,8 +515,13 @@ public class SemanticVisitor : IASTVisitor
         //verificaciones del parametro 
         if (node.Param != null && functionSymbol.FunctionParametersType.Count > 0)//si el methodCall tiene un parametro y el tipo de la funcion requiere un parametro 
         {
+            if (node.Param is MyPredicate && functionSymbol.Name == "Find")
+            {
+                UnityEngine.Debug.Log("el parametro es un predicado y la funcion es Find");
+                return;
+            }
             //verificar si el parametro del methodCall es del tipo requerido 
-            string paramType = EvaluateType(node.Param);//evalua el tipo del parametro 
+            string paramType = EvaluateType((ExpressionNode)node.Param);//evalua el tipo del parametro 
             string functionParamType = functionSymbol.FunctionParametersType[0].ToString();
             if (!TypesAreCompatible(paramType,functionParamType))
             {
@@ -494,7 +539,7 @@ public class SemanticVisitor : IASTVisitor
         {
             if (node.Param != null)
             {
-               AddSemanticError(node.Location,$"Invalid expression term '{node.Param.Name}'");
+               AddSemanticError(node.Location,$"Invalid expression term '{node.Param}'");
             }
         }
 
@@ -618,7 +663,7 @@ public class SemanticVisitor : IASTVisitor
         }
         else if (node.IsCard)
         {
-            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(Card)));
+            currentSymbolTable.AddSymbol(node.Name, new Symbol(node.Name,typeof(Engine.Card)));
             return; 
         }
         else if (node.IsCardList)
@@ -762,38 +807,16 @@ public class SemanticVisitor : IASTVisitor
     // Agrega más métodos de visita para otros tipos de nodos según sea necesario
 }
 
-public class Context{}
-
 public class CardList{}
 
 public class Method{} 
 
 public class Effect{}
 
-public class Card {}
-
 public class Null {}
-public class Player {}
+public class Context{}
 
-public enum CardType
-{
-    UnitCard,
-    WhetherCard,
-    IncreaseCard,
-    Oro,
-    LeaderCard
-}
-
-public enum Faction
-{
-    Fire,
-    Water,
-    Earth,
-    NorthernRealms,
-    Air
-}
-
-public enum Position
+public enum CompilerPosition
 {
     M,
     R,
