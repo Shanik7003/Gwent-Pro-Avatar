@@ -1,0 +1,87 @@
+effect 
+{
+    Name: "Damage",
+    Params: {
+        Amount: Number
+    },
+    Action: (targets, context) => 
+	{
+        for target in targets 
+		{
+            i = 0;
+            while (i < Amount)
+            target.Power -= 1;
+        };
+
+    }
+}
+effect 
+{
+    Name: "ReturnToDeck",
+    Action: (targets, context) => 
+    {
+        for target in targets 
+        {
+            owner = target.Owner;
+            deck = context.DeckOfPlayer(owner);
+            deck.Push(target);
+            deck.Shuffle();
+            context.Board.Remove(target);
+        };
+    }
+}
+effect 
+{
+    Name: "Draw",
+    Action: (targets, context) => 
+    {
+        topCard = context.Deck.Pop();
+        context.Hand.Add(topCard);
+        context.Hand.Shuffle();
+    }
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Damage",
+                Amount: 5 
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Faction == "NorthernRealms"
+            },
+
+            PostAction: 
+            {
+                Effect: 
+                {
+                    Name: "ReturnToDeck"
+                },
+
+                Selector: 
+                {
+                    Source: "parent",
+                    Single: false,
+                    Predicate: (unit) => unit.Power < 1
+                },
+            }
+        },
+
+        {
+            Effect: "Draw"
+        }
+    ]
+}
