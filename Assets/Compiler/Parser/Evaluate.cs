@@ -129,7 +129,7 @@ public class ExecutionVisitor : IASTVisitor
     {
         //guarda los parametros en la tabla de parametros 
         Variables = new Dictionary<string, object>();
-        
+
         foreach (var param in node.Params)
         {
             Variables[param.Name.Name] = param.Value; //*! ya añadi los parametros 
@@ -426,7 +426,7 @@ public class ExecutionVisitor : IASTVisitor
         }
         //TODO efecto para listas no apiladas
         //TODO para las listas no apiladas tiene que agregarse a la derecha de la fila 
-        param.MoveCardToRight(target);
+         param.MoveCardToRight(target);
         
     }
 

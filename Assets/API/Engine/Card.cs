@@ -51,7 +51,7 @@ namespace Engine
         {
             foreach (var observer in observers)
             {
-                observer.OnNotify(eventType, data);
+                    observer.OnNotify(eventType, data);
             }
         }
 

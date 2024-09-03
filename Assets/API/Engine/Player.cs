@@ -74,6 +74,7 @@ namespace Engine
             {
                 Card card = Deck[random. Next(0,Deck.Count)];
                 Hand.Add(card);
+                
                 Deck.Remove(card);
             }
             
