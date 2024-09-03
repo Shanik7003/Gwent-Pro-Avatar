@@ -1,7 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.Tracing;
+using System.Linq;
 using Engine;
+using Unity.VisualScripting;
+using UnityEngine;
 using UnityEngine.Pool;
 
 public class ExecutionVisitor : IASTVisitor
@@ -16,6 +20,13 @@ public class ExecutionVisitor : IASTVisitor
         Variables = new Dictionary<string, object>();
         Ast = ast;
     }
+    static void PrintDictionary(Dictionary<string, object> dictionary)
+    {
+        foreach (var kvp in dictionary)
+        {
+            Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+        }
+    }
 
     public void InicializedObjectsMapping()
     {
@@ -28,10 +39,14 @@ public class ExecutionVisitor : IASTVisitor
         ObjectsMapping.Add("board",Game.GameInstance.Board);
         ObjectsMapping.Add("hand",GetTriggerPlayerHand());
         ObjectsMapping.Add("otherHand",GetOtherPlayerHand());
-        ObjectsMapping.Add("deck",GetTriggerPlayerHand());
-        ObjectsMapping.Add("otherDeck",GetOtherPlayerHand());
-        ObjectsMapping.Add("field",GetTriggerPlayerHand());
-        ObjectsMapping.Add("otherField",GetOtherPlayerHand());
+        ObjectsMapping.Add("deck",GetTriggerPlayerDeck());
+        ObjectsMapping.Add("otherDeck",GetOtherPlayerDeck());
+        ObjectsMapping.Add("field",GetTriggerPlayerField());
+        ObjectsMapping.Add("otherField",GetOtherPlayerField());
+        ObjectsMapping.Add("FireNation",Engine.Faction.FireNation);
+        ObjectsMapping.Add("WaterTribe", Engine.Faction.WaterTribe);
+        ObjectsMapping.Add("AirNomads", Engine.Faction.AirNomads);
+        ObjectsMapping.Add("EarthKingdom", Engine.Faction.EarthKingdom);
     }
 
     public void Visit(RootNode node)
@@ -113,6 +128,8 @@ public class ExecutionVisitor : IASTVisitor
     public void Visit(EffectField node)
     {
         //guarda los parametros en la tabla de parametros 
+        Variables = new Dictionary<string, object>();
+        
         foreach (var param in node.Params)
         {
             Variables[param.Name.Name] = param.Value; //*! ya añadi los parametros 
@@ -143,19 +160,43 @@ public class ExecutionVisitor : IASTVisitor
             statement.Accept(this);
         }
     }
-
+    static void SetValue(ref object obj, object value)
+    {
+        obj = value;
+    }
     public void Visit(Assignment node)
     {
         var value = EvaluateExpression(node.Value);
-        var  variable = EvaluateExpression(node.Variable);
-        if (Variables.ContainsValue(variable) || ObjectsMapping.ContainsValue(variable))//si ya lo contiene pues cambia el valor del objecto
+
+        if (node.Variable is PropertyAccessNode)
         {
-            variable = value;     
+            object vari = EvaluateExpression(((PropertyAccessNode)node.Variable).Target);
+            if (vari is Card)//entonces estan actulizando el valor de alguna propiedad de una carta 
+            {
+                if (((PropertyAccessNode)node.Variable).Property.Name == "Power")
+                {
+                    ((Card)vari).points = (double)value;
+                }
+                //*!no veo que mas se le pueda cambiar a la carta como usuario?? no se le debe poder cambiar el nombre o la 
+                //*!faction o si???
+                return;
+            }
         }
-        else//si no contiene y la estas creando ahora entonces que el Evaluate de identifier devuelva un string y añade la nueva variable a Variables 
+
+        var  variable = EvaluateExpression(node.Variable);
+
+        if (variable is string)//es porque estan declarando una nueva variable
         {
             Variables[(string)variable] = value;
+            return;
         }
+
+        if (Variables.ContainsKey(((IdentifierNode)node.Variable).Name))//si ya lo contiene pues cambia el valor del objecto
+        {
+            Variables[((IdentifierNode)node.Variable).Name] = value; 
+        }
+
+        PrintDictionary(Variables);
     }
 
     public void Visit(MethodCallNode node)
@@ -164,9 +205,15 @@ public class ExecutionVisitor : IASTVisitor
         string method = node.Funtion.Name;
         if (node.Param != null)
         {
-            object param = EvaluateExpression(node.Param);
+            if (node.Param is MyPredicate)
+            {
+                ExecuteMethod(method, target,node.Param);
+                return;
+            }
+            object param = EvaluateExpression((IdentifierNode)node.Param);
             ExecuteMethod(method,target, param);
         }
+
         else ExecuteMethod(method,target);
     }
 
@@ -200,13 +247,12 @@ public class ExecutionVisitor : IASTVisitor
 
     public void Visit(PropertyAccessNode node)
     {
-        throw new NotImplementedException();
+        EvaluateExpression(node);
     }
 
     public void Visit(EffectNode node)
     {
         node.Action.Accept(this);
-        throw new NotImplementedException();
     }
 
     public void Visit(ParamNode node)
@@ -216,13 +262,19 @@ public class ExecutionVisitor : IASTVisitor
 
     public void Visit(BinaryOperation node)
     {
-        throw new NotImplementedException();
+        var leftValue = EvaluateExpression(node.Left);
+        var rightValue = EvaluateExpression(node.Right);
+        var result = EvaluateBinaryOperation(node.Operator, leftValue, rightValue);
+        // You might want to store this result or use it within the current context
     }
+    
 
     public void Visit(IdentifierNode node)
     {
-        throw new NotImplementedException();
+        var value = EvaluateIdentifier(node);
+        // Depending on the context, you may store this value, return it, or pass it along
     }
+
 
     public void Visit(Number node)
     {
@@ -242,36 +294,271 @@ public class ExecutionVisitor : IASTVisitor
         throw new NotImplementedException();
     }
 
-    private object EvaluateExpression(ExpressionNode expression)
+    private object ExecuteMethod(string method, object target, object param = null)
     {
-        throw new NotImplementedException();
-    }
-
-    private void SetVariableValue(ExpressionNode variable, object value)
-    {
-        // Asignación de valores a las variables
-    }
-
-    private void ExecuteMethod(string method, object target, object param = null)
-    {
-        switch (method)
+        if (target == null)
         {
-            case "Find":
-            case "Push":
-            case "SendBottom":
-            case "Pop":
-            case "Remove":
-            case "Shuffle":
-            case "HandOfPlayer":
-            case "FieldOfPlayer":
-            case "GraveyardOfPlayer":
-            case "DeckOfPlayer":
-
-            default:
-                break;
+            throw new ArgumentNullException(nameof(target), $"The target object for method '{method}' is null.");
         }
-        // Implementación de la ejecución de métodos
+        
+
+        if (target is List<Card> cardList)
+        {
+            switch (method)
+            {
+                case "Find":
+                    if (param is MyPredicate predicate)
+                    {
+                        return Find(cardList, predicate);
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid parameter type for method '{method}'. Expected 'MyPredicate', got '{param?.GetType().Name}'.");
+                    }
+                case "Add":
+                    if (param is Card card)
+                    {
+                        Add(cardList, card);
+                        return null;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid parameter type for method '{method}'. Expected 'Card', got '{param?.GetType().Name}'.");
+                    }
+                case "Push":
+                    if (param is Card addedCard)
+                    {
+                        Push(cardList, addedCard);
+                        return null;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid parameter type for method '{method}'. Expected 'Card', got '{param?.GetType().Name}'.");
+                    }
+
+                case "SendBottom":
+                    if (param is Card bottomCard)
+                    {
+                        SendBottom(cardList, bottomCard);
+                        return null;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid parameter type for method '{method}'. Expected 'Card', got '{param?.GetType().Name}'.");
+                    }
+
+                case "Pop":
+                    return Pop(cardList);
+
+                case "Remove":
+                    if (param is Card removeCard)
+                    {
+                        Remove(cardList, removeCard);
+                        return null;
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid parameter type for method '{method}'. Expected 'Card', got '{param?.GetType().Name}'.");
+                    }
+
+                case "Shuffle":
+                    Shuffle(cardList);
+                    return null;
+
+                default:
+                    throw new NotSupportedException($"Method '{method}' is not supported for type 'List<Card>'.");
+            }
+        }
+        else if (target is Player player)
+        {
+            switch (method)
+            {
+                case "HandOfPlayer":
+                    return GetPlayerHand(player);
+
+                case "FieldOfPlayer":
+                    return GetPlayerField(player);
+
+                case "GraveyardOfPlayer":
+                    return GetPlayerGraveyard(player);
+
+                case "DeckOfPlayer":
+                    return GetPlayerDeck(player);
+
+                default:
+                    throw new NotSupportedException($"Method '{method}' is not supported for type 'Player'.");
+            }
+        }
+        else
+        {
+            throw new NotSupportedException($"Target type '{target.GetType().Name}' is not supported by method '{method}'.");
+        }
     }
+
+
+    private List<Card> Find(List<Card> target, MyPredicate param)
+    {
+        List<Card> container = new();
+        foreach (var item in target)
+        {
+            Variables[param.Param.Name] = item;
+            if ((bool)EvaluateExpression(param.Condition))
+            {
+                container.Add(item);
+            } 
+        }
+        return container;
+    }
+
+    private void Add(List<Card>target, Card param)
+    {
+        if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
+        {
+            param.MoveCardAndDesapeare(target);
+        } 
+        param.MoveCard(target);
+    }
+    private void Push(List<Card> target, Card param)
+    {
+        if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
+        {
+            param.MoveCardAndDesapeare(target); 
+        }
+        //TODO efecto para listas no apiladas
+        //TODO para las listas no apiladas tiene que agregarse a la derecha de la fila 
+        param.MoveCardToRight(target);
+        
+    }
+
+    private void SendBottom(List<Card> target, Card param)
+    {
+        if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
+        {
+            param.MoveCardAndDesapeare(target);
+        }
+        //TODO efecto para listas no apiladas 
+        //TODO agregarse a la izquierda de la fila 
+        target.Insert(0,param);
+    }
+    private Card Pop(List<Card>target)
+    {
+        if (target.Count == 0)
+        {
+            throw new InvalidOperationException("Cannot pop from an empty list.");
+        }
+        var card = target[target.Count - 1];
+        target.RemoveAt(target.Count - 1);
+        return card;
+    }
+
+    private void Remove(List<Card>target,Card param)
+    {
+        param.RemoveCard();
+    }
+
+    private void Shuffle(List<Card>targets)
+    {
+        //TODO hacer el efecto visual para shuffle
+        System.Random rng = new System.Random();
+        int n = targets.Count;
+        while (n > 1)
+        {
+            n--;
+            int k = rng.Next(n + 1);
+            Card value = targets[k];
+            targets[k] = targets[n];
+            targets[n] = value;
+        }
+    }
+    private List<Card> GetPlayerDeck(Player player)
+    {
+        if (TurnManager.Instance.GetCurrentPlayer() == player)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Deck;
+        }
+        else
+        {
+            return TurnManager.Instance.GetCurrentEnemy().Deck;
+        }
+    }
+    private List<Card> GetPlayerHand(Player player)
+    {
+        if (TurnManager.Instance.GetCurrentPlayer() == player)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Hand;
+        }
+        else
+        {
+            return TurnManager.Instance.GetCurrentEnemy().Hand;
+        }
+    }
+    private List<Card> GetPlayerField(Player player)
+    {
+        if (TurnManager.Instance.GetCurrentPlayer() == player)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Field;
+        }
+        else
+        {
+            return TurnManager.Instance.GetCurrentEnemy().Field;
+        }
+    }
+    private List<Card> GetPlayerGraveyard(Player player)
+    {
+        if (TurnManager.Instance.GetCurrentPlayer() == player)
+        {
+            return TurnManager.Instance.GetCurrentPlayer().Graveyard;
+        }
+        else
+        {
+            return TurnManager.Instance.GetCurrentEnemy().Graveyard;
+        }
+    }
+
+    private object EvaluatePropertyAccess(PropertyAccessNode propertyAccessNode)
+    {
+
+        object target = EvaluateExpression(propertyAccessNode.Target);
+
+        if (Variables.ContainsValue(target) || ObjectsMapping.ContainsKey(propertyAccessNode.Property.Name))
+        {
+            if (target is Card)
+            {
+                if (propertyAccessNode.Property.Name == "Power")
+                {
+                    return ((Card)target).points;
+                }
+                if (propertyAccessNode.Property.Name == "Name")
+                {
+                    return ((Card)target).name;
+                }
+                if (propertyAccessNode.Property.Name == "Faction")
+                {
+                    return ((Card)target).faction;
+                }
+                if (propertyAccessNode.Property.Name == "Owner")
+                {
+                    return ((Card)target).player;
+                }
+            }
+            //*! si no es una carta entonces es una de las listas del context y como es property son las que no tienen parametros 
+            return ObjectsMapping[propertyAccessNode.Property.Name];
+            
+        }
+
+        else
+        {
+            throw new Exception($"Variables no contiene el valor buscado: {target}");
+        }
+
+        throw new Exception("Se rompió el EvaluatePropertyAccess");
+    }
+    private object GetPropertyObject(PropertyAccessNode node)
+    {
+        object target = EvaluateExpression(node.Target);
+        return target;
+    }
+
     private Player GetTriggerPlayer()
     {
         if (TurnManager.Instance != null)
@@ -328,6 +615,7 @@ public class ExecutionVisitor : IASTVisitor
         }
         return null;
     }
+
     private List<Card> GetTriggerPlayerGraveyard()
     {
         if (TurnManager.Instance != null)
@@ -345,4 +633,87 @@ public class ExecutionVisitor : IASTVisitor
         return null;
     }
 
+    private Player GetOwner(Card card)
+    {
+        throw new NotImplementedException();
+    }
+
+    private object EvaluateExpression(ExpressionNode expression)
+    {
+        switch (expression)
+        {
+            case Number numberNode:
+                return numberNode.Value;
+            
+            case BinaryOperation binaryOperationNode:
+                var leftValue = EvaluateExpression(binaryOperationNode.Left);
+                var rightValue = EvaluateExpression(binaryOperationNode.Right);
+                return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
+            
+            case IdentifierNode identifierNode:
+                return EvaluateIdentifier(identifierNode);
+            
+            case ExpressionMethodCall methodCallNode:
+                object target = EvaluateExpression(methodCallNode.Target);
+                if (methodCallNode.Param != null)
+                {
+                    return ExecuteMethod(methodCallNode.Funtion.Name,target,methodCallNode.Param);
+                }
+                return ExecuteMethod(methodCallNode.Funtion.Name,target);
+            
+            case PropertyAccessNode propertyAccessNode:
+                return EvaluatePropertyAccess(propertyAccessNode);
+            
+            default:
+                throw new NotSupportedException($"Unsupported expression type: {expression.GetType().Name}");
+        }
+    }
+    private object EvaluateBinaryOperation(string op, object leftValue, object rightValue)
+    {
+        switch (op)
+        {
+            case "+":
+                return (leftValue as double?) + (rightValue as double?);
+            case "-":
+                return (leftValue as double?) - (rightValue as double?);
+            case "*":
+                return (leftValue as double?) * (rightValue as double?);
+            case "/":
+                return (leftValue as double?) / (rightValue as double?);
+            case "&&":
+                return (bool)leftValue && (bool)rightValue;
+            case "||":
+                return (bool)leftValue || (bool)rightValue;
+            case "==":
+                return leftValue.Equals(rightValue);
+            case "!=":
+                return !leftValue.Equals(rightValue);
+            case "<":
+                return Convert.ToDouble(leftValue) < Convert.ToDouble(rightValue);
+            case ">":
+                return (leftValue as double?) > (rightValue as double?);
+            case "<=":
+                return (leftValue as double?) <= (rightValue as double?);
+            case ">=":
+                return (leftValue as double?) >= (rightValue as double?);
+            default:
+                throw new NotSupportedException($"Unsupported operator: {op}");
+        }
+    }
+    private object EvaluateIdentifier(IdentifierNode identifierNode)
+    {
+        if (Variables.TryGetValue(identifierNode.Name, out var value))
+        {
+            return value;
+        }
+        else if (ObjectsMapping.TryGetValue(identifierNode.Name, out value))
+        {
+            return value;
+        }
+        else 
+        {
+           return identifierNode.Name;
+        }
+        throw new KeyNotFoundException($"Identifier not found: {identifierNode.Name}");
+    }
 }

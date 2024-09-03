@@ -505,7 +505,7 @@ class Parser
         {
             Tokens.Expect("{");
             var body = new List<ASTNode>();
-            while (Tokens.LookAhead().Type != TokenType.ClosedCurlyBrace)
+            while (Tokens.LookAhead().Value != "}")
             {
                 body.Add(ParseStatement());
                 if (Tokens.End)
@@ -561,6 +561,16 @@ class Parser
             Tokens.Expect(";");
             return NodeFactory.CreateMethodCallNode(call.Property, param, call.Target);
         }
+        else if (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "(")//entonces va a empezar un predicado y esta es la funcion Find :(
+        {
+            Tokens.Expect("(");
+            IdentifierNode param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
+            Tokens.Expect(")");
+            Tokens.Expect("=>");
+            var condition = ParseExpression();
+            MyPredicate predicate =  NodeFactory.CreateMyPredicateNode(param,condition);
+            return NodeFactory.CreateMethodCallNode(call.Property, predicate ,call.Target);
+        }
         Tokens.Expect(")");
         Tokens.Expect(";");
         return NodeFactory.CreateMethodCallNode(call.Property, call.Target);
@@ -576,6 +586,18 @@ class Parser
             Tokens.Expect(")");
             Tokens.Expect(";");
             return NodeFactory.CreateExpressionMethodCallNode(call.Property, param, call.Target);
+        }
+        else if (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "(")//entonces va a empezar un predicado y esta es la funcion Find :(
+        {
+            Tokens.Expect("(");
+            IdentifierNode param = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
+            Tokens.Expect(")");
+            Tokens.Expect("=>");
+            var condition = ParseExpression();
+            MyPredicate predicate =  NodeFactory.CreateMyPredicateNode(param,condition);
+            Tokens.Expect(")");
+            Tokens.Expect(";");
+            return NodeFactory.CreateExpressionMethodCallNode(call.Property, predicate ,call.Target);
         }
         Tokens.Expect(")");
         Tokens.Expect(";");
@@ -593,7 +615,7 @@ class Parser
     {
         var node = ParseLogicalFactor();
         while (Tokens.CanLookAhead() && Tokens.LookAhead().Value == "||")
-        {
+        { 
             var op = Tokens.LookAhead().Value;
             Tokens.Next();
             var right = ParseLogicalFactor();

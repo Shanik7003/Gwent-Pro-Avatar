@@ -42,8 +42,27 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition].position,VisualBoard.UbicationsMapping[newPosition]));
 
     }
+    public void HandleCardMovementAndDesapearing(List<Card> newPosition)
+    {
+        // Implementa la lógica para actualizar la UI con la nueva posición de la carta
+        CardManager.ActivateCard(this);
+        StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition].position,VisualBoard.UbicationsMapping[newPosition]));
+        CardManager.DesActivateCard(this);
+
+    }
+    public void HandleCardMovementRight(List<Card> newPosition)
+    {
+        // Implementa la lógica para actualizar la UI con la nueva posición de la carta
+        CardManager.ActivateCard(this);
+        StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
+        CardManager.DesActivateCard(this);
+
+    }
+    
     public void HandleCardElimination()
     {
+        // Implementa la lógica para actualizar la UI con la nueva posición de la carta
+        CardManager.ActivateCard(this);
         CardManager.Instance.EliminateCard(this);
     }
     public void OnNotify(Engine.EventType eventType, object data)
@@ -59,6 +78,12 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 break;
             case Engine.EventType.CardRemoved:
                 HandleCardElimination();
+                break;
+            case Engine.EventType.CardMovedAndDesapeare:
+                HandleCardMovementAndDesapearing((List<Card>)data);
+                break;
+            case Engine.EventType.CardMovedToRight:
+                HandleCardMovementRight((List<Card>)data);
                 break;
 
         }

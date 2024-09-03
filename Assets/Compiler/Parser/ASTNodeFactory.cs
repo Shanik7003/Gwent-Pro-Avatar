@@ -44,7 +44,7 @@ public class ASTNodeFactory
         return new MethodCallNode(function, target, _tokens.LookAhead().Location);
     }
 
-    public MethodCallNode CreateMethodCallNode(IdentifierNode functionName, IdentifierNode paramName, ExpressionNode target)
+    public MethodCallNode CreateMethodCallNode(IdentifierNode functionName, object paramName, ExpressionNode target)
     {
         return new MethodCallNode(functionName, paramName, target, _tokens.LookAhead().Location);
     }
@@ -54,7 +54,7 @@ public class ASTNodeFactory
         return new ExpressionMethodCall(functionName, target, _tokens.LookAhead().Location);
     }
 
-    public ExpressionMethodCall CreateExpressionMethodCallNode(IdentifierNode functionName, IdentifierNode paramName, ExpressionNode target)
+    public ExpressionMethodCall CreateExpressionMethodCallNode(IdentifierNode functionName, object paramName, ExpressionNode target)
     {
         return new ExpressionMethodCall(functionName, paramName, target, _tokens.LookAhead().Location);
     }

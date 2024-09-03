@@ -48,7 +48,7 @@ public class RunButtonScript : MonoBehaviour
         // //*!este es el codigo que hay que hacerlo despues de que ya se halla hecho el player setup
         // ExecutionVisitor executionVisitor = new(new Dictionary<string, object>());
         // executionVisitor.Visit(ast);
-        //*!esta hecho en el PlayerSetupScript
+        //*!esta hecho en el GameManagerWrapper
         
         LoadFactionSelectionScene();
     }

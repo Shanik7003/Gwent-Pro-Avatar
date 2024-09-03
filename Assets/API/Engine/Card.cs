@@ -63,6 +63,22 @@ namespace Engine
             this.Ubication = Destino;
             NotifyObservers(EventType.CardMoved, Destino); // Notifica que la carta se ha movido
         }
+        public void MoveCardAndDesapeare(List<Card>Destino)
+        {
+            // Mover la carta a una nueva posición en el tablero
+            Ubication.Remove(this);
+            Destino.Add(this);
+            this.Ubication = Destino;
+            NotifyObservers(EventType.CardMovedAndDesapeare, Destino); // Notifica que la carta se ha movido
+        }
+        public void MoveCardToRight(List<Card>Destino)
+        {
+            // Mover la carta a una nueva posición en el tablero
+            Ubication.Remove(this);
+            Destino.Add(this);
+            this.Ubication = Destino;
+            NotifyObservers(EventType.CardMovedToRight, Destino); // Notifica que la carta se ha movido
+        }
         public void RemoveCard()//*?siempre la manda para el cementerio
         {
             Ubication.Remove(this);

@@ -232,10 +232,10 @@ public class SemanticVisitor : IASTVisitor
         var context = new Symbol("Context", typeof(Context));
         context.AddMember("TriggerPlayer", new Symbol("Triggerplayer",typeof(Number)));  
         context.AddMember("Board", new Symbol("Board",typeof(CardList))); 
-        context.AddMember("HandOfPlayer", new Symbol("HandOfPlayer",typeof(CardList)));
-        context.AddMember("FieldOfPlayer", new Symbol("FieldOfPlayer",typeof(CardList)));
-        context.AddMember("GraveyardOfPlayer", new Symbol("GraveyardOfPlayer",typeof(CardList)));
-        context.AddMember("DeckOfPlayer", new Symbol("DeckOfPlayer",typeof(CardList)));
+        context.AddMember("HandOfPlayer", new Symbol("HandOfPlayer",typeof(CardList),typeof(Engine.Player),true));
+        context.AddMember("FieldOfPlayer", new Symbol("FieldOfPlayer",typeof(CardList),typeof(Engine.Player),true));
+        context.AddMember("GraveyardOfPlayer", new Symbol("GraveyardOfPlayer",typeof(CardList),typeof(Engine.Player),true));
+        context.AddMember("DeckOfPlayer", new Symbol("DeckOfPlayer",typeof(CardList),typeof(Engine.Player),true));
         context.AddMember("Hand", new Symbol("Hand",typeof(CardList)));
         context.AddMember("Deck", new Symbol("Deck",typeof(CardList)));
         context.AddMember("Field", new Symbol("Field",typeof(CardList)));
@@ -254,8 +254,14 @@ public class SemanticVisitor : IASTVisitor
         globalSymbolTable.AddSymbol("CardList",cardList);
 
         //Registrar todas las facciones y las source y todos los enum del juego 
-        var NorthernRealms = new Symbol("NorthernRealms", typeof(Engine.Faction));
-        globalSymbolTable.AddSymbol("NorthernRealms", NorthernRealms);
+        var FireNation = new Symbol("FireNation",typeof(Engine.Faction));
+        var WaterTribe = new Symbol("WaterTribe",typeof(Engine.Faction));
+        var EarthKingdom = new Symbol("EarthKingdom",typeof(Engine.Faction));
+        var AirNomads = new Symbol("AirNomads",typeof(Engine.Faction));
+        globalSymbolTable.AddSymbol("FireNation",FireNation);
+        globalSymbolTable.AddSymbol("WaterTribe",WaterTribe);
+        globalSymbolTable.AddSymbol("AirNomads",AirNomads);
+        globalSymbolTable.AddSymbol("EarthKingdom",EarthKingdom);
     }
 
     private Type GetMappedType(string typeName)
@@ -329,6 +335,41 @@ public class SemanticVisitor : IASTVisitor
                    AddSemanticError(methodCall.Location,$"No existe la propiedad {functionName} para el tipo {targeType}");
                     return "unknown";
                 }
+                
+                //verificaciones del parametro 
+                if (methodCall.Param != null && functionSymbol.FunctionParametersType.Count > 0)//si el methodCall tiene un parametro y el tipo de la funcion requiere un parametro 
+                {
+                    if (methodCall.Param is MyPredicate && functionSymbol.Name != "Find")
+                    {
+                        AddSemanticError(methodCall.Location,$"Invalid parameterType in funtion {methodCall.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
+                    }
+                    else if(methodCall.Param is MyPredicate && functionSymbol.Name == "Find")
+                    {
+                        return functionSymbol.Type.ToString();
+                    }
+                    //verificar si el parametro del methodCall es del tipo requerido 
+                    string paramType = EvaluateType((ExpressionNode)methodCall.Param);//evalua el tipo del parametro 
+                    string functionParamType = functionSymbol.FunctionParametersType[0].ToString();
+                    if (!TypesAreCompatible(paramType,functionParamType))
+                    {
+                        AddSemanticError(methodCall.Location,$"Invalid parameterType in funtion {methodCall.Funtion.Name}, Expected type: '{functionSymbol.FunctionParametersType[0].Name}'");
+                    }
+                }
+                else if (methodCall.Param == null)
+                {
+                    if (functionSymbol.FunctionParametersType.Count > 0)
+                    {
+                        AddSemanticError(methodCall.Location,$"There is no argument given that corresponds to the required parameter '{functionSymbol.FunctionParametersType[0].Name}' of the method {methodCall.Funtion.Name}");
+                    }
+                } 
+                else if(functionSymbol.FunctionParametersType.Count == 0)
+                {
+                    if (methodCall.Param != null)
+                    {
+                        AddSemanticError(methodCall.Location,$"Invalid expression term '{methodCall.Param}'");
+                    }
+                }
+
                 return functionSymbol.Type.ToString();
             case PropertyAccessNode propertyAccess:
                 if (propertyAccess.Target is IdentifierNode)
@@ -480,8 +521,13 @@ public class SemanticVisitor : IASTVisitor
         //verificaciones del parametro 
         if (node.Param != null && functionSymbol.FunctionParametersType.Count > 0)//si el methodCall tiene un parametro y el tipo de la funcion requiere un parametro 
         {
+            if (node.Param is MyPredicate && functionSymbol.Name == "Find")
+            {
+                UnityEngine.Debug.Log("el parametro es un predicado y la funcion es Find");
+                return;
+            }
             //verificar si el parametro del methodCall es del tipo requerido 
-            string paramType = EvaluateType(node.Param);//evalua el tipo del parametro 
+            string paramType = EvaluateType((ExpressionNode)node.Param);//evalua el tipo del parametro 
             string functionParamType = functionSymbol.FunctionParametersType[0].ToString();
             if (!TypesAreCompatible(paramType,functionParamType))
             {
@@ -499,7 +545,7 @@ public class SemanticVisitor : IASTVisitor
         {
             if (node.Param != null)
             {
-               AddSemanticError(node.Location,$"Invalid expression term '{node.Param.Name}'");
+               AddSemanticError(node.Location,$"Invalid expression term '{node.Param}'");
             }
         }
 

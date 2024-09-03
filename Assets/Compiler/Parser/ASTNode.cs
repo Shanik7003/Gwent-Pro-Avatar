@@ -136,9 +136,9 @@ public class MethodCallNode : AssignmentOrMethodCall, IVisitable
 {
     public IdentifierNode Funtion { get; }
     public ExpressionNode Target { get; }
-    public IdentifierNode? Param { get; }
+    public object? Param { get; }
 
-    public MethodCallNode(IdentifierNode funtion, IdentifierNode param, ExpressionNode target, CodeLocation location)
+    public MethodCallNode(IdentifierNode funtion, object param, ExpressionNode target, CodeLocation location)
     {
         Funtion = funtion;
         Param = param;
@@ -164,9 +164,9 @@ public class ExpressionMethodCall : ExpressionNode,IVisitable
 {
     public IdentifierNode Funtion { get; }
     public ExpressionNode Target { get; }
-    public IdentifierNode? Param { get; }
+    public object? Param { get; }
 
-    public ExpressionMethodCall(IdentifierNode funtion, IdentifierNode param, ExpressionNode target,CodeLocation location)
+    public ExpressionMethodCall(IdentifierNode funtion, object param, ExpressionNode target,CodeLocation location)
     {
         Funtion = funtion;
         Param = param;

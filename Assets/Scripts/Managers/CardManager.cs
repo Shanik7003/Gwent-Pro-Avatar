@@ -107,10 +107,17 @@ public class CardManager : MonoBehaviour
             cardDisplay.gameObject.SetActive(true);
         }
     }
+    public static void DesActivateCard(CardDisplay cardDisplay)
+    {
+        if (cardDisplay != null)
+        {
+            cardDisplay.gameObject.SetActive(false);
+        }
+    }
 
     public IEnumerator MoveCard(Transform cardTransform, Vector3 targetPosition,Transform parentTransform)
     {
-        float timeToMove = 0.7f; // Duración de la animación en segundos
+        float timeToMove = 1.0f; // Duración de la animación en segundos
         float elapsedTime = 0;
         Vector3 startPosition = cardTransform.position;
 
@@ -124,6 +131,28 @@ public class CardManager : MonoBehaviour
         cardTransform.position = targetPosition;
         LayoutRebuilder.ForceRebuildLayoutImmediate(parentTransform.GetComponent<RectTransform>());
     }
+    public IEnumerator AddCardToHandInRight(Transform cardTransform, Transform handTransform, float spacing = 50.0f)
+    {
+        int cardIndex = handTransform.childCount; // Número de cartas en la mano
+        Vector3 targetPosition = handTransform.position + new Vector3(spacing * cardIndex, 0, 0); // Calcula la posición a la derecha
+        cardTransform.SetParent(handTransform); // Establece la carta como hija del contenedor de la mano
+
+        // Mueve la carta a la posición calculada
+        float timeToMove = 1.0f; // Duración de la animación en segundos
+        float elapsedTime = 0;
+        Vector3 startPosition = cardTransform.position;
+
+        while (elapsedTime < timeToMove)
+        {
+            cardTransform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / timeToMove));
+            elapsedTime += Time.deltaTime;
+            yield return null;
+        }
+
+        cardTransform.position = targetPosition;
+        LayoutRebuilder.ForceRebuildLayoutImmediate(handTransform.GetComponent<RectTransform>());
+    }
+
 
     public static bool CanPlaceCard(Card card, BattleField battleField)
     {
@@ -150,7 +179,7 @@ public class CardManager : MonoBehaviour
     }
     IEnumerator MoveCardToCemetery(Transform cardTransform, Transform cemeteryTransform)
     {
-        float timeToMove = 0.5f; // Duración de la animación en segundos
+        float timeToMove = 1.0f; // Duración de la animación en segundos
         float elapsedTime = 0;
         Vector3 startPosition = cardTransform.position;
 

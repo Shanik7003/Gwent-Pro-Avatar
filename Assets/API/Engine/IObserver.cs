@@ -8,6 +8,8 @@ namespace Engine
     public enum EventType
     {
         CardMoved,
+        CardMovedAndDesapeare,
+        CardMovedToRight,
         CardRemoved,
         CardPointsChanged,
         PlayerPointsChanged

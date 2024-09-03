@@ -61,7 +61,7 @@ card
             {
                 Source: "board",
                 Single: false,
-                Predicate: (unit) => unit.Faction == "NorthernRealms"
+                Predicate: (unit) => unit.Faction == "FireNation"
             },
 
             PostAction: 
