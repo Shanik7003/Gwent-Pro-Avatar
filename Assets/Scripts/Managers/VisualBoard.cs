@@ -26,7 +26,6 @@ public class VisualBoard : MonoBehaviour
 
     void Start()
     {
-        Debug.Log("ya hice el mapeo de las ubicaciones ");
         UbicationsMapping = new Dictionary<List<Card>, Transform>
         {
             { Game.GameInstance.Player1.Deck, Player1Deck.transform },

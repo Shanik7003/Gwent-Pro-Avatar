@@ -175,6 +175,18 @@ public class ExecutionVisitor : IASTVisitor
             {
                 if (((PropertyAccessNode)node.Variable).Property.Name == "Power")
                 {
+                    if (((Card)vari).player.Field.Contains((Card)vari)) // si la carta esta en el field tienes que actualizar los puntos del player de la carta
+                    {
+                        if(((Card)vari).points > (double)value)
+                        {
+                            ((Card)vari).player.Points -= ((Card)vari).points - (double)value;
+                        }
+                        else if(((Card)vari).points < (double)value)
+                        {
+                            ((Card)vari).player.Points += (double)value - ((Card)vari).points;
+                        }
+                    }
+                    //y ademas cambiar los puntos de la carta, si no estaba en el Field de todas forma se sto hay que hacerlo 
                     ((Card)vari).points = (double)value;
                 }
                 //*!no veo que mas se le pueda cambiar a la carta como usuario?? no se le debe poder cambiar el nombre o la 
@@ -424,7 +436,6 @@ public class ExecutionVisitor : IASTVisitor
         {
             param.MoveCardAndDesapeare(target); 
         }
-        //TODO efecto para listas no apiladas
         //TODO para las listas no apiladas tiene que agregarse a la derecha de la fila 
          param.MoveCardToRight(target);
         
@@ -434,11 +445,16 @@ public class ExecutionVisitor : IASTVisitor
     {
         if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
         {
-            param.MoveCardAndDesapeare(target);
+            //*!aqui hay que hacerlo asi obligado para que verdaderamnete la carta se coloque en el fondo de la lista, en vez de llamar simplemente al metodo MoveCardAndDesapeare()
+            param.Ubication.Remove(param);
+            target.Insert(0,param);
+            param.Ubication = target;
+            param.NotifyObservers(Engine.EventType.CardMovedAndDesapeare,target);
+            // param.MoveCardAndDesapeare(target);
         }
-        //TODO efecto para listas no apiladas 
         //TODO agregarse a la izquierda de la fila 
-        target.Insert(0,param);
+        param.MoveCardToLeft(target);
+        //target.Insert(0,param);
     }
     private Card Pop(List<Card>target)
     {

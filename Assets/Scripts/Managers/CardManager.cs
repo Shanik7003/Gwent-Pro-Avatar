@@ -84,6 +84,7 @@ public class CardManager : MonoBehaviour
         {
             GameObject newCard = Instantiate(cardPrefab, deckTransform.position, Quaternion.identity, handTransform);
             CardDisplay display = newCard.GetComponent<CardDisplay>();
+            
             if (display != null && card != null )
             {
                 display.cardData = card;
@@ -96,7 +97,7 @@ public class CardManager : MonoBehaviour
             }
             else
             {
-                //Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
+                Debug.LogError("Componente CardDisplay o datos de carta faltantes.");
             }
         }
     }
@@ -107,7 +108,7 @@ public class CardManager : MonoBehaviour
             cardDisplay.gameObject.SetActive(true);
         }
     }
-    public static void DesActivateCard(CardDisplay cardDisplay)
+    public static void DeActivateCard(CardDisplay cardDisplay)
     {
         if (cardDisplay != null)
         {
@@ -152,6 +153,46 @@ public class CardManager : MonoBehaviour
         cardTransform.position = targetPosition;
         LayoutRebuilder.ForceRebuildLayoutImmediate(handTransform.GetComponent<RectTransform>());
     }
+public IEnumerator AddCardToHandLeft(Transform cardTransform, Transform handTransform, float spacing = 50.0f)
+{
+    // Desactivar temporalmente el HorizontalLayoutGroup
+    HorizontalLayoutGroup layoutGroup = handTransform.GetComponent<HorizontalLayoutGroup>();
+    layoutGroup.enabled = false;
+
+    // Mueve todas las cartas actuales a la derecha para hacer espacio
+    for (int i = 0; i < handTransform.childCount; i++)
+    {
+        Transform existingCard = handTransform.GetChild(i);
+        existingCard.localPosition += new Vector3(spacing, 0, 0);
+    }
+
+    // Añadir la carta al principio de la mano
+    cardTransform.SetParent(handTransform, false);
+    cardTransform.SetSiblingIndex(0);
+
+    // Mueve la nueva carta a la posición calculada
+    Vector3 startPosition = cardTransform.position;
+    Vector3 targetPosition = handTransform.position + new Vector3(-spacing * handTransform.childCount, 0, 0);
+
+    float timeToMove = 1.0f; // Duración de la animación en segundos
+    float elapsedTime = 0;
+
+    while (elapsedTime < timeToMove)
+    {
+        cardTransform.position = Vector3.Lerp(startPosition, targetPosition, (elapsedTime / timeToMove));
+        elapsedTime += Time.deltaTime;
+        yield return null;
+    }
+
+    cardTransform.position = targetPosition;
+
+    // Reactivar el HorizontalLayoutGroup
+    layoutGroup.enabled = true;
+    LayoutRebuilder.ForceRebuildLayoutImmediate(handTransform.GetComponent<RectTransform>());
+}
+
+
+
 
 
     public static bool CanPlaceCard(Card card, BattleField battleField)

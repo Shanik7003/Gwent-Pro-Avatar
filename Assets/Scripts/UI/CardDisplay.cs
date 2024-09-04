@@ -35,7 +35,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         points.text = card.points.ToString();
     }
 
-    public void HandleCardMovement(List<Card> newPosition)
+    public void HandleCardMovement(List<Card> newPosition)  
     {
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
         CardManager.ActivateCard(this);
@@ -47,7 +47,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
         CardManager.ActivateCard(this);
         StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition].position,VisualBoard.UbicationsMapping[newPosition]));
-        CardManager.DesActivateCard(this);
+        CardManager.DeActivateCard(this);
 
     }
     public void HandleCardMovementRight(List<Card> newPosition)
@@ -55,10 +55,13 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
         CardManager.ActivateCard(this);
         StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
-        CardManager.DesActivateCard(this);
-
     }
-    
+    public void HandleCardMovementLeft(List<Card> newPosition)
+    {
+        // Implementa la lógica para actualizar la UI con la nueva posición de la carta
+        CardManager.ActivateCard(this);
+        StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
+    }
     public void HandleCardElimination()
     {
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
@@ -84,6 +87,9 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
                 break;
             case Engine.EventType.CardMovedToRight:
                 HandleCardMovementRight((List<Card>)data);
+                break;
+            case Engine.EventType.CardMovedToLeft:
+                HandleCardMovementLeft((List<Card>)data);
                 break;
 
         }

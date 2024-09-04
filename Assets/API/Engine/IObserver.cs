@@ -10,6 +10,7 @@ namespace Engine
         CardMoved,
         CardMovedAndDesapeare,
         CardMovedToRight,
+        CardMovedToLeft,
         CardRemoved,
         CardPointsChanged,
         PlayerPointsChanged

@@ -164,7 +164,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
         if (cardDisplay.card.hability == Habilities.Personalized)
         {
             ExecutionVisitor executionVisitor = new(RunButtonScript.ast);//*!esto hay que cambiarlo despues 
-            executionVisitor.Visit(RunButtonScript.ast);
+            //executionVisitor.Visit(RunButtonScript.ast);
 
             foreach (var cardNode in RunButtonScript.ast.Cards)
             {
@@ -176,17 +176,21 @@ public class BattleRow : MonoBehaviour, IDropHandler
                     }
                 }
             }
+            return;
         }
 
         if (cardDisplay.card.hability == Habilities.CardTheft)
         {
            Card.CardTheft(player);
+           return;
         }
 
         if (cardDisplay.cardData.Card.hability == Habilities.IncreaseMyRow)
         {
             cardDisplay.card.IncreaseMyRow(cardDisplay.card,(int)card.GetComponentInParent<BattleRow>().CombatRow);//llamando a esta funcion para que haga lo que tiene que hacer en el engine
+            return;
         }
+
 
         if (cardDisplay.cardData.Card.hability == Habilities.EliminateMostPowerful)
         {
@@ -199,6 +203,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
             {
                 Card.EliminateMostPowerful(Game.GameInstance.Player1);
             }
+            return;
         }
 
         if (cardDisplay.cardData.Card.hability == Habilities.EliminateLeastPowerful)
@@ -211,22 +216,25 @@ public class BattleRow : MonoBehaviour, IDropHandler
             {
                 Card.EliminateLeastPowerful(Game.GameInstance.Player1);
             }
-            
+            return;
         }
 
         if (cardDisplay.cardData.Card.hability == Habilities.MultiPoints)
         {
             Card.Multipoints(cardDisplay.card);
+            return;
         }
 
         if (cardDisplay.cardData.Card.hability == Habilities.Clearence)
         {
             cardDisplay.card.Clearence(cardDisplay.card,(int)card.GetComponentInParent<BattleRow>().CombatRow,TurnManager.Instance.GetCurrentEnemy());
+            return;
         }
 
         if (cardDisplay.cardData.Card.hability == Habilities.CleanRow)
         {
             Card.CleanRow(cardDisplay.card);
+            return;
         }
      
     }

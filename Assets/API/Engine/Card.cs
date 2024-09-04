@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Engine
 {
@@ -38,20 +39,25 @@ namespace Engine
 
         public void AddObserver(IObserver observer)
         {
+            UnityEngine.Debug.Log("Añadiendo observer");
+            if (this.points == 90)
+            {
+                
+            }
             observers.Add(observer);
         }
 
         public void RemoveObserver(IObserver observer)
         {
-            observers = new List<IObserver>();
-            //observers.Remove(observer);
+            //observers = new List<IObserver>();
+            observers.Remove(observer);
         }
 
-        private void NotifyObservers(EventType eventType, object data)
+        public void NotifyObservers(EventType eventType, object data)
         {
             foreach (var observer in observers)
             {
-                    observer.OnNotify(eventType, data);
+                observer.OnNotify(eventType, data);
             }
         }
 
@@ -78,6 +84,14 @@ namespace Engine
             Destino.Add(this);
             this.Ubication = Destino;
             NotifyObservers(EventType.CardMovedToRight, Destino); // Notifica que la carta se ha movido
+        }
+        public void MoveCardToLeft(List<Card>Destino)
+        {
+            // Mover la carta a una nueva posición en el tablero
+            Ubication.Remove(this);
+            Destino.Insert(0,this);//porque esto se usa solo en el SendBottom
+            this.Ubication = Destino;
+            NotifyObservers(EventType.CardMovedToLeft, Destino); // Notifica que la carta se ha movido
         }
         public void RemoveCard()//*?siempre la manda para el cementerio
         {
