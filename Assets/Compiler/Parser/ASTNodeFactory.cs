@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq.Expressions;
 
 public class ASTNodeFactory
 {
@@ -17,6 +18,10 @@ public class ASTNodeFactory
     public Number CreateNumberNode(double value)
     {
         return new Number(value, _tokens.LookAhead().Location);
+    }
+    public Text CreateTextNode(string value)
+    {
+        return new Text(value, _tokens.LookAhead().Location);
     }
 
     public PropertyAccessNode CreatePropertyAccessNode(IdentifierNode property, ExpressionNode target)
@@ -98,7 +103,7 @@ public class ASTNodeFactory
         return new EffectField(name, _tokens.LookAhead().Location);
     }
 
-    public CardParam CreateCardParamNode(IdentifierNode name, object value)
+    public CardParam CreateCardParamNode(IdentifierNode name, ExpressionNode value)
     {
         return new CardParam(name, value, _tokens.LookAhead().Location);
     }

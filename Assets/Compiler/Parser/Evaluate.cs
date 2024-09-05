@@ -132,7 +132,7 @@ public class ExecutionVisitor : IASTVisitor
 
         foreach (var param in node.Params)
         {
-            Variables[param.Name.Name] = param.Value; //*! ya añadi los parametros 
+            Variables[param.Name.Name] = EvaluateExpression(param.Value); //*! ya añadi los parametros 
         }
     }
     public void Visit(SelectorNode node)
@@ -743,7 +743,8 @@ public class ExecutionVisitor : IASTVisitor
         {
             case Number numberNode:
                 return numberNode.Value;
-            
+            case Text text:
+                return text.Value;
             case BinaryOperation binaryOperationNode:
                 var leftValue = EvaluateExpression(binaryOperationNode.Left);
                 var rightValue = EvaluateExpression(binaryOperationNode.Right);

@@ -239,8 +239,12 @@ class Parser
     {
         IdentifierNode name = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
         Tokens.Expect(":");
-        object value = ConvertString(Tokens.LookAhead().Value);
-        Tokens.Next();//consume el value
+        
+        var value = ParseExpression(); //*!linea nueva
+
+        //object value = ConvertString(Tokens.LookAhead().Value); //?Antiguas
+        //Tokens.Next();//consume el value 
+
         return NodeFactory.CreateCardParamNode(name, value);
     }
     public static object ConvertString(string input)
@@ -711,8 +715,12 @@ class Parser
             Tokens.Next(); // Consume el número
             return NodeFactory.CreateNumberNode(double.Parse(token.Value));
         }
-
-        if (token.Type == TokenType.Identifier || token.Type == TokenType.Text)
+        if (token.Type == TokenType.Text)
+        {
+            Tokens.Next(); 
+            return NodeFactory.CreateTextNode(token.Value.ToString());
+        }
+        if (token.Type == TokenType.Identifier)
         {
             ExpressionNode target = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
             Tokens.Next(); // Consume el identificador o el texto

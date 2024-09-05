@@ -298,6 +298,15 @@ public class SemanticVisitor : IASTVisitor
         {
             case Number number:
                 return "Number"; // o "float" si corresponde
+            case Text text:
+            //puede ser un string de una faction o una source o algo significativo del juego
+                var symb = currentSymbolTable.GetSymbol(text.Value);
+                if (symb != null)
+                {
+                    return symb.Type.ToString();
+                }
+                //si no es una string del juego especifica retorna el string 
+                return "string";
             case IdentifierNode identifierNode:
                 var symbol = currentSymbolTable.GetSymbol(identifierNode.Name);
                 if (symbol != null)
@@ -790,8 +799,14 @@ public class SemanticVisitor : IASTVisitor
         node.Name.Accept(this);
         //si llego aqui es porque estaba declarado ya entonces hay que verificar que sea el tipo que debe ser
         Symbol param = currentSymbolTable.GetSymbol(node.Name.Name);
-       
-
+        string paramType = param.Type.ToString();
+        var valueType = EvaluateType(node.Value);
+       if (!TypesAreCompatible(paramType,valueType))
+       {
+          AddSemanticError(node.Location,$"Type mismatch in binary operation: {paramType} and {valueType}");
+       }
+        node.Name.Accept(this);
+        node.Value.Accept(this);
     }
 
     public void Visit(SelectorNode node)

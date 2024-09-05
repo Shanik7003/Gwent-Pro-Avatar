@@ -241,6 +241,20 @@ public class Number : ExpressionNode, IVisitable
         visitor.Visit(this);
     }
 }
+public class Text : ExpressionNode,IVisitable
+{
+    public string Value{ get; }
+    public Text(string value,CodeLocation location)
+    {
+        Value = value;
+        Location = location;
+    }
+    public  override void Accept(IASTVisitor visitor)
+    {
+        visitor.Visit(this);
+    }
+    
+}
 
 public class IdentifierNode : ExpressionNode, IVisitable
 {
@@ -397,9 +411,9 @@ public class EffectField : ASTNode, IVisitable
 public class CardParam : ASTNode, IVisitable
 {
     public IdentifierNode Name { get; }
-    public object Value { get; }
+    public ExpressionNode Value { get; }
 
-    public CardParam(IdentifierNode name, object value,CodeLocation location)
+    public CardParam(IdentifierNode name, ExpressionNode value,CodeLocation location)
     {
         Name = name;
         Value = value;
