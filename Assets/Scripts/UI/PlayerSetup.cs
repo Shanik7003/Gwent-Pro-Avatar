@@ -116,18 +116,18 @@ public class PlayerSetup : MonoBehaviour
                 else
                 {
            
-                    Game.GameInstance.Player1.GetHand();
-                    Game.GameInstance.Player2.GetHand();
+                    // Game.GameInstance.Player1.GetHand();
+                    // Game.GameInstance.Player2.GetHand();
                
                     //*?esto es para ver todas las cartas que hay en el deck y la mano del jugador 1 
-                    foreach (var card in Game.GameInstance.Player1.Deck)
-                    {
-                        //Debug.Log($"DeckCard: {card.name}");
-                    }
-                    foreach (var card in Game.GameInstance.Player1.Hand)
-                    {
-                        //Debug.Log($"HandCard: {card.name}");
-                    }
+                    // foreach (var card in Game.GameInstance.Player1.Deck)
+                    // {
+                    //     //Debug.Log($"DeckCard: {card.name}");
+                    // }
+                    // foreach (var card in Game.GameInstance.Player1.Hand)
+                    // {
+                    //     //Debug.Log($"HandCard: {card.name}");
+                    // }
 
                     SceneManager.LoadScene("Board",LoadSceneMode.Single);
                 }

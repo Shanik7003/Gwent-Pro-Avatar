@@ -33,20 +33,24 @@ public class BattleRow : MonoBehaviour, IDropHandler
             if (IsDropAllowed(card))
             {
                 card.GetComponent<CanvasGroup>().blocksRaycasts = true;// poniendo el componente canvas group y el blockraycast a true para que no inetrfiera con la visualizacion
+
                 card.transform.SetParent(transform);
                 card.transform.localPosition = Vector3.zero;
                 card.dropSuccess = true; // si la carta fue colocada en el tablero 
-                PlaceCardinBoardEngine(card);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
-                //row.Add(cardDisplay);//añade la carta visual (CardDisplay) a la battlerow 
-                ExistsPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
-                ExistsPasiveWheather(cardDisplay);
-                FreeHability(card);
-                card.isDraggable = false;//para que el usuarioa no la pueda mover mas
-                card.GetComponent<CanvasGroup>().interactable = false;
+
+                // PlaceCardinBoardEngine(cardDisplay);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
+     
+                // ExistsPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
+                // ExistsPasiveWheather(cardDisplay);
+
+                // FreeHability(card);
+
+                // card.isDraggable = false;//para que el usuario no la pueda mover mas
+                // card.GetComponent<CanvasGroup>().interactable = false;
+                ActivateCard(cardDisplay);
        
                 if (TurnManager.Instance.GetCurrentEnemy().AlreadyPass)//si tu enemigo paso :juega todas las cartas que quieres hasta que decidas pasar
                 {
-                    //Debug.Log("entre al if ");
                     return;//y no entras al EndTurn de abajo
                 }
                 TurnManager.Instance.EndTurn();//pasar de turno
@@ -60,7 +64,21 @@ public class BattleRow : MonoBehaviour, IDropHandler
             }
         }
     }
-   
+    public void ActivateCard(CardDisplay cardDisplay)
+    {
+        //CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
+        Draggable card = cardDisplay.GetComponent<Draggable>();
+        PlaceCardinBoardEngine(cardDisplay);//coloca tambien en el board del engine su carta gemela del engine para asi llevar los dos tableros a la par  
+
+        ExistsPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
+        ExistsPasiveWheather(cardDisplay);
+
+        FreeHability(card);
+
+        card.isDraggable = false;//para que el usuario no la pueda mover mas
+        card.GetComponent<CanvasGroup>().interactable = false;
+    }
+
     public void  ExistsPasiveIncrease(CardDisplay cardDisplay)//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
     {
         foreach (var item in cardDisplay.cardData.Card.player.Board.rows[(int)cardDisplay.GetComponentInParent<BattleRow>().CombatRow])
@@ -139,10 +157,9 @@ public class BattleRow : MonoBehaviour, IDropHandler
         }
         return cardsInRow;
     }
-    public void PlaceCardinBoardEngine(Draggable card)// coloca la carta que el usuario coloco en una fila de batalla en el board del engine y ademas le suma lso puntos al jugador del engine  
+    public void PlaceCardinBoardEngine(CardDisplay cardDisplay)// coloca la carta que el usuario coloco en una fila de batalla en el board del engine y ademas le suma lso puntos al jugador del engine  
     {
-        CardDisplay cardDisplay = card.GetComponent<CardDisplay>();
-        List<Card>Destino = cardDisplay.card.player.Board.rows[(int)CombatRow];
+        List<Card> Destino = cardDisplay.card.player.Board.rows[(int)CombatRow];
         
         cardDisplay.card.Ubication.Remove( cardDisplay.card);
         Destino.Add( cardDisplay.card);

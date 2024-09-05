@@ -244,12 +244,16 @@ public class ExecutionVisitor : IASTVisitor
 
     public void Visit(WhileStatement node)
     {
+        int count = 0;
         while ((bool)EvaluateExpression(node.Condition))
         {
+            if (count == 10000) 
+            count ++;
             foreach (var statement in node.Body)
             {
                 statement.Accept(this);
             }
+            
         }
     }
     public void Visit(ExpressionNode node)
@@ -424,11 +428,17 @@ public class ExecutionVisitor : IASTVisitor
 
     private void Add(List<Card>target, Card param)
     {
+        //?Listas Apiladas 
         if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
         {
             param.MoveCardAndDesapeare(target);
         } 
-        param.MoveCard(target);
+
+        //?Listas no apiladas
+        else
+        {
+            param.MoveCard(target);
+        }
     }
     private void Push(List<Card> target, Card param)
     {
@@ -554,7 +564,7 @@ public class ExecutionVisitor : IASTVisitor
                 }
                 if (propertyAccessNode.Property.Name == "Owner")
                 {
-                    return ((Card)target).player;
+                    return ((Card)target).player.Id;
                 }
             }
             //*! si no es una carta entonces es una de las listas del context y como es property son las que no tienen parametros 

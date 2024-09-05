@@ -66,20 +66,21 @@ namespace Engine
                 observer.OnNotify(eventType, data);
             }
         }
-        public List<Card> GetHand()
+        public void GetHand()
         {
             System.Random random = new();
-            List<Card> container = new();
+            //List<Card> container = new();
             for (int i = 0; i < 10; i++)
             {
                 Card card = Deck[random. Next(0,Deck.Count)];
-                Hand.Add(card);
-                card.Ubication = Hand;
-
-                Deck.Remove(card);
+               // StartCoroutine(card.MoveCard(Hand)); 
+                card.MoveCard(Hand);
+                // Hand.Add(card);
+                // card.Ubication = Hand;
+                // Deck.Remove(card);
             }
-            
-            return Hand;
         }
+
+       
     }
 }

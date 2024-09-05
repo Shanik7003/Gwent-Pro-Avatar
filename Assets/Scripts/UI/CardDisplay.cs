@@ -38,15 +38,60 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     public void HandleCardMovement(List<Card> newPosition)  
     {
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
-        CardManager.ActivateCard(this);
-        StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition].position,VisualBoard.UbicationsMapping[newPosition]));
+         CardManager.ActivateCard(this);
+        //StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition]));
+
+        if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
+        {
+            StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+        }
+
+        else if(VisualBoard.UbicationsMapping[newPosition].Count > 1)//es un Field o el Board
+        {
+            if (card.position == Position.M || card.position == Position.MR || card.position == Position.MRS)
+            {
+                StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+            }
+            else if (card.position == Position.R || card.position == Position.RS)
+            {
+                StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][1]));
+            }
+            else if (card.position == Position.S)
+            {
+                StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][2]));
+            }
+            //*!Activa la carta pero sin pasar turno
+            this.GetComponentInParent<BattleRow>().ActivateCard(this);
+        }
 
     }
     public void HandleCardMovementAndDesapearing(List<Card> newPosition)
     {
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
         CardManager.ActivateCard(this);
-        StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition].position,VisualBoard.UbicationsMapping[newPosition]));
+
+        if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
+        {
+            StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+        }
+
+        else if(VisualBoard.UbicationsMapping[newPosition].Count > 1)//es un Field o el Board
+        {
+            // if (card.position == Position.M || card.position == Position.MR || card.position == Position.MRS)
+            // {
+            //     StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+            // }
+            // else if (card.position == Position.R || card.position == Position.RS)
+            // {
+            //     StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][1]));
+            // }
+            // else if (card.position == Position.S)
+            // {
+            //     StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][2]));
+            // }
+            Debug.Log("No se supone que deba desaparecer la carta si la vas a poner en un Field o en el Board");
+        }
+
         CardManager.DeActivateCard(this);
 
     }
@@ -54,13 +99,59 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     {
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
         CardManager.ActivateCard(this);
-        StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
+
+        //StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
+
+        if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
+        {
+            StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+        }
+
+        else if(VisualBoard.UbicationsMapping[newPosition].Count > 1)//es un Field o el Board
+        {
+            if (card.position == Position.M || card.position == Position.MR || card.position == Position.MRS)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+            }
+            else if (card.position == Position.R || card.position == Position.RS)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition][1]));
+            }
+            else if (card.position == Position.S)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition][2]));
+            }
+            //*!Activa la carta pero sin pasar turno
+            this.GetComponentInParent<BattleRow>().ActivateCard(this);
+        }
     }
     public void HandleCardMovementLeft(List<Card> newPosition)
     {
         // Implementa la lógica para actualizar la UI con la nueva posición de la carta
         CardManager.ActivateCard(this);
-        StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
+        //StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
+        if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
+        {
+            StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+        }
+
+        else if(VisualBoard.UbicationsMapping[newPosition].Count > 1)//es un Field o el Board
+        {
+            if (card.position == Position.M || card.position == Position.MR || card.position == Position.MRS)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+            }
+            else if (card.position == Position.R || card.position == Position.RS)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition][1]));
+            }
+            else if (card.position == Position.S)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition][2]));
+            }
+            //*!Activa la carta pero sin pasar turno
+            this.GetComponentInParent<BattleRow>().ActivateCard(this);
+        }
     }
     public void HandleCardElimination()
     {
@@ -97,7 +188,7 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
     
     public void FirstUpdateCard()
     {
-        CardManager.ActivateCard(this);
+        // CardManager.ActivateCard(this);
         nameText.text = cardData.cardName;
         descriptionText.text = cardData.description;
         points.text = cardData.points.ToString();

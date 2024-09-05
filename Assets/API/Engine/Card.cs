@@ -39,11 +39,7 @@ namespace Engine
 
         public void AddObserver(IObserver observer)
         {
-            UnityEngine.Debug.Log("Añadiendo observer");
-            if (this.points == 90)
-            {
-                
-            }
+           
             observers.Add(observer);
         }
 
@@ -366,7 +362,7 @@ namespace Engine
 
             for (int i = 0; i < Game.GameInstance.Player1.Board.rows.Length; i++)
             {
-                if (Game.GameInstance.Player1.Board.rows[i].Count > 0 && Game.GameInstance.Player1.Board.rows[i] != card.Ubication)
+                if (Game.GameInstance.Player1.Board.rows[i].Count > 0 )
                 {
                     minRow = Game.GameInstance.Player1.Board.rows[i];//se que da con la primera fila que tenga mas de cero 
                     break;
@@ -376,7 +372,7 @@ namespace Engine
             {
                 for (int i = 0; i < Game.GameInstance.Player2.Board.rows.Length; i++)
                 {
-                    if (Game.GameInstance.Player2.Board.rows[i].Count > 0 && Game.GameInstance.Player2.Board.rows[i] != card.Ubication)
+                    if (Game.GameInstance.Player2.Board.rows[i].Count > 0)
                     {
                         minRow = Game.GameInstance.Player2.Board.rows[i];//se que da con la primera fila que tenga mas de cero 
                         break;
@@ -394,21 +390,21 @@ namespace Engine
             for(int i = 0; i < Game.GameInstance.Player1.Board.rows.Length; i++)//saca la fila que menos cartas tiene 
             {
     
-                if (minRow.Count > Game.GameInstance.Player1.Board.rows[i].Count && Game.GameInstance.Player1.Board.rows[i].Count > 0 &&  Game.GameInstance.Player1.Board.rows[i] != card.Ubication)
+                if (minRow.Count > Game.GameInstance.Player1.Board.rows[i].Count && Game.GameInstance.Player1.Board.rows[i].Count > 0 )
                 {
                     minRow = Game.GameInstance.Player1.Board.rows[i];
                 }
       
-                if (minRow.Count > Game.GameInstance.Player2.Board.rows[i].Count && Game.GameInstance.Player2.Board.rows[i].Count > 0 && Game.GameInstance.Player2.Board.rows[i] != card.Ubication)
+                if (minRow.Count > Game.GameInstance.Player2.Board.rows[i].Count && Game.GameInstance.Player2.Board.rows[i].Count > 0 )
                 {
                     minRow = Game.GameInstance.Player2.Board.rows[i];
                 }
             } 
 
-            if (minRow.Contains(card))//si la fila que menos crtas tiene contiene a la carta que eliminaba no se aplica el e
-            {
-                return;
-            }
+            // if (minRow.Contains(card))//si la fila que menos crtas tiene contiene a la carta que eliminaba no se aplica el e
+            // {
+            //     return;
+            // }
 
             for (int i = 0; i < minRow.Count; i++)
             {

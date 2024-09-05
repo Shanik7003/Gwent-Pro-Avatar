@@ -8,7 +8,7 @@ public class GameManagerWrapper : MonoBehaviour
 {
     void Start()
     {
-        //Debug.Log("GameManagerWrapper attached and running");
+        Debug.Log("GameManagerWrapper attached and running");
     }
     public static GameManagerWrapper Instance { get; private set; }
     void Awake()

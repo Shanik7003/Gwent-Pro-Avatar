@@ -404,8 +404,8 @@ public class SemanticVisitor : IASTVisitor
                 Symbol targetTypSymbol = currentSymbolTable.GetSymbol(targetTyp);
                 if (targetTypSymbol == null)
                 {
-               AddSemanticError(propertyAccess.Location,$"El tipo del target {((IdentifierNode)propertyAccess.Target).Name} no contiene ninguna propiedad con su nombre "); 
-                return "unknown";
+                    AddSemanticError(propertyAccess.Location,$"El tipo del target {propertyAccess.Target} no contiene ninguna propiedad con su nombre "); 
+                    return "unknown";
                 } 
                 //verifica si el symbolo del tipo del target contiene alguna propiedad con el nombre de la property de accesProperty
                 string propertyNam = propertyAccess.Property.Name;
