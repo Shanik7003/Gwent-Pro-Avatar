@@ -182,6 +182,7 @@ public interface IASTVisitor
     public abstract void Visit(CardParam node);
     public abstract void Visit(SelectorNode node);
     public abstract void Visit(MyPredicate node);
+    public abstract void Visit(CompoundAssignmentNode node);
 }
 
 public class SemanticVisitor : IASTVisitor
@@ -502,6 +503,16 @@ public class SemanticVisitor : IASTVisitor
 
         // Evaluar y procesar el valor de la expresión en el lado derecho de la asignación
         node.Value.Accept(this);
+    }
+
+    public void Visit(CompoundAssignmentNode node)
+    {
+        var variableType  = EvaluateType(node.Variable);
+        var valueType = EvaluateType(node.Value);
+        if(variableType != "Number" || valueType != "Number")
+        {
+            AddSemanticError(node.Location,$"Type mismatch: cannot execute operation '{node.Operator}' to variableType: '{variableType}' with alueType:'{valueType}'.");
+        }
     }
 
 

@@ -165,7 +165,7 @@ public class ExecutionVisitor : IASTVisitor
         obj = value;
     }
     public void Visit(Assignment node)
-    {
+    {   
         var value = EvaluateExpression(node.Value);
 
         if (node.Variable is PropertyAccessNode)
@@ -190,7 +190,7 @@ public class ExecutionVisitor : IASTVisitor
                     ((Card)vari).points = (double)value;
                 }
                 //*!no veo que mas se le pueda cambiar a la carta como usuario?? no se le debe poder cambiar el nombre o la 
-                //*!faction o si???
+                //*!faction o si??? preguntar
                 return;
             }
         }
@@ -209,6 +209,67 @@ public class ExecutionVisitor : IASTVisitor
         }
 
         PrintDictionary(Variables);
+    }
+
+    public void Visit(CompoundAssignmentNode node)
+    {
+        var  variable = EvaluateExpression(node.Variable);
+        var value = EvaluateExpression(node.Value);
+
+        switch (node.Operator)
+        {
+            case "+=":
+            value = (double)variable + (double)value;
+            
+            break;
+            case "-=":
+            value = (double)variable - (double)value;
+            
+            break;
+            case "*=":
+            value = (double)variable * (double)value;
+            
+            break;
+            case "/=":
+            value = (double)variable / (double)value;
+            
+            break;
+            default:
+            ErrorManager.Instance.ShowError("There was a problem in CompoundAssignment Evaluation");
+            break;
+        }
+
+        if (node.Variable is PropertyAccessNode)
+        {
+            object vari = EvaluateExpression(((PropertyAccessNode)node.Variable).Target);
+            if (vari is Card)//entonces estan actulizando el valor de alguna propiedad de una carta 
+            {
+                if (((PropertyAccessNode)node.Variable).Property.Name == "Power")
+                {
+                    if (((Card)vari).player.Field.Contains((Card)vari)) // si la carta esta en el field tienes que actualizar los puntos del player de la carta
+                    {
+                        if(((Card)vari).points > (double)value)
+                        {
+                            ((Card)vari).player.Points -= ((Card)vari).points - (double)value;
+                        }
+                        else if(((Card)vari).points < (double)value)
+                        {
+                            ((Card)vari).player.Points += (double)value - ((Card)vari).points;
+                        }
+                    }
+                    //y ademas cambiar los puntos de la carta, si no estaba en el Field de todas formas  esto hay que hacerlo 
+                    ((Card)vari).points = (double)value;
+                }
+                //*!no veo que mas se le pueda cambiar a la carta como usuario?? no se le debe poder cambiar el nombre o la 
+                //*!faction o si??? preguntar
+                return;
+            }
+        }
+
+        if (Variables.ContainsKey(((IdentifierNode)node.Variable).Name))//si ya lo contiene pues cambia el valor del objecto
+        {
+            Variables[((IdentifierNode)node.Variable).Name] = value; 
+        }
     }
 
     public void Visit(MethodCallNode node)
@@ -232,8 +293,16 @@ public class ExecutionVisitor : IASTVisitor
     public void Visit(ForStatement node)
     {
         var collection = EvaluateExpression(node.Iterable) as IEnumerable<Engine.Card>;
+        int count = 0;
         foreach (var item in collection)
         {
+            if (count == 10000) 
+            {
+                ErrorManager.Instance.ShowError("No se permiten los ciclos de mas de 10000 iteraciones :(");
+                break;
+            }
+            count ++;
+            
             Variables[node.Variable.Name] = item;
             foreach (var statement in node.Body)
             {
@@ -248,6 +317,10 @@ public class ExecutionVisitor : IASTVisitor
         while ((bool)EvaluateExpression(node.Condition))
         {
             if (count == 10000) 
+            {
+                ErrorManager.Instance.ShowError("No se permiten los ciclos de mas de 10000 iteraciones :(");
+                break;
+            }
             count ++;
             foreach (var statement in node.Body)
             {

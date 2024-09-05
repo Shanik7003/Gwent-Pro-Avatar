@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using System.Xml;
+using UnityEditor.Experimental.GraphView;
 
 class Parser
 {
@@ -523,6 +524,18 @@ class Parser
     {
         ExpressionNode variable = ParseExpression();
         var op = Tokens.LookAhead().Value;
+        if (op == "++")
+        {
+            Tokens.Next();
+            Tokens.Expect(";");
+            return NodeFactory.CreateCompoundAssignmentNode(variable,"+=",new Number(1,Tokens.LookAhead().Location));
+        }
+        if (op == "--")
+        {
+            Tokens.Next();
+            Tokens.Expect(";");
+            return NodeFactory.CreateCompoundAssignmentNode(variable,"-=",new Number(1,Tokens.LookAhead().Location));
+        }
         if (op == "+=" || op == "-=" || op == "*=" || op == "/=")
         {
             Tokens.Next();

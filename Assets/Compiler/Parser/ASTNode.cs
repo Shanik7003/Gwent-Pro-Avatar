@@ -315,6 +315,7 @@ public class CompoundAssignmentNode : Assignment
         Operator = op;
         Location = location;
     }
+    
 
     public  override void Accept(IASTVisitor visitor)
     {

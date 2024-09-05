@@ -15,19 +15,19 @@ public class Compiling
                 __LexicalProcess = new LexicalAnalyzer();
 
                 // Registrar operadores según el nuevo DSL
-                __LexicalProcess.RegisterOperator(".", TokenValues.Dot);
-                __LexicalProcess.RegisterOperator("{", TokenValues.OpenCurlyBraces);
-                __LexicalProcess.RegisterOperator("}", TokenValues.ClosedCurlyBraces);
-                __LexicalProcess.RegisterOperator("(", TokenValues.OpenBracket);
-                __LexicalProcess.RegisterOperator(")", TokenValues.ClosedBracket);
-                __LexicalProcess.RegisterOperator(":", TokenValues.Colon);
-                __LexicalProcess.RegisterOperator(";", TokenValues.StatementSeparator);
-                __LexicalProcess.RegisterOperator(",", TokenValues.ValueSeparator);
-                __LexicalProcess.RegisterOperator("=", TokenValues.Assign);
-                __LexicalProcess.RegisterOperator("+", TokenValues.Add); 
-                __LexicalProcess.RegisterOperator("-", TokenValues.Sub); 
-                __LexicalProcess.RegisterOperator("*", TokenValues.Mul); 
-                __LexicalProcess.RegisterOperator("/", TokenValues.Div); 
+                __LexicalProcess.RegisterOperator(".",  TokenValues.Dot);
+                __LexicalProcess.RegisterOperator("{",  TokenValues.OpenCurlyBraces);
+                __LexicalProcess.RegisterOperator("}",  TokenValues.ClosedCurlyBraces);
+                __LexicalProcess.RegisterOperator("(",  TokenValues.OpenBracket);
+                __LexicalProcess.RegisterOperator(")",  TokenValues.ClosedBracket);
+                __LexicalProcess.RegisterOperator(":",  TokenValues.Colon);
+                __LexicalProcess.RegisterOperator(";",  TokenValues.StatementSeparator);
+                __LexicalProcess.RegisterOperator(",",  TokenValues.ValueSeparator);
+                __LexicalProcess.RegisterOperator("=",  TokenValues.Assign);
+                __LexicalProcess.RegisterOperator("+",  TokenValues.Add); 
+                __LexicalProcess.RegisterOperator("-",  TokenValues.Sub); 
+                __LexicalProcess.RegisterOperator("*",  TokenValues.Mul); 
+                __LexicalProcess.RegisterOperator("/",  TokenValues.Div); 
                 __LexicalProcess.RegisterOperator("==", TokenValues.LogicEqual);
                 __LexicalProcess.RegisterOperator("+=", TokenValues.AddAssign);
                 __LexicalProcess.RegisterOperator("-=", TokenValues.SubstAssign);
