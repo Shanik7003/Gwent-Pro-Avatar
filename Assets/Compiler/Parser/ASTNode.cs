@@ -41,11 +41,11 @@ public class RootNode : ASTNode, IVisitable
 
 public class EffectNode : ASTNode, IVisitable
 {
-    public IdentifierNode Name { get; }
+    public ExpressionNode Name { get; }
     public List<ParamNode> Params { get; }
     public ActionNode Action { get; }
 
-    public EffectNode(IdentifierNode name, List<ParamNode> @params, ActionNode action,CodeLocation location)
+    public EffectNode(ExpressionNode name, List<ParamNode> @params, ActionNode action,CodeLocation location)
     {
         Name = name;
         Params = @params;
@@ -339,14 +339,14 @@ public class CompoundAssignmentNode : Assignment
 
 public class CardNode : ASTNode, IVisitable
 {
-    public IdentifierNode Name { get; }
+    public ExpressionNode Name { get; }
     public Engine.CardType Type { get; }
     public Engine.Faction Faction { get; }
     public int Power { get; }
     public CompilerPosition[] Position { get; }
     public List<EffectInvocationNode> EffectList { get; }
 
-    public CardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
+    public CardNode(ExpressionNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
     {
         Name = name;
         Type = type;
@@ -385,17 +385,17 @@ public class EffectInvocationNode : ASTNode, IVisitable
 
 public class EffectField : ASTNode, IVisitable
 {
-    public IdentifierNode Name { get; }
+    public ExpressionNode Name { get; }
     public List<CardParam>? Params { get; }
 
-    public EffectField(IdentifierNode name,CodeLocation location)
+    public EffectField(ExpressionNode name,CodeLocation location)
     {
         Name = name;
         Params = null;
         Location = location;
     }
 
-    public EffectField(IdentifierNode name, List<CardParam>? param, CodeLocation location)
+    public EffectField(ExpressionNode name, List<CardParam>? param, CodeLocation location)
     {
         Name = name;
         Params = param;

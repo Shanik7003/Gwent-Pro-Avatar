@@ -181,20 +181,18 @@ public class BattleRow : MonoBehaviour, IDropHandler
         if (cardDisplay.card.hability == Habilities.Personalized)
         {
             ExecutionVisitor executionVisitor = new(RunButtonScript.ast);//*!esto hay que cambiarlo despues 
-            //executionVisitor.Visit(RunButtonScript.ast);
+            // //executionVisitor.Visit(RunButtonScript.ast);
 
-            foreach (var cardNode in RunButtonScript.ast.Cards)
+            
+            foreach (var effectInvocation in cardDisplay.card.CardNode.EffectList)
             {
-                if (cardNode.Name.Name == cardDisplay.card.name)
-                {
-                    foreach (var effectInvocation in cardNode.EffectList)
-                    {
-                        executionVisitor.Visit(effectInvocation);
-                    }
-                }
+                executionVisitor.Visit(effectInvocation);
             }
+            
             return;
         }
+            
+            
 
         if (cardDisplay.card.hability == Habilities.CardTheft)
         {

@@ -74,7 +74,7 @@ public class ASTNodeFactory
         return new WhileStatement(condition, body, _tokens.LookAhead().Location);
     }
 
-    public EffectNode CreateEffectNode(IdentifierNode name, List<ParamNode> parameters, ActionNode action)
+    public EffectNode CreateEffectNode(ExpressionNode name, List<ParamNode> parameters, ActionNode action)
     {
         return new EffectNode(name, parameters, action, name.Location);
     }
@@ -84,7 +84,7 @@ public class ASTNodeFactory
         return new ParamNode(name, type, _tokens.LookAhead().Location);
     }
 
-    public CardNode CreateCardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
+    public CardNode CreateCardNode(ExpressionNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
     {
         return new CardNode(name, type, faction, power, positions, effects, name.Location);
     }
@@ -94,7 +94,7 @@ public class ASTNodeFactory
         return new EffectInvocationNode(effectField, selector, postAction, _tokens.LookAhead().Location);
     }
 
-    public EffectField CreateEffectFieldNode(IdentifierNode name, List<CardParam> parameters)
+    public EffectField CreateEffectFieldNode(ExpressionNode name, List<CardParam> parameters)
     {
         return new EffectField(name, parameters, _tokens.LookAhead().Location);
     }

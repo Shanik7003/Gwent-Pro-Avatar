@@ -26,6 +26,7 @@ namespace Engine
         public Faction faction { get; private set; } 
         private List<IObserver> observers = new List<IObserver>();
         public List<Card> Ubication {get; set;}
+        public CardNode CardNode {get;set;}
 
         public double points
         {
@@ -108,7 +109,7 @@ namespace Engine
         }
 
         //Constructor para las cartas creadas por el usuario
-        public Card(CardType type,string name, Faction faction, int points, Position position,Guid id)
+        public Card(CardType type,string name, Faction faction, int points, Position position,Guid id,CardNode cardNode)
         {
             CardType = type;
             this.name = name;
@@ -118,6 +119,7 @@ namespace Engine
             Id = id;
             hability = Habilities.Personalized;
             Ubication = new List<Card>();
+            CardNode = cardNode;
         }
         // Constructor sin puntos, sin posición, con habilidad y con tipo
         public Card(string name, string description, Player player, Habilities hability, Guid id, CardType cardType, Faction faction)

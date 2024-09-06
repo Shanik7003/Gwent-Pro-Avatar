@@ -69,7 +69,7 @@ class Parser
             Tokens.Expect("{");
             Engine.CardType type = ParseType();
             Tokens.Expect(",");
-            IdentifierNode name = ParseNameField();
+            ExpressionNode name = ParseNameField();
             Tokens.Expect(",");
             Engine.Faction faction = ParseFaction();
             Tokens.Expect(",");
@@ -218,7 +218,7 @@ class Parser
             return NodeFactory.CreateEffectFieldNode(Name);
         }
         Tokens.Expect("{");
-        IdentifierNode name = ParseNameField();
+        ExpressionNode name = ParseNameField();
         List<CardParam> cardParams = new List<CardParam>();
         while (Tokens.LookAhead().Value != "}")
         {
@@ -366,12 +366,12 @@ class Parser
         return NodeFactory.CreateEffectNode(name, parameters, action);
     }
 
-    public IdentifierNode ParseNameField()
+    public ExpressionNode ParseNameField()
     {
     
         Tokens.Expect("Name");
         Tokens.Expect(":");
-        IdentifierNode name = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Text).Value);
+        ExpressionNode name = ParseExpression();
         return name;
     }
 

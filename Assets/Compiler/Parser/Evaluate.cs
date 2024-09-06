@@ -60,7 +60,7 @@ public class ExecutionVisitor : IASTVisitor
     public void Visit(CardNode node)
     {
         //? crea una carta del juego real y añadela a AllCards
-        Card card = new(node.Type,node.Name.Name,node.Faction,node.Power,AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid());
+        Card card = new(node.Type,(string)EvaluateExpression(node.Name),node.Faction,node.Power,AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid(),node);
         Game.GameInstance.AddCard(card);//la añade al diccionario de todas las cartas del juego;
 
     }
@@ -110,10 +110,10 @@ public class ExecutionVisitor : IASTVisitor
             node.Selector.Accept(this);
         }
 
-        //?! AQUI!!! antes de ejecutar el postAction es que hay que visitar el effecto para que eso haga que los efectos se hagan en elorden adecuado 
+        //?! AQUI!!! antes de ejecutar el postAction es que hay que visitar el effecto para que eso haga que los efectos se hagan en el orden adecuado 
         foreach (var effect in Ast.Effects)
         {
-           if (effect.Name.Name == node.EffectField.Name.Name)
+           if (EvaluateExpression(effect.Name).Equals(EvaluateExpression(node.EffectField.Name)))
            {
                 effect.Accept(this);
            }
@@ -744,6 +744,11 @@ public class ExecutionVisitor : IASTVisitor
             case Number numberNode:
                 return numberNode.Value;
             case Text text:
+            
+                if (ObjectsMapping.ContainsKey(text.Value))
+                {
+                    return ObjectsMapping[text.Value];
+                }
                 return text.Value;
             case BinaryOperation binaryOperationNode:
                 var leftValue = EvaluateExpression(binaryOperationNode.Left);

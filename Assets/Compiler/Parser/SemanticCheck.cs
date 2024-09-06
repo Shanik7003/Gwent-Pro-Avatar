@@ -574,9 +574,14 @@ public class SemanticVisitor : IASTVisitor
     public void Visit(EffectNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
-        
-        globalSymbolTable.AddSymbol(node.Name.Name,new Symbol(node.Name.Name,typeof(Effect)));
-        Symbol Effect = globalSymbolTable.GetSymbol(node.Name.Name);//creo que a este se le puede quitar lo amarillo porque nunca va a ser
+
+        if (EvaluateType(node.Name) != "string")
+        {
+            AddSemanticError(node.Location,"El nombre del efecto debe ser de tipo string");
+        }
+
+        globalSymbolTable.AddSymbol(((Text)node.Name).Value ,new Symbol(((Text)node.Name).Value,typeof(Effect)));
+        Symbol Effect = globalSymbolTable.GetSymbol(((Text)node.Name).Value);//creo que a este se le puede quitar lo amarillo porque nunca va a ser
 
         foreach (var param in node.Params)
         {
@@ -765,16 +770,19 @@ public class SemanticVisitor : IASTVisitor
         currentSymbolTable = currentSymbolTable.EnterScope();
 
         //verificar que el name del efecto este declarado anteriormente
-        node.Name.Accept(this);
-
+        if (EvaluateType(node.Name) != "Effect")
+        {
+            AddSemanticError(node.Location,$"El efecto {node.Name} no existe");
+        }
+        node.Name.Accept(this);//esto comprueba que exista un efecto real con ese nombre que ahora tendra que hacerce en el evaluate
         //comparar el numero de parametros del nodo y del efecto que ya esta declarado en la tabla global 
         if (node.Params != null)
         {
             int nodeParams = node.Params.Count;
-            Symbol effectSymbol = globalSymbolTable.GetSymbol(node.Name.Name);
+            Symbol effectSymbol = globalSymbolTable.GetSymbol(((Text)node.Name).Value);
             if (effectSymbol == null)
             {
-               AddSemanticError(node.Location,$"El simbolo {node.Name.Name} no esta declarado");
+               AddSemanticError(node.Location,$"El simbolo {((Text)node.Name).Value} no esta declarado");
                 return;
             }
             else
