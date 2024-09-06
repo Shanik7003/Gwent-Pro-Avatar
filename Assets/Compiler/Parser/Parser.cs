@@ -287,8 +287,16 @@ class Parser
     {
         Tokens.Expect("Source");
         Tokens.Expect(":");
-        var source = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(source, out Source result))
+        
+        ExpressionNode source = ParseExpression();
+        var s = EvaluateStringExpression(source);
+
+        if (s == null)
+        {
+            AddParsingError(Tokens.LookAhead().Location,"El campo Source debe ser de tipo string o una operacion que devuelva string");
+        }
+
+        if (Enum.TryParse((string)s, out Source result))
         {
             return result;
         }
@@ -777,4 +785,32 @@ class Parser
     }
 
     #endregion
+    private object EvaluateStringExpression(ExpressionNode expression)
+    {
+        switch (expression)
+        {
+            case Text text:
+                return text.Value;
+            case BinaryOperation binaryOperationNode:
+                var leftValue = EvaluateStringExpression(binaryOperationNode.Left);
+                var rightValue = EvaluateStringExpression(binaryOperationNode.Right);
+                return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
+            
+            default:
+                return null;
+        }
+        
+    }
+    private object EvaluateBinaryOperation(string op, object leftValue, object rightValue)
+    {
+        switch (op)
+        {
+            case "@":
+                return (leftValue as string) + (rightValue as string);
+            case "@@":
+                return (leftValue as string) + " " +(rightValue as string);
+            default:
+                return null;
+        }
+    }
 }

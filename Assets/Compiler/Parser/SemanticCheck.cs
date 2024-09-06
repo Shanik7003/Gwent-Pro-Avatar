@@ -967,8 +967,8 @@ public enum CompilerPosition
 
 public enum Source
 {
-    board,
     parent,
+    board,
     hand,
     otherHand,
     deck,
