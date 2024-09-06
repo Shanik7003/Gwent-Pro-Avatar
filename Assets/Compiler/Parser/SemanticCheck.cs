@@ -696,9 +696,10 @@ public class SemanticVisitor : IASTVisitor
         {
             if (leftType == "string")
             {
-                if (currentSymbolTable.ContainsSymbol(((Text)node.Left).Value))
+                var v = EvaluateStringExpression(node.Left);
+                if (currentSymbolTable.ContainsSymbol((string)v))
                 {
-                    if(rightType != currentSymbolTable.GetSymbol(((Text)node.Left).Value).Type.ToString())
+                    if(rightType != currentSymbolTable.GetSymbol((string)v).Type.ToString())
                     {
                         AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
                     }
@@ -706,9 +707,10 @@ public class SemanticVisitor : IASTVisitor
             }
             else if (rightType == "string")
             {
-                if (currentSymbolTable.ContainsSymbol(((Text)node.Right).Value))
+                var s = EvaluateStringExpression(node.Right);
+                if (currentSymbolTable.ContainsSymbol((string)s))
                 {
-                    if(leftType != currentSymbolTable.GetSymbol(((Text)node.Right).Value).Type.ToString())
+                    if(leftType != currentSymbolTable.GetSymbol((string)s).Type.ToString())
                     {
                         AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
                     }
@@ -846,15 +848,16 @@ public class SemanticVisitor : IASTVisitor
         {
             AddSemanticError(node.Location,"El efecto {effect} no esta declarado, no existe");
         }
+
         node.Name.Accept(this);//esto comprueba que exista un efecto real con ese nombre que ahora tendra que hacerce en el evaluate
         //comparar el numero de parametros del nodo y del efecto que ya esta declarado en la tabla global 
         if (node.Params != null)
         {
             int nodeParams = node.Params.Count;
-            Symbol effectSymbol = globalSymbolTable.GetSymbol(((Text)node.Name).Value);
+            Symbol effectSymbol = globalSymbolTable.GetSymbol(effect);
             if (effectSymbol == null)
             {
-               AddSemanticError(node.Location,$"El simbolo {((Text)node.Name).Value} no esta declarado");
+               AddSemanticError(node.Location,$"El simbolo {effect} no esta declarado");
                 return;
             }
             else
