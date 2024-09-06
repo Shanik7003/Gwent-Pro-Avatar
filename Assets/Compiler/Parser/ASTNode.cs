@@ -300,21 +300,42 @@ public class PropertyAccessNode : ExpressionNode, IVisitable
 
 public class BinaryOperation : ExpressionNode, IVisitable
 {
+    // public ExpressionNode Left { get; }
+    // public string Operator { get; }
+    // public ExpressionNode Right { get; }
+
+    // public BinaryOperation(ExpressionNode left, string op, ExpressionNode right,CodeLocation location, bool isLogicalExp = false , bool isNumericExp = false)
+    // {
+    //     Left = left;
+    //     Operator = op;
+    //     Right = right;
+    //     IsLogicalExp = isLogicalExp;
+    //     IsNumericExp = isNumericExp;
+    //     Location = location;
+    // }
+
+    // public  override void Accept(IASTVisitor visitor)
+    // {
+    //     visitor.Visit(this);
+    // }
     public ExpressionNode Left { get; }
     public string Operator { get; }
     public ExpressionNode Right { get; }
 
-    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right,CodeLocation location, bool isLogicalExp = false , bool isNumericExp = false)
+    public bool IsConcatenationExp { get; } // Nueva propiedad para distinguir concatenaciones
+
+    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right, CodeLocation location, bool isLogicalExp = false, bool isNumericExp = false, bool isConcatenationExp = false)
     {
         Left = left;
         Operator = op;
         Right = right;
         IsLogicalExp = isLogicalExp;
         IsNumericExp = isNumericExp;
+        IsConcatenationExp = isConcatenationExp;
         Location = location;
     }
 
-    public  override void Accept(IASTVisitor visitor)
+    public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -340,13 +361,13 @@ public class CompoundAssignmentNode : Assignment
 public class CardNode : ASTNode, IVisitable
 {
     public ExpressionNode Name { get; }
-    public Engine.CardType Type { get; }
-    public Engine.Faction Faction { get; }
-    public int Power { get; }
+    public ExpressionNode Type { get; }
+    public ExpressionNode Faction { get; }
+    public ExpressionNode Power { get; }
     public CompilerPosition[] Position { get; }
     public List<EffectInvocationNode> EffectList { get; }
 
-    public CardNode(ExpressionNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
+    public CardNode(ExpressionNode name, ExpressionNode type,ExpressionNode faction, ExpressionNode power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
     {
         Name = name;
         Type = type;

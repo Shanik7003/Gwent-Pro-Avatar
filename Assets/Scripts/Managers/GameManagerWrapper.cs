@@ -52,6 +52,10 @@ public class GameManagerWrapper : MonoBehaviour
         Debug.Log("Cartas que se añaden al el Deck del player1 " + Game.GameInstance.Player1.Name);
         foreach (var card in Game.AllCards.Values)
         {
+            if(card.name == "Beluga")
+            {
+                Debug.Log("");
+            }
             if (card.faction == Faction1)
             {
                 card.player = Game.GameInstance.Player1;

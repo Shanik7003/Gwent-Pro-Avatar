@@ -300,11 +300,11 @@ public class SemanticVisitor : IASTVisitor
                 return "Number"; // o "float" si corresponde
             case Text text:
             //puede ser un string de una faction o una source o algo significativo del juego
-                var symb = currentSymbolTable.GetSymbol(text.Value);
-                if (symb != null)
-                {
-                    return symb.Type.ToString();
-                }
+                //*! var symb = currentSymbolTable.GetSymbol(text.Value);
+                //*! if (symb != null)
+                //*! {
+                //*!     return symb.Type.ToString();
+                //*! }
                 //si no es una string del juego especifica retorna el string 
                 return "string";
             case IdentifierNode identifierNode:
@@ -325,11 +325,26 @@ public class SemanticVisitor : IASTVisitor
                 {
                     return leftType;
                 }
-                else
+                else if(leftType is string)// si no fueron iguales y la izquierda es string, evaluala por si acaso
                 {
-                   AddSemanticError(binaryOperation.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
-                    return "unknown";
+                    var symb = currentSymbolTable.GetSymbol(leftType);
+                    if (symb != null)
+                    {
+                        return symb.Type.ToString();
+                    }
                 }
+                else if(rightType is string)
+                {
+                    var symb = currentSymbolTable.GetSymbol(rightType);
+                    if (symb != null)
+                    {
+                        return symb.Type.ToString();
+                    }
+                }
+                
+                AddSemanticError(binaryOperation.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+                return "unknown";
+                
             case ExpressionMethodCall methodCall:
                 string targeType = EvaluateType(methodCall.Target);
                 Symbol targeTypeSymbol = currentSymbolTable.GetSymbol(targeType);
@@ -434,6 +449,7 @@ public class SemanticVisitor : IASTVisitor
 
     private bool TypesAreCompatible(string type1, string type2)
     {
+        
         return type1 == type2; // Placeholder para lógica más compleja
     }
 
@@ -574,7 +590,7 @@ public class SemanticVisitor : IASTVisitor
     public void Visit(EffectNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
-
+       
         if (EvaluateType(node.Name) != "string")
         {
             AddSemanticError(node.Location,"El nombre del efecto debe ser de tipo string");
@@ -675,9 +691,33 @@ public class SemanticVisitor : IASTVisitor
     {
         var leftType = EvaluateType(node.Left);
         var rightType = EvaluateType(node.Right);
+        
         if (!TypesAreCompatible(leftType, rightType))
         {
-           AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+            if (leftType == "string")
+            {
+                if (currentSymbolTable.ContainsSymbol(((Text)node.Left).Value))
+                {
+                    if(rightType != currentSymbolTable.GetSymbol(((Text)node.Left).Value).Type.ToString())
+                    {
+                        AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+                    }
+                }
+            }
+            else if (rightType == "string")
+            {
+                if (currentSymbolTable.ContainsSymbol(((Text)node.Right).Value))
+                {
+                    if(leftType != currentSymbolTable.GetSymbol(((Text)node.Right).Value).Type.ToString())
+                    {
+                        AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+                    }
+                }
+            }
+            // else
+            // {
+            //     AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+            // }
         }
 
         node.Left.Accept(this);
@@ -743,6 +783,32 @@ public class SemanticVisitor : IASTVisitor
     public void Visit(CardNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
+
+        //?Type
+        string type = EvaluateType(node.Type);
+        if (type != "string") AddSemanticError(node.Location,$"El campo Type de las cartas debe ser de tipo string");
+        var typ = EvaluateStringExpression(node.Type);
+        if (!Enum.TryParse(typ as string, out Engine.CardType cardType))
+        {
+            AddSemanticError(node.Location,  $"Tipo de carta inválido: {typ}");
+        }
+
+        //?Name
+        string nametype = EvaluateType(node.Name);
+        if (nametype != "string") AddSemanticError(node.Location,$"El campo Name de las cartas debe ser de tipo string");
+        
+        //?Faction
+        string factionType = EvaluateType(node.Faction);
+        if (factionType != "string") AddSemanticError(node.Location,$"El campo Faction de las cartas debe ser de tipo string");
+        var faction = EvaluateStringExpression(node.Faction);
+        if (!Enum.TryParse(faction as string, out Engine.Faction cardFaction))
+        {
+            AddSemanticError(node.Location,  $"Tipo de carta inválido: {faction}");
+        }
+        
+        //?Power
+        string power = EvaluateType(node.Power);
+        if(power != "Number") AddSemanticError(node.Location,$"El campo Power de las cartas debe ser de tipo Number");
         
         foreach (var effect in node.EffectList)
         {
@@ -770,9 +836,15 @@ public class SemanticVisitor : IASTVisitor
         currentSymbolTable = currentSymbolTable.EnterScope();
 
         //verificar que el name del efecto este declarado anteriormente
-        if (EvaluateType(node.Name) != "Effect")
+        if (EvaluateType(node.Name) != "string")
         {
-            AddSemanticError(node.Location,$"El efecto {node.Name} no existe");
+            AddSemanticError(node.Location,$"El campo Name de EffectInvocation debe ser de tipo string");
+        }
+
+        string effect = EvaluateStringExpression(node.Name) as string;
+        if (!currentSymbolTable.ContainsSymbol(effect))
+        {
+            AddSemanticError(node.Location,"El efecto {effect} no esta declarado, no existe");
         }
         node.Name.Accept(this);//esto comprueba que exista un efecto real con ese nombre que ahora tendra que hacerce en el evaluate
         //comparar el numero de parametros del nodo y del efecto que ya esta declarado en la tabla global 
@@ -844,7 +916,34 @@ public class SemanticVisitor : IASTVisitor
        // System.Console.WriteLine("Todavia no implemetado el Visit(ExpressionNode)");
     }
 
-    // Agrega más métodos de visita para otros tipos de nodos según sea necesario
+    private object EvaluateStringExpression(ExpressionNode expression)
+    {
+        switch (expression)
+        {
+            case Text text:
+                return text.Value;
+            case BinaryOperation binaryOperationNode:
+                var leftValue = EvaluateStringExpression(binaryOperationNode.Left);
+                var rightValue = EvaluateStringExpression(binaryOperationNode.Right);
+                return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
+            
+            default:
+                return null;
+        }
+        
+    }
+    private object EvaluateBinaryOperation(string op, object leftValue, object rightValue)
+    {
+        switch (op)
+        {
+            case "@":
+                return (leftValue as string) + (rightValue as string);
+            case "@@":
+                return (leftValue as string) + " " +(rightValue as string);
+            default:
+                return null;
+        }
+    }
 }
 
 public class CardList{}

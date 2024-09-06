@@ -29,9 +29,9 @@ public class ASTNodeFactory
         return new PropertyAccessNode(property, target, _tokens.LookAhead().Location);
     }
 
-    public BinaryOperation CreateBinaryOperationNode(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false)
+    public BinaryOperation CreateBinaryOperationNode(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false,bool isConcatenation = false)
     {
-        return new BinaryOperation(left, op, right,  _tokens.LookAhead().Location ,isLogicalExp, isNumericExp);
+        return new BinaryOperation(left, op, right,  _tokens.LookAhead().Location ,isLogicalExp, isNumericExp,isConcatenation);
     }
 
     public Assignment CreateAssignmentNode(ExpressionNode variable, ExpressionNode value)
@@ -84,7 +84,7 @@ public class ASTNodeFactory
         return new ParamNode(name, type, _tokens.LookAhead().Location);
     }
 
-    public CardNode CreateCardNode(ExpressionNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
+    public CardNode CreateCardNode(ExpressionNode name, ExpressionNode type, ExpressionNode faction, ExpressionNode power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
     {
         return new CardNode(name, type, faction, power, positions, effects, name.Location);
     }

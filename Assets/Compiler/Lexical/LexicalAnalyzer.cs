@@ -42,6 +42,8 @@ public class Compiling
                 __LexicalProcess.RegisterOperator(">=", TokenValues.GreaterEqualThan);
                 __LexicalProcess.RegisterOperator("[", TokenValues.OpenSquareBraket);
                 __LexicalProcess.RegisterOperator("]", TokenValues.ClosedSquareBraket);
+                __LexicalProcess.RegisterOperator("@", TokenValues.Concatenation);
+                __LexicalProcess.RegisterOperator("@@", TokenValues.ConcatenationWithSpace);
 
                 // Registrar palabras clave según el nuevo DSL
 

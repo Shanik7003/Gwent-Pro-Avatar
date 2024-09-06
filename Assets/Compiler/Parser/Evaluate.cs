@@ -60,7 +60,15 @@ public class ExecutionVisitor : IASTVisitor
     public void Visit(CardNode node)
     {
         //? crea una carta del juego real y añadela a AllCards
-        Card card = new(node.Type,(string)EvaluateExpression(node.Name),node.Faction,node.Power,AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid(),node);
+        var name = EvaluateExpression(node.Name);
+        string Type = (string)EvaluateExpression(node.Type);
+        string Faction = (string)EvaluateExpression(node.Faction);
+        var power = EvaluateExpression(node.Power);
+
+        if (!Enum.TryParse(Type, out Engine.CardType cardType)) ErrorManager.Instance.ShowError("Error inesperado creando una de las cartas");
+        if (!Enum.TryParse(Faction, out Engine.Faction cardFaction)) ErrorManager.Instance.ShowError("Error inesperado creando una de las cartas");
+        
+        Card card = new(cardType,(string)name,cardFaction,(double)EvaluateExpression(node.Power),AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid(),node);
         Game.GameInstance.AddCard(card);//la añade al diccionario de todas las cartas del juego;
 
     }
@@ -745,10 +753,10 @@ public class ExecutionVisitor : IASTVisitor
                 return numberNode.Value;
             case Text text:
             
-                if (ObjectsMapping.ContainsKey(text.Value))
-                {
-                    return ObjectsMapping[text.Value];
-                }
+                // if (ObjectsMapping.ContainsKey(text.Value))
+                // {
+                //     return ObjectsMapping[text.Value];
+                // }
                 return text.Value;
             case BinaryOperation binaryOperationNode:
                 var leftValue = EvaluateExpression(binaryOperationNode.Left);
@@ -785,12 +793,35 @@ public class ExecutionVisitor : IASTVisitor
                 return (leftValue as double?) * (rightValue as double?);
             case "/":
                 return (leftValue as double?) / (rightValue as double?);
+            case "@":
+                return (leftValue as string) + (rightValue as string);
+            case "@@":
+                return (leftValue as string) + " " + (rightValue as string);
             case "&&":
                 return (bool)leftValue && (bool)rightValue;
             case "||":
                 return (bool)leftValue || (bool)rightValue;
             case "==":
-                return leftValue.Equals(rightValue);
+                if (!leftValue.Equals(rightValue))
+                {
+                    if(leftValue is string l)
+                    {
+                        if(ObjectsMapping.ContainsKey(l))
+                        {
+                            bool g = rightValue.Equals(ObjectsMapping[l]);
+                            return rightValue.Equals(ObjectsMapping[l]);
+                        }
+                    }
+                    else if (rightValue is string r)
+                    {
+                        if(ObjectsMapping.ContainsKey(r))
+                        {
+                            bool h = leftValue.Equals(ObjectsMapping[r]);
+                            return leftValue.Equals(ObjectsMapping[r]);
+                        }
+                    }
+                }
+                return true;
             case "!=":
                 return !leftValue.Equals(rightValue);
             case "<":

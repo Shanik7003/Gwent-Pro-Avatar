@@ -67,13 +67,13 @@ class Parser
         try
         {
             Tokens.Expect("{");
-            Engine.CardType type = ParseType();
+            ExpressionNode type = ParseType();
             Tokens.Expect(",");
             ExpressionNode name = ParseNameField();
             Tokens.Expect(",");
-            Engine.Faction faction = ParseFaction();
+            ExpressionNode faction = ParseFaction();
             Tokens.Expect(",");
-            int power = ParsePower();
+            ExpressionNode power = ParsePower();
             Tokens.Expect(",");
             CompilerPosition[] range = ParseRange();
             Tokens.Expect(",");
@@ -88,52 +88,55 @@ class Parser
         }
     }
 
-    public Engine.CardType ParseType()
+    public ExpressionNode ParseType()
     {
         Tokens.Expect("Type");
         Tokens.Expect(":");
-        var type = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(type, out Engine.CardType cardType))
-        {
-            return cardType;
-        }
-        else
-        {
-            AddParsingError(Tokens.LookAhead().Location,  $"Tipo de carta inválido: {type}");
-            return default;
-        }
+        var type = ParseExpression();
+        return type;
+        //TODO if (Enum.TryParse(type, out Engine.CardType cardType))
+        //TODO {
+        //TODO     return cardType;
+        //TODO }
+        //TODO else
+        //TODO {
+        //TODO     AddParsingError(Tokens.LookAhead().Location,  $"Tipo de carta inválido: {type}");
+        //TODO     return default;
+        //TODO }
     }
 
-    public Engine.Faction ParseFaction()
+    public ExpressionNode ParseFaction()
     {
         Tokens.Expect("Faction");
         Tokens.Expect(":");
-        var faction = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(faction, out Engine.Faction factionType))
-        {
-            return factionType;
-        }
-        else
-        {
-            AddParsingError(Tokens.LookAhead().Location,  $"Facción inválida: {faction}");
-            return default;
-        }
+        var faction = ParseExpression();
+        return faction;
+        //TODO if (Enum.TryParse(faction, out Engine.Faction factionType))
+        //TODO {
+        //TODO     return factionType;
+        //TODO }
+        //TODO else
+        //TODO {
+        //TODO     AddParsingError(Tokens.LookAhead().Location,  $"Facción inválida: {faction}");
+        //TODO     return default;
+        //TODO }
     }
 
-    public int ParsePower()
+    public ExpressionNode ParsePower()
     {
         Tokens.Expect("Power");
         Tokens.Expect(":");
-        var power = Tokens.Expect(TokenType.Number).Value;
-        if (int.TryParse(power, out int result))
-        {
-            return result;
-        }
-        else
-        {
-            AddParsingError(Tokens.LookAhead().Location,  $"Valor de poder inválido: {power}");
-            return 0;
-        }
+        var power = ParseExpression();
+        return power;
+        //TODO if (int.TryParse(power, out int result))
+        //TODO {
+        //TODO     return result;
+        //TODO }
+        //TODO else
+        //TODO {
+        //TODO     AddParsingError(Tokens.LookAhead().Location,  $"Valor de poder inválido: {power}");
+        //TODO     return 0;
+        //TODO }
     }
 
     public CompilerPosition[] ParseRange()
@@ -682,15 +685,41 @@ class Parser
 
     public ExpressionNode ParseAdditiveExpr()
     {
-        var node = ParseMultiplicativeExpr();
-        while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-"))
+        var node = ParseMultiplicativeExpr();  // Parse the multiplicative expression first
+    
+        // Loop while the next token is an additive operator, including concatenation operators '@' and '@@'
+        while (Tokens.CanLookAhead() && 
+            (Tokens.LookAhead().Value == "+" || 
+                Tokens.LookAhead().Value == "-" || 
+                Tokens.LookAhead().Value == "@" || 
+                Tokens.LookAhead().Value == "@@"))
         {
-            var op = Tokens.LookAhead().Value;
-            Tokens.Next();
-            var right = ParseMultiplicativeExpr();
-            node = NodeFactory.CreateBinaryOperationNode(node, op, right,false,true);
+            var op = Tokens.LookAhead().Value;  // Get the operator
+            Tokens.Next();  // Consume the operator
+            
+            var right = ParseMultiplicativeExpr();  // Parse the right-hand side of the expression
+            
+            // Determine if the operator is concatenation
+            bool isConcatenation = (op == "@" || op == "@@");
+            
+            // Determine if it's numeric (for '+', '-' operations)
+            bool isNumeric = (op == "+" || op == "-") && !isConcatenation;
+            
+            // Use the NodeFactory to create a binary operation node
+            // The last two booleans are for isLogical and isNumeric respectively
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right, false, isNumeric, isConcatenation);
         }
+        
         return node;
+        // var node = ParseMultiplicativeExpr();
+        // while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-"))
+        // {
+        //     var op = Tokens.LookAhead().Value;
+        //     Tokens.Next();
+        //     var right = ParseMultiplicativeExpr();
+        //     node = NodeFactory.CreateBinaryOperationNode(node, op, right,false,true);
+        // }
+        // return node;
     }
 
     public ExpressionNode ParseMultiplicativeExpr()

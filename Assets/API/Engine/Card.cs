@@ -109,7 +109,7 @@ namespace Engine
         }
 
         //Constructor para las cartas creadas por el usuario
-        public Card(CardType type,string name, Faction faction, int points, Position position,Guid id,CardNode cardNode)
+        public Card(CardType type,string name, Faction faction, double points, Position position,Guid id,CardNode cardNode)
         {
             CardType = type;
             this.name = name;
