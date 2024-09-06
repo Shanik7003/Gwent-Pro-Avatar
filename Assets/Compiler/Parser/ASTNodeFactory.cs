@@ -24,10 +24,14 @@ public class ASTNodeFactory
         return new PropertyAccessNode(property, target, _tokens.LookAhead().Location);
     }
 
-    public BinaryOperation CreateBinaryOperationNode(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false)
+    public BinaryOperation CreateBinaryOperationNode(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false, bool isConcatenationExp = false)
     {
-        return new BinaryOperation(left, op, right,  _tokens.LookAhead().Location ,isLogicalExp, isNumericExp);
+        return new BinaryOperation(left, op, right, new CodeLocation(), isLogicalExp, isNumericExp, isConcatenationExp);
     }
+    // public BinaryOperation CreateBinaryOperationNode(ExpressionNode left, string op, ExpressionNode right, bool isLogicalExp = false, bool isNumericExp = false)
+    // {
+    //     return new BinaryOperation(left, op, right,  _tokens.LookAhead().Location ,isLogicalExp, isNumericExp);
+    // }
 
     public Assignment CreateAssignmentNode(ExpressionNode variable, ExpressionNode value)
     {
@@ -98,7 +102,7 @@ public class ASTNodeFactory
         return new EffectField(name, _tokens.LookAhead().Location);
     }
 
-    public CardParam CreateCardParamNode(IdentifierNode name, object value)
+    public CardParam CreateCardParamNode(IdentifierNode name, ExpressionNode value)
     {
         return new CardParam(name, value, _tokens.LookAhead().Location);
     }

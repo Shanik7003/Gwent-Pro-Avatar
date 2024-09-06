@@ -788,10 +788,14 @@ public class SemanticVisitor : IASTVisitor
     public void Visit(CardParam node)
     {
         node.Name.Accept(this);
+        var name = EvaluateType(node.Name);
+        var value = EvaluateType(node.Value);
+        if (!TypesAreCompatible(name,value))
+        {
+            AddSemanticError(node.Location,$"Type mismatch in CardParam: {name} and {value}");
+        }
         //si llego aqui es porque estaba declarado ya entonces hay que verificar que sea el tipo que debe ser
-        Symbol param = currentSymbolTable.GetSymbol(node.Name.Name);
-       
-
+        //Symbol param = currentSymbolTable.GetSymbol(node.Name.Name);
     }
 
     public void Visit(SelectorNode node)

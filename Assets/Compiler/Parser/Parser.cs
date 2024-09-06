@@ -213,9 +213,16 @@ class Parser
         Tokens.Expect(":");
         if (Tokens.LookAhead().Type == TokenType.Text)
         {
-            IdentifierNode Name = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
-            Tokens.Next();
-            return NodeFactory.CreateEffectFieldNode(Name);
+            ExpressionNode Name = ParseExpression();
+            var nam = EvaluateStringExpression(Name);
+            if (nam == null)
+            {
+                AddParsingError(Tokens.LookAhead().Location,"El campo Name de EffectField en las cartas debe ser de tipo string");
+            }
+            return NodeFactory.CreateEffectFieldNode(NodeFactory.CreateIdentifierNode((string)nam));
+            // IdentifierNode Name = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
+            // Tokens.Next();
+            // return NodeFactory.CreateEffectFieldNode(Name);
         }
         Tokens.Expect("{");
         IdentifierNode name = ParseNameField();
@@ -239,9 +246,11 @@ class Parser
     {
         IdentifierNode name = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Identifier).Value);
         Tokens.Expect(":");
-        object value = ConvertString(Tokens.LookAhead().Value);
-        Tokens.Next();//consume el value
-        return NodeFactory.CreateCardParamNode(name, value);
+        ExpressionNode value = ParseExpression();
+        return NodeFactory.CreateCardParamNode(name,value);
+        // object value = ConvertString(Tokens.LookAhead().Value);
+        // Tokens.Next();//consume el value
+        // return NodeFactory.CreateCardParamNode(name, value);
     }
     public static object ConvertString(string input)
     {
@@ -367,8 +376,13 @@ class Parser
     
         Tokens.Expect("Name");
         Tokens.Expect(":");
-        IdentifierNode name = NodeFactory.CreateIdentifierNode(Tokens.Expect(TokenType.Text).Value);
-        return name;
+        var name = ParseExpression();
+        var Name = EvaluateStringExpression(name);
+        if (Name == null)
+        {
+            AddParsingError(Tokens.LookAhead().Location,"El campo name de Effect debe contener una expresion de tipo string");
+        } 
+        return NodeFactory.CreateIdentifierNode((string)Name);
     }
 
     public List<ParamNode> ParseParamsField()
@@ -678,15 +692,41 @@ class Parser
 
     public ExpressionNode ParseAdditiveExpr()
     {
-        var node = ParseMultiplicativeExpr();
-        while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-"))
+        var node = ParseMultiplicativeExpr();  // Parse the multiplicative expression first
+    
+        // Loop while the next token is an additive operator, including concatenation operators '@' and '@@'
+        while (Tokens.CanLookAhead() && 
+            (Tokens.LookAhead().Value == "+" || 
+                Tokens.LookAhead().Value == "-" || 
+                Tokens.LookAhead().Value == "@" || 
+                Tokens.LookAhead().Value == "@@"))
         {
-            var op = Tokens.LookAhead().Value;
-            Tokens.Next();
-            var right = ParseMultiplicativeExpr();
-            node = NodeFactory.CreateBinaryOperationNode(node, op, right,false,true);
+            var op = Tokens.LookAhead().Value;  // Get the operator
+            Tokens.Next();  // Consume the operator
+            
+            var right = ParseMultiplicativeExpr();  // Parse the right-hand side of the expression
+            
+            // Determine if the operator is concatenation
+            bool isConcatenation = (op == "@" || op == "@@");
+            
+            // Determine if it's numeric (for '+', '-' operations)
+            bool isNumeric = (op == "+" || op == "-") && !isConcatenation;
+            
+            // Use the NodeFactory to create a binary operation node
+            // The last two booleans are for isLogical and isNumeric respectively
+            node = NodeFactory.CreateBinaryOperationNode(node, op, right, false, isNumeric, isConcatenation);
         }
+        
         return node;
+        // var node = ParseMultiplicativeExpr();
+        // while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-"))
+        // {
+        //     var op = Tokens.LookAhead().Value;
+        //     Tokens.Next();
+        //     var right = ParseMultiplicativeExpr();
+        //     node = NodeFactory.CreateBinaryOperationNode(node, op, right,false,true);
+        // }
+        // return node;
     }
 
     public ExpressionNode ParseMultiplicativeExpr()
@@ -740,4 +780,32 @@ class Parser
     }
 
     #endregion
+    private object EvaluateStringExpression(ExpressionNode expression)
+    {
+        switch (expression)
+        {
+            case IdentifierNode text:
+                return text.Name;
+
+            case BinaryOperation binaryOperationNode:
+                var leftValue = EvaluateStringExpression(binaryOperationNode.Left);
+                var rightValue = EvaluateStringExpression(binaryOperationNode.Right);
+                return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
+
+            default:
+            return null;
+        }
+    }
+    private object EvaluateBinaryOperation(string op, object leftValue, object rightValue)
+    {
+        switch (op)
+        {
+            case "@":
+                return (string)leftValue + (string)rightValue;
+            case"@@":
+                return (string)leftValue + " " +(string)rightValue;
+            default:
+                throw new NotSupportedException($"Unsupported operator: {op}");
+        }
+    }
 }

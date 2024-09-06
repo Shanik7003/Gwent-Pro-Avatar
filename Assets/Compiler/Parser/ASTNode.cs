@@ -290,17 +290,20 @@ public class BinaryOperation : ExpressionNode, IVisitable
     public string Operator { get; }
     public ExpressionNode Right { get; }
 
-    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right,CodeLocation location, bool isLogicalExp = false , bool isNumericExp = false)
+    public bool IsConcatenationExp { get; } // Nueva propiedad para distinguir concatenaciones
+
+    public BinaryOperation(ExpressionNode left, string op, ExpressionNode right, CodeLocation location, bool isLogicalExp = false, bool isNumericExp = false, bool isConcatenationExp = false)
     {
         Left = left;
         Operator = op;
         Right = right;
         IsLogicalExp = isLogicalExp;
         IsNumericExp = isNumericExp;
+        IsConcatenationExp = isConcatenationExp;
         Location = location;
     }
 
-    public  override void Accept(IASTVisitor visitor)
+    public override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
     }
@@ -397,9 +400,9 @@ public class EffectField : ASTNode, IVisitable
 public class CardParam : ASTNode, IVisitable
 {
     public IdentifierNode Name { get; }
-    public object Value { get; }
+    public ExpressionNode Value { get; }
 
-    public CardParam(IdentifierNode name, object value,CodeLocation location)
+    public CardParam(IdentifierNode name, ExpressionNode value,CodeLocation location)
     {
         Name = name;
         Value = value;
@@ -448,5 +451,14 @@ public class MyPredicate : ASTNode, IVisitable
     public  override void Accept(IASTVisitor visitor)
     {
         visitor.Visit(this);
+    }
+}
+
+public class Text : ExpressionNode,IVisitable
+{
+    public string Value { get; }
+    public Text(string value)
+    {
+        value = Value;
     }
 }
