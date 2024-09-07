@@ -297,8 +297,10 @@ class Parser
     {
         Tokens.Expect("Source");
         Tokens.Expect(":");
-        var source = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(source, out Source result))
+        //var source = Tokens.Expect(TokenType.Text).Value;
+        var source = ParseExpression();
+        var Source = EvaluateStringExpression(source);
+        if (Enum.TryParse((string)Source, out Source result))
         {
             return result;
         }

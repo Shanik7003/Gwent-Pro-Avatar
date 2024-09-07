@@ -147,6 +147,10 @@ public class ExecutionVisitor : IASTVisitor
             if ((bool)EvaluateExpression(node.Predicate.Condition))
             {
                 targets.Add(card);
+                if (node.Single)
+                {
+                    break;//no añadas mas ninguno,solo el primero
+                }
             }
         }
         Variables["3007_targets"] = targets;//*! ya añadi la lista de targets
