@@ -73,7 +73,7 @@ class Parser
             Tokens.Expect(",");
             Engine.Faction faction = ParseFaction();
             Tokens.Expect(",");
-            int power = ParsePower();
+            ExpressionNode power = ParsePower();
             Tokens.Expect(",");
             CompilerPosition[] range = ParseRange();
             Tokens.Expect(",");
@@ -92,8 +92,13 @@ class Parser
     {
         Tokens.Expect("Type");
         Tokens.Expect(":");
-        var type = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(type, out Engine.CardType cardType))
+        var type = ParseExpression();
+        var Type = EvaluateStringExpression(type);
+        if (Type == null)
+        {
+            AddParsingError(Tokens.LookAhead().Location,"El campo Type de Card debe contener una expresion de tipo string");
+        }
+        if (Enum.TryParse((string)Type, out Engine.CardType cardType))
         {
             return cardType;
         }
@@ -108,8 +113,9 @@ class Parser
     {
         Tokens.Expect("Faction");
         Tokens.Expect(":");
-        var faction = Tokens.Expect(TokenType.Text).Value;
-        if (Enum.TryParse(faction, out Engine.Faction factionType))
+        var faction = ParseExpression();
+        var Faction = EvaluateStringExpression(faction);
+        if (Enum.TryParse((string)Faction, out Engine.Faction factionType))
         {
             return factionType;
         }
@@ -120,20 +126,22 @@ class Parser
         }
     }
 
-    public int ParsePower()
+    public ExpressionNode ParsePower()
     {
         Tokens.Expect("Power");
         Tokens.Expect(":");
-        var power = Tokens.Expect(TokenType.Number).Value;
-        if (int.TryParse(power, out int result))
-        {
-            return result;
-        }
-        else
-        {
-            AddParsingError(Tokens.LookAhead().Location,  $"Valor de poder inválido: {power}");
-            return 0;
-        }
+        //var power = Tokens.Expect(TokenType.Number).Value;
+        var power = ParseExpression();
+        return power;
+        // if (int.TryParse(power, out int result))
+        // {
+        //     return result;
+        // }
+        // else
+        // {
+        //     AddParsingError(Tokens.LookAhead().Location,  $"Valor de poder inválido: {power}");
+        //     return 0;
+        // }
     }
 
     public CompilerPosition[] ParseRange()
@@ -695,11 +703,7 @@ class Parser
         var node = ParseMultiplicativeExpr();  // Parse the multiplicative expression first
     
         // Loop while the next token is an additive operator, including concatenation operators '@' and '@@'
-        while (Tokens.CanLookAhead() && 
-            (Tokens.LookAhead().Value == "+" || 
-                Tokens.LookAhead().Value == "-" || 
-                Tokens.LookAhead().Value == "@" || 
-                Tokens.LookAhead().Value == "@@"))
+        while (Tokens.CanLookAhead() && (Tokens.LookAhead().Value == "+" || Tokens.LookAhead().Value == "-" || Tokens.LookAhead().Value == "@" ||  Tokens.LookAhead().Value == "@@"))
         {
             var op = Tokens.LookAhead().Value;  // Get the operator
             Tokens.Next();  // Consume the operator
@@ -752,7 +756,14 @@ class Parser
             return NodeFactory.CreateNumberNode(double.Parse(token.Value));
         }
 
-        if (token.Type == TokenType.Identifier || token.Type == TokenType.Text)
+        if (token.Type == TokenType.Text)
+        {
+            ExpressionNode text = NodeFactory.CreateTextNode(token.Value);
+            Tokens.Next();
+            return text;
+        }
+
+        if (token.Type == TokenType.Identifier)
         {
             ExpressionNode target = NodeFactory.CreateIdentifierNode(Tokens.LookAhead().Value);
             Tokens.Next(); // Consume el identificador o el texto
@@ -784,8 +795,8 @@ class Parser
     {
         switch (expression)
         {
-            case IdentifierNode text:
-                return text.Name;
+            case Text text:
+                return text.Value;
 
             case BinaryOperation binaryOperationNode:
                 var leftValue = EvaluateStringExpression(binaryOperationNode.Left);
@@ -793,7 +804,7 @@ class Parser
                 return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
 
             default:
-            return null;
+                return null;
         }
     }
     private object EvaluateBinaryOperation(string op, object leftValue, object rightValue)

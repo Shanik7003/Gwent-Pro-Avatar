@@ -11,9 +11,7 @@ public class ErrorManager : MonoBehaviour
     public Button closeButton; // Cambiado a TMP_Button
 
     void Awake()
-    {
-        Debug.Log("errorPanel"+errorPanel);
-    
+    {    
         // Implementar el patrón Singleton
         if (Instance == null)
         {

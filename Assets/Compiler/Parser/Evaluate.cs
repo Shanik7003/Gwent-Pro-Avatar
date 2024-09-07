@@ -60,7 +60,8 @@ public class ExecutionVisitor : IASTVisitor
     public void Visit(CardNode node)
     {
         //? crea una carta del juego real y añadela a AllCards
-        Card card = new(node.Type,node.Name.Name,node.Faction,node.Power,AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid());
+        var power = EvaluateExpression(node.Power);
+        Card card = new(node.Type,node.Name.Name,node.Faction,(double)power,AdecuatePosition(node.Position),Game.GameInstance.GenerateGuid());
         Game.GameInstance.AddCard(card);//la añade al diccionario de todas las cartas del juego;
 
     }
@@ -748,7 +749,8 @@ public class ExecutionVisitor : IASTVisitor
                 var leftValue = EvaluateExpression(binaryOperationNode.Left);
                 var rightValue = EvaluateExpression(binaryOperationNode.Right);
                 return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
-            
+            case Text text:
+                return text.Value;
             case IdentifierNode identifierNode:
                 return EvaluateIdentifier(identifierNode);
             
@@ -784,7 +786,25 @@ public class ExecutionVisitor : IASTVisitor
             case "||":
                 return (bool)leftValue || (bool)rightValue;
             case "==":
-                return leftValue.Equals(rightValue);
+                if (!leftValue.Equals(rightValue))
+                {
+                    if (leftValue is string)
+                    {
+                        if (ObjectsMapping.ContainsKey((string)leftValue))
+                        {
+                            return rightValue.Equals(ObjectsMapping[(string)leftValue]);
+                        }
+                    }
+                    else if(rightValue is string)
+                    {
+                        if (ObjectsMapping.ContainsKey((string)rightValue))
+                        {
+                            return leftValue.Equals(ObjectsMapping[(string)rightValue]);
+                        }
+                    }
+                    return false;
+                }
+                return true;
             case "!=":
                 return !leftValue.Equals(rightValue);
             case "<":
@@ -795,6 +815,10 @@ public class ExecutionVisitor : IASTVisitor
                 return (leftValue as double?) <= (rightValue as double?);
             case ">=":
                 return (leftValue as double?) >= (rightValue as double?);
+            case "@":
+                return (string)leftValue + (string)rightValue;
+            case "@@":
+                return (string)leftValue + " " + (string)rightValue;
             default:
                 throw new NotSupportedException($"Unsupported operator: {op}");
         }

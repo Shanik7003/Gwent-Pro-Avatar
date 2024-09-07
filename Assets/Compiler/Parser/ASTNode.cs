@@ -331,11 +331,11 @@ public class CardNode : ASTNode, IVisitable
     public IdentifierNode Name { get; }
     public Engine.CardType Type { get; }
     public Engine.Faction Faction { get; }
-    public int Power { get; }
+    public ExpressionNode Power { get; }
     public CompilerPosition[] Position { get; }
     public List<EffectInvocationNode> EffectList { get; }
 
-    public CardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
+    public CardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, ExpressionNode power, CompilerPosition[] position, List<EffectInvocationNode> effectList,CodeLocation location)
     {
         Name = name;
         Type = type;
@@ -457,8 +457,9 @@ public class MyPredicate : ASTNode, IVisitable
 public class Text : ExpressionNode,IVisitable
 {
     public string Value { get; }
+
     public Text(string value)
     {
-        value = Value;
+        Value = value;
     }
 }

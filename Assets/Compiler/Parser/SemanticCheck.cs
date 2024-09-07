@@ -298,6 +298,8 @@ public class SemanticVisitor : IASTVisitor
         {
             case Number number:
                 return "Number"; // o "float" si corresponde
+            case Text text:
+                return text.Value;
             case IdentifierNode identifierNode:
                 var symbol = currentSymbolTable.GetSymbol(identifierNode.Name);
                 if (symbol != null)
@@ -316,11 +318,19 @@ public class SemanticVisitor : IASTVisitor
                 {
                     return leftType;
                 }
-                else
+                if(binaryOperation.Operator == "@" || binaryOperation.Operator == "@@")//si es una operacion entre cadenas 
                 {
-                   AddSemanticError(binaryOperation.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
-                    return "unknown";
+                    var s = EvaluateStringExpression(binaryOperation).ToString();
+                    if (currentSymbolTable.ContainsSymbol((string)s))
+                    {
+                        var symboli = currentSymbolTable.GetSymbol((string)s);
+                        return symboli.Type.ToString();
+                    }
                 }
+               
+                AddSemanticError(binaryOperation.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+                return "unknown";
+                
             case ExpressionMethodCall methodCall:
                 string targeType = EvaluateType(methodCall.Target);
                 Symbol targeTypeSymbol = currentSymbolTable.GetSymbol(targeType);
@@ -666,8 +676,8 @@ public class SemanticVisitor : IASTVisitor
            AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
         }
 
-        node.Left.Accept(this);
-        node.Right.Accept(this);
+        // node.Left.Accept(this);
+        // node.Right.Accept(this);
     }
 
     public void Visit(IdentifierNode node)
@@ -729,6 +739,10 @@ public class SemanticVisitor : IASTVisitor
     public void Visit(CardNode node)
     {
         currentSymbolTable = currentSymbolTable.EnterScope();
+        if(EvaluateType(node.Power) != "Number")
+        {
+            AddSemanticError(node.Location,"el power de la carta debe ser una expresion de tipo number ");
+        }
         
         foreach (var effect in node.EffectList)
         {
@@ -825,7 +839,34 @@ public class SemanticVisitor : IASTVisitor
        // System.Console.WriteLine("Todavia no implemetado el Visit(ExpressionNode)");
     }
 
-    // Agrega más métodos de visita para otros tipos de nodos según sea necesario
+    private object EvaluateStringExpression(ExpressionNode expression)
+    {
+        switch (expression)
+        {
+            case Text text:
+                return text.Value;
+
+            case BinaryOperation binaryOperationNode:
+                var leftValue = EvaluateStringExpression(binaryOperationNode.Left);
+                var rightValue = EvaluateStringExpression(binaryOperationNode.Right);
+                return EvaluateBinaryOperation(binaryOperationNode.Operator, leftValue, rightValue);
+
+            default:
+                return null;
+        }
+    }
+    private object EvaluateBinaryOperation(string op, object leftValue, object rightValue)
+    {
+        switch (op)
+        {
+            case "@":
+                return (string)leftValue + (string)rightValue;
+            case"@@":
+                return (string)leftValue + " " +(string)rightValue;
+            default:
+                throw new NotSupportedException($"Unsupported operator: {op}");
+        }
+    }
 }
 
 public class CardList{}

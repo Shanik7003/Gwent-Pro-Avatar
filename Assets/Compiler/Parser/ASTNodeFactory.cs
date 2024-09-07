@@ -13,6 +13,10 @@ public class ASTNodeFactory
     {
         return new IdentifierNode(name,  _tokens.LookAhead().Location,isDynamic ,isContext,isCard,  isCardList);
     }
+    public Text CreateTextNode(string value)
+    {
+        return new Text(value);
+    }
 
     public Number CreateNumberNode(double value)
     {
@@ -83,7 +87,7 @@ public class ASTNodeFactory
         return new ParamNode(name, type, _tokens.LookAhead().Location);
     }
 
-    public CardNode CreateCardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, int power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
+    public CardNode CreateCardNode(IdentifierNode name, Engine.CardType type, Engine.Faction faction, ExpressionNode power, CompilerPosition[] positions, List<EffectInvocationNode> effects)
     {
         return new CardNode(name, type, faction, power, positions, effects, name.Location);
     }
