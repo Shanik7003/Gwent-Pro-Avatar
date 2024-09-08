@@ -102,6 +102,7 @@
     <Compile Include="Assets/Compiler/Lexical/LexicalAnalyzer.cs" />
     <Compile Include="Assets/Scripts/Managers/TurnManeger.cs" />
     <Compile Include="Assets/Scripts/GameLogic/CardFactory.cs" />
+    <Compile Include="Assets/Scripts/Managers/CoroutineRunner.cs" />
     <Compile Include="Assets/Scripts/UI/PlayerSetup.cs" />
     <Compile Include="Assets/Scripts/Managers/CardManager.cs" />
     <Compile Include="Assets/Compiler/Error/CompilingError.cs" />

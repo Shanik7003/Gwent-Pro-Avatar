@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Tracing;
@@ -8,7 +9,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Pool;
 
-public class ExecutionVisitor : IASTVisitor
+public class ExecutionVisitor :IASTVisitor 
 {
     private Dictionary<string,object> ObjectsMapping;
     private Dictionary<string,object> Variables ;
@@ -102,35 +103,84 @@ public class ExecutionVisitor : IASTVisitor
         }
         return Position.Leaderposition;
     }
-    public void Visit(EffectInvocationNode node)
+
+public void Visit(EffectInvocationNode node)
+{
+    node.EffectField.Accept(this);
+
+    if (node.Selector != null)
     {
-        node.EffectField.Accept(this);
+        node.Selector.Accept(this);
+    }
 
-        if (node.Selector != null)
+    foreach (var effect in Ast.Effects)
+    {
+        if (effect.Name.Name == node.EffectField.Name.Name)
         {
-            node.Selector.Accept(this);
-        }
-
-        //?! AQUI!!! antes de ejecutar el postAction es que hay que visitar el effecto para que eso haga que los efectos se hagan en elorden adecuado 
-        foreach (var effect in Ast.Effects)
-        {
-           if (effect.Name.Name == node.EffectField.Name.Name)
-           {
-                effect.Accept(this);
-           }
-        }
-
-        if (node.PostAction != null)
-        {
-            node.PostAction.Accept(this);
+            // Pausa antes de ejecutar el efecto
+            // WaitForSeconds(2);
+            effect.Accept(this);
+            // Pausa después de ejecutar el efecto
+            // WaitForSeconds(2);
         }
     }
+
+
+    if (node.PostAction != null)
+    {
+        // WaitForSeconds(2);
+        node.PostAction.Accept(this);
+        // WaitForSeconds(2);
+    }
+}
+
+// private void WaitForSeconds(float seconds)
+// {
+    // float start = Time.time;
+    // int count = 0;
+    // while (Time.time < start + seconds)
+    // {
+    //     UnityEngine.Debug.Log($"{count++} estoy esperando a que el tiempo pase...");
+    //     // Vacío, solo espera a que el tiempo pase
+    // }
+// }
+
+
+
+
+    // public void Visit(EffectInvocationNode node)
+    // {
+    //     node.EffectField.Accept(this);
+
+    //     if (node.Selector != null)
+    //     {
+    //         node.Selector.Accept(this);
+    //     }
+
+    //     //?! AQUI!!! antes de ejecutar el postAction es que hay que visitar el effecto para que eso haga que los efectos se hagan en elorden adecuado 
+    //     foreach (var effect in Ast.Effects)
+    //     {
+    //        if (effect.Name.Name == node.EffectField.Name.Name)
+    //        {
+    //             effect.Accept(this);
+    //        }
+    //     }
+
+    //     if (node.PostAction != null)
+    //     {
+    //         node.PostAction.Accept(this);
+    //     }
+    // }
 
     public void Visit(EffectField node)
     {
         //guarda los parametros en la tabla de parametros 
         Variables = new Dictionary<string, object>();
 
+        if (node.Params == null)
+        {
+            return;
+        }
         foreach (var param in node.Params)
         {
             Variables[param.Name.Name] = EvaluateExpression(param.Value); //*! ya añadi los parametros 
@@ -158,7 +208,10 @@ public class ExecutionVisitor : IASTVisitor
     
     public void Visit(ActionNode node)
     {
-        Variables[node.Targets.Name] = Variables["3007_targets"];
+        if (Variables.ContainsKey("3007_targets"))
+        {
+            Variables[node.Targets.Name] = Variables["3007_targets"];
+        }
 
         foreach (var statement in node.Statements)
         {
@@ -297,6 +350,7 @@ public class ExecutionVisitor : IASTVisitor
 
     public void Visit(ForStatement node)
     {
+
         var collection = EvaluateExpression(node.Iterable) as IEnumerable<Engine.Card>;
         int count = 0;
         foreach (var item in collection)
@@ -463,7 +517,8 @@ public class ExecutionVisitor : IASTVisitor
                     throw new NotSupportedException($"Method '{method}' is not supported for type 'List<Card>'.");
             }
         }
-        else if (target is Player player)
+
+        else if (param is Player player)
         {
             switch (method)
             {
@@ -506,6 +561,11 @@ public class ExecutionVisitor : IASTVisitor
 
     private void Add(List<Card>target, Card param)
     {
+        // si la carta estaba en alguna de las filas de combate tienes que quitarle a el jugador los puntos que le estas quitando al llevarte la carta a otro lado 
+        if (param.Ubication == Game.GameInstance.Player1.Board.rows[0] || param.Ubication == Game.GameInstance.Player1.Board.rows[1]||param.Ubication == Game.GameInstance.Player1.Board.rows[2]||param.Ubication == Game.GameInstance.Player2.Board.rows[0] || param.Ubication == Game.GameInstance.Player2.Board.rows[1]||param.Ubication == Game.GameInstance.Player2.Board.rows[2])
+        {
+            param.player.Points -= param.points;
+        }
         //?Listas Apiladas 
         if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
         {
@@ -520,6 +580,11 @@ public class ExecutionVisitor : IASTVisitor
     }
     private void Push(List<Card> target, Card param)
     {
+        // si la carta estaba en alguna de las filas de combate tienes que quitarle a el jugador los puntos que le estas quitando al llevarte la carta a otro lado 
+        if (param.Ubication == Game.GameInstance.Player1.Board.rows[0] || param.Ubication == Game.GameInstance.Player1.Board.rows[1]||param.Ubication == Game.GameInstance.Player1.Board.rows[2]||param.Ubication == Game.GameInstance.Player2.Board.rows[0] || param.Ubication == Game.GameInstance.Player2.Board.rows[1]||param.Ubication == Game.GameInstance.Player2.Board.rows[2])
+        {
+            param.player.Points -= param.points;
+        }
         if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
         {
             param.MoveCardAndDesapeare(target); 
@@ -531,6 +596,11 @@ public class ExecutionVisitor : IASTVisitor
 
     private void SendBottom(List<Card> target, Card param)
     {
+        // si la carta estaba en alguna de las filas de combate tienes que quitarle a el jugador los puntos que le estas quitando al llevarte la carta a otro lado 
+        if (param.Ubication == Game.GameInstance.Player1.Board.rows[0] || param.Ubication == Game.GameInstance.Player1.Board.rows[1]||param.Ubication == Game.GameInstance.Player1.Board.rows[2]||param.Ubication == Game.GameInstance.Player2.Board.rows[0] || param.Ubication == Game.GameInstance.Player2.Board.rows[1]||param.Ubication == Game.GameInstance.Player2.Board.rows[2])
+        {
+            param.player.Points -= param.points;
+        }
         if (target == Game.GameInstance.Player1.Deck || target == Game.GameInstance.Player2.Deck || target == Game.GameInstance.Player1.Graveyard || target == Game.GameInstance.Player2.Graveyard)
         {
             //*!aqui hay que hacerlo asi obligado para que verdaderamnete la carta se coloque en el fondo de la lista, en vez de llamar simplemente al metodo MoveCardAndDesapeare()
@@ -557,6 +627,11 @@ public class ExecutionVisitor : IASTVisitor
 
     private void Remove(List<Card>target,Card param)
     {
+        // si la carta estaba en alguna de las filas de combate tienes que quitarle a el jugador los puntos que le estas quitando al llevarte la carta a otro lado 
+        if (param.Ubication == Game.GameInstance.Player1.Board.rows[0] || param.Ubication == Game.GameInstance.Player1.Board.rows[1]||param.Ubication == Game.GameInstance.Player1.Board.rows[2]||param.Ubication == Game.GameInstance.Player2.Board.rows[0] || param.Ubication == Game.GameInstance.Player2.Board.rows[1]||param.Ubication == Game.GameInstance.Player2.Board.rows[2])
+        {
+            param.player.Points -= param.points;
+        }
         param.RemoveCard();
     }
 
@@ -642,7 +717,7 @@ public class ExecutionVisitor : IASTVisitor
                 }
                 if (propertyAccessNode.Property.Name == "Owner")
                 {
-                    return ((Card)target).player.Id;
+                    return ((Card)target).player;
                 }
             }
             //*! si no es una carta entonces es una de las listas del context y como es property son las que no tienen parametros 
@@ -762,7 +837,8 @@ public class ExecutionVisitor : IASTVisitor
                 object target = EvaluateExpression(methodCallNode.Target);
                 if (methodCallNode.Param != null)
                 {
-                    return ExecuteMethod(methodCallNode.Funtion.Name,target,methodCallNode.Param);
+                    object param = EvaluateExpression((IdentifierNode)methodCallNode.Param);
+                    return ExecuteMethod(methodCallNode.Funtion.Name,target,param);
                 }
                 return ExecuteMethod(methodCallNode.Funtion.Name,target);
             

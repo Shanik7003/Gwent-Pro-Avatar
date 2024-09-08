@@ -299,7 +299,7 @@ public class SemanticVisitor : IASTVisitor
             case Number number:
                 return "Number"; // o "float" si corresponde
             case Text text:
-                return text.Value;
+                return "string";
             case IdentifierNode identifierNode:
                 var symbol = currentSymbolTable.GetSymbol(identifierNode.Name);
                 if (symbol != null)
@@ -673,7 +673,31 @@ public class SemanticVisitor : IASTVisitor
         var rightType = EvaluateType(node.Right);
         if (!TypesAreCompatible(leftType, rightType))
         {
-           AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+            if (leftType == "string")
+            {
+                var v = EvaluateStringExpression(node.Left);
+                if (currentSymbolTable.ContainsSymbol((string)v))
+                {
+                    if(rightType == currentSymbolTable.GetSymbol((string)v).Type.ToString())
+                    {
+                        return;   
+                    }
+                }
+            }
+            else if (rightType == "string")
+            {
+                var s = EvaluateStringExpression(node.Right);
+                if (currentSymbolTable.ContainsSymbol((string)s))
+                {
+                    var d = currentSymbolTable.GetSymbol((string)s).Type.ToString();
+                    if(leftType == currentSymbolTable.GetSymbol((string)s).Type.ToString())
+                    {
+                        return;
+                    }
+                }
+            }    
+            AddSemanticError(node.Location,$"Type mismatch in binary operation: {leftType} and {rightType}");
+            
         }
 
         // node.Left.Accept(this);
