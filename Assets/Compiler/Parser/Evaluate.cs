@@ -841,6 +841,14 @@ public void Visit(EffectInvocationNode node)
                 object target = EvaluateExpression(methodCallNode.Target);
                 if (methodCallNode.Param != null)
                 {
+                    if (methodCallNode.Param is MyPredicate predicate)
+                    {
+                        return Find((List<Card>)target, predicate);
+                    }
+                    else
+                    {
+                        throw new ArgumentException($"Invalid parameter type for method '{methodCallNode}'. Expected 'MyPredicate', got '{methodCallNode.Param?.GetType().Name}'.");
+                    }
                     object param = EvaluateExpression((IdentifierNode)methodCallNode.Param);
                     return ExecuteMethod(methodCallNode.Funtion.Name,target,param);
                 }

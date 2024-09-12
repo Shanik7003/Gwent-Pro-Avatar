@@ -1,0 +1,137 @@
+effect 
+{
+    Name: "Add to Hand",
+    Action: (targets, context) => 
+    {
+        cartas = context.Field.Find((unit)=> unit.Power >= 0);
+        for carta in cartas 
+        {
+            context.Hand.Add(carta);
+        };
+    }
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga1",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Add to Hand"
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga2",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Add to Hand"
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga3",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Add to Hand"
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga4",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Add to Hand"
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga5",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Add to Hand"
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
