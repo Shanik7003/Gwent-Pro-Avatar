@@ -43,6 +43,15 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
         if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
         {
+            if (newPosition ==Game.GameInstance.Player1.Hand || newPosition ==Game.GameInstance.Player2.Hand)
+            {
+                StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+                var drag = this.GetComponent<Draggable>();
+                drag.enabled = true;
+                drag.isDraggable = true;//para que el usuario no la pueda mover mas
+                drag.GetComponent<CanvasGroup>().interactable = true;
+                return;
+            }
             StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
         }
 
@@ -104,7 +113,16 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
 
         if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
         {
-            StartCoroutine(CardManager.Instance.AddCardToHandInRight(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+            if (newPosition ==Game.GameInstance.Player1.Hand || newPosition ==Game.GameInstance.Player2.Hand)
+            {
+                StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+                var drag = this.GetComponent<Draggable>();
+                drag.enabled = true;
+                drag.isDraggable = true;//para que el usuario no la pueda mover mas
+                drag.GetComponent<CanvasGroup>().interactable = true;
+                return;
+            }
+            StartCoroutine(CardManager.Instance.MoveCard(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
         }
 
         else if(VisualBoard.UbicationsMapping[newPosition].Count > 1)//es un Field o el Board
@@ -132,6 +150,15 @@ public class CardDisplay : MonoBehaviour, IPointerEnterHandler, IPointerExitHand
         //StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition].transform));
         if (VisualBoard.UbicationsMapping[newPosition].Count == 1)// si solo tiene una lista 
         {
+            if (newPosition == Game.GameInstance.Player1.Hand || newPosition ==Game.GameInstance.Player2.Hand)
+            {
+                StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
+                var drag = this.GetComponent<Draggable>();
+                drag.enabled = true;
+                drag.isDraggable = true;//para que el usuario no la pueda mover mas
+                drag.GetComponent<CanvasGroup>().interactable = true;
+                return;
+            }
             StartCoroutine(CardManager.Instance.AddCardToHandLeft(this.transform,VisualBoard.UbicationsMapping[newPosition][0]));
         }
 

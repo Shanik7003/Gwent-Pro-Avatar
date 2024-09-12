@@ -54,7 +54,7 @@ public class BattleRow : MonoBehaviour, IDropHandler
                     return;//y no entras al EndTurn de abajo
                 }
                 TurnManager.Instance.EndTurn();//pasar de turno
-                // GetComponent<CanvasGroup>().blocksRaycasts = false;  // Desactiva el raycast
+                //GetComponent<CanvasGroup>().blocksRaycasts = false;  // Desactiva el raycast
                
             }
             else
@@ -73,10 +73,11 @@ public class BattleRow : MonoBehaviour, IDropHandler
         ExistsPasiveIncrease(cardDisplay);//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
         ExistsPasiveWheather(cardDisplay);
 
-        FreeHability(card);
-
         card.isDraggable = false;//para que el usuario no la pueda mover mas
         card.GetComponent<CanvasGroup>().interactable = false;
+
+        FreeHability(card);
+
     }
 
     public void  ExistsPasiveIncrease(CardDisplay cardDisplay)//comprueba si existe alguna aumento pasivo en esa fila y si existe lo aplica
@@ -135,7 +136,8 @@ public class BattleRow : MonoBehaviour, IDropHandler
            //si la estas colocando en un lugar de aumneto continua y verifica todo lo demas 
         }
 
-        Player cardOwner = cardDisplay.cardData.owner;
+        //!Player cardOwner = cardDisplay.cardData.owner;
+        Player cardOwner = cardDisplay.card.player;
         bool isPlayerTurn = TurnManager.Instance.IsPlayerTurn(cardOwner);
         // Chequeo de que el propietario de la carta y el propietario de la fila coinciden
         bool correctOwner = (rowOwner == Owner.Player1 && cardOwner == Game.GameInstance.Player1) || (rowOwner == Owner.Player2 && cardOwner == Game.GameInstance.Player2);

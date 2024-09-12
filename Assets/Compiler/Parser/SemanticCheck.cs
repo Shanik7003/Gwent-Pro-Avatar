@@ -232,7 +232,7 @@ public class SemanticVisitor : IASTVisitor
 
         //Registrar el tipo Context con sus propiedades
         var context = new Symbol("Context", typeof(Context));
-        context.AddMember("TriggerPlayer", new Symbol("Triggerplayer",typeof(Number)));  
+        context.AddMember("TriggerPlayer", new Symbol("Triggerplayer",typeof(Engine.Player)));  
         context.AddMember("Board", new Symbol("Board",typeof(CardList))); 
         context.AddMember("HandOfPlayer", new Symbol("HandOfPlayer",typeof(CardList),typeof(Engine.Player),true));
         context.AddMember("FieldOfPlayer", new Symbol("FieldOfPlayer",typeof(CardList),typeof(Engine.Player),true));

@@ -60,7 +60,15 @@ namespace Engine
 
         public void MoveCard(List<Card>Destino)
         {
+            ChangeCardOwner(Destino);
+
             // Mover la carta a una nueva posición en el tablero
+            if (Game.GameInstance.Board.Contains(this) )
+            {
+                Game.GameInstance.Board.Remove(this);
+                Game.GameInstance.Player1.Field.Remove(this);
+                Game.GameInstance.Player2.Field.Remove(this);
+            }
             Ubication.Remove(this);
             Destino.Add(this);
             this.Ubication = Destino;
@@ -68,7 +76,14 @@ namespace Engine
         }
         public void MoveCardAndDesapeare(List<Card>Destino)
         {
+            ChangeCardOwner(Destino);
             // Mover la carta a una nueva posición en el tablero
+            if (Game.GameInstance.Board.Contains(this) )
+            {
+                Game.GameInstance.Board.Remove(this);
+                Game.GameInstance.Player1.Field.Remove(this);
+                Game.GameInstance.Player2.Field.Remove(this);
+            }
             Ubication.Remove(this);
             Destino.Add(this);
             this.Ubication = Destino;
@@ -76,7 +91,15 @@ namespace Engine
         }
         public void MoveCardToRight(List<Card>Destino)
         {
+            ChangeCardOwner(Destino);
+
             // Mover la carta a una nueva posición en el tablero
+            if (Game.GameInstance.Board.Contains(this) )
+            {
+                Game.GameInstance.Board.Remove(this);
+                Game.GameInstance.Player1.Field.Remove(this);
+                Game.GameInstance.Player2.Field.Remove(this);
+            }
             Ubication.Remove(this);
             Destino.Add(this);
             this.Ubication = Destino;
@@ -84,7 +107,15 @@ namespace Engine
         }
         public void MoveCardToLeft(List<Card>Destino)
         {
+            ChangeCardOwner(Destino);
+
             // Mover la carta a una nueva posición en el tablero
+            if (Game.GameInstance.Board.Contains(this) )
+            {
+                Game.GameInstance.Board.Remove(this);
+                Game.GameInstance.Player1.Field.Remove(this);
+                Game.GameInstance.Player2.Field.Remove(this);
+            }
             Ubication.Remove(this);
             Destino.Insert(0,this);//porque esto se usa solo en el SendBottom
             this.Ubication = Destino;
@@ -100,6 +131,57 @@ namespace Engine
             this.player.Graveyard.Add(this);
             this.Ubication = this.player.Graveyard;
             NotifyObservers(EventType.CardRemoved, this.player); 
+        }
+        public void ChangeCardOwner(List<Card>Destino)
+        {
+            if (Destino == Game.GameInstance.Player1.Board.rows[0])
+            {
+                this.player = Game.GameInstance.Player1;
+            }
+            if (Destino == Game.GameInstance.Player1.Board.rows[1])
+            {
+                this.player = Game.GameInstance.Player1;
+            }
+            if (Destino == Game.GameInstance.Player1.Board.rows[2])
+            {
+                this.player = Game.GameInstance.Player1;
+            }
+            if (Destino == Game.GameInstance.Player2.Board.rows[0])
+            {
+                this.player = Game.GameInstance.Player2;
+            }
+            if (Destino == Game.GameInstance.Player2.Board.rows[1])
+            {
+                this.player = Game.GameInstance.Player2;
+            }
+            if (Destino == Game.GameInstance.Player2.Board.rows[2])
+            {
+                this.player = Game.GameInstance.Player2;
+            }
+            if (Destino == Game.GameInstance.Player1.Field)
+            {
+                this.player = Game.GameInstance.Player1;
+            }
+            if (Destino == Game.GameInstance.Player2.Field)
+            {
+                this.player = Game.GameInstance.Player2;
+            }
+            if (Destino == Game.GameInstance.Player1.Hand)
+            {
+                this.player = Game.GameInstance.Player1;
+            }
+            if (Destino == Game.GameInstance.Player2.Hand)
+            {
+                this.player = Game.GameInstance.Player2;
+            }
+            if (Destino == Game.GameInstance.Player1.Graveyard)
+            {
+                this.player = Game.GameInstance.Player1;
+            }
+            if (Destino == Game.GameInstance.Player2.Graveyard)
+            {
+                this.player = Game.GameInstance.Player2;
+            }
         }
 
 

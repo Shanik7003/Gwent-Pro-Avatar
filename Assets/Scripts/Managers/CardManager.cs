@@ -53,10 +53,6 @@ public class CardManager : MonoBehaviour
         GenerateCardData(Game.GameInstance.Player2.Deck);
         InstantiateCardsInDeck(player2DeckHolder);
 
-        // Instanciar las cartas en los decks, pero mantenerlas inactivas
-        // InstantiateCardsInDeck(player1DeckHolder);
-        // InstantiateCardsInDeck(player2DeckHolder);
-
         Game.GameInstance.Player1.GetHand();
         Game.GameInstance.Player2.GetHand();
 

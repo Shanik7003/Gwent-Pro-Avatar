@@ -106,6 +106,7 @@ public class ExecutionVisitor :IASTVisitor
 
 public void Visit(EffectInvocationNode node)
 {
+    //Variables = new();
     node.EffectField.Accept(this);
 
     if (node.Selector != null)

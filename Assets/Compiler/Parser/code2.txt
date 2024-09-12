@@ -21,13 +21,13 @@ effect
 
 effect 
 {
-    Name: "Power" @@ "Duplicate"¨,
+    Name: "Power" @@ "Duplicate",
     
     Action: (targets, context) => 
     {
         for target in targets 
         {
-            target.Power += 2;
+            target.Power *= 2;
         };
     }
 }
@@ -43,42 +43,16 @@ effect
     }
 }
 
-card 
+effect
 {
-	Type: "Unit"@"Card",
-	Name: "Shanik",
-	Faction: "FireNa"@"tion",
-	Power: 3+7,
-	Range: ["M", "R"],
-	OnActivation: 
-	[
-	    {
-            Effect: 
-            {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
-            },
-
-            Selector:
-            {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
-            }
-        }
-    ]
+    Name:"Add to Hand",
+    Action: (targets, context) =>
+    {
+        for target in targets
+        {
+            context.Hand.Add(target);
+        };
+    }
 }
 
 card 
@@ -93,32 +67,20 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 card 
 {
 	Type: "Unit"@"Card",
@@ -131,32 +93,20 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 card 
 {
 	Type: "Unit"@"Card",
@@ -169,32 +119,20 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 card 
 {
 	Type: "Unit"@"Card",
@@ -207,32 +145,20 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 card 
 {
 	Type: "Unit"@"Card",
@@ -245,32 +171,20 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 card 
 {
 	Type: "Unit"@"Card",
@@ -283,32 +197,20 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 card 
 {
 	Type: "Unit"@"Card",
@@ -321,30 +223,18 @@ card
 	    {
             Effect: 
             {
-                Name: "Da" @ "mage",
-                Amount: (2+1)-2	
+                Name: "Add to Hand"
+                	
             },
 
             Selector:
             {
-                Source: "boa" @ "rd",
-                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
-            },
-
-            PostAction:
-            {
-                Effect:
-                {
-                    Name: "Damage Reverse"
-                }, 
-                Selector:
-                {
-                    Source: "board", 
-                    Predicate: (sos) => sos.Faction == "WaterTribe"
-                },	             
+                Source: "otherField",
+                Predicate: (unit) => unit.Power >= 2
             }
+
+            
         }
     ]
 }
-
 
