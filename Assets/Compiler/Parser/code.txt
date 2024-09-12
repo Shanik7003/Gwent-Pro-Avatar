@@ -74,65 +74,24 @@ card
                 {
                     Name: "Return" @ "ToDeck"
                 },
-
-                Selector: 
-                {
-                    Source: "boa"@"rd",
-                    Single: false,
-                    Predicate: (unit) => unit.Power >= 0
-                },
             }
         },
 
         {
-            Effect: "Draw"
-        }
-    ]
-}
-card 
-{
-	Type: "UnitCard",
-	Name: "Shanik" @@ "No" @@ "Se" @@ "Baña",
-	Faction: "Fire" @ "Nation",
-	Power: 90,
-	Range: ["M", "R"],
-	OnActivation: 
-	[
-	    {
             Effect: 
             {
-                Name: "Damage",
-                Amount: 1 
+                Name: "Draw"
             },
-
             Selector:
             {
                 Source: "board",
                 Single: false,
                 Predicate: (unit) => unit.Power >= 0
-            },
-
-            PostAction: 
-            {
-                Effect: 
-                {
-                    Name: "ReturnToDeck"
-                },
-
-                Selector: 
-                {
-                    Source: "board",
-                    Single: false,
-                    Predicate: (unit) => unit.Power >= 0
-                },
             }
-        },
-
-        {
-            Effect: "Draw"
         }
     ]
 }
+
 card 
 {
 	Type: "UnitCard",
@@ -160,26 +119,29 @@ card
             {
                 Effect: 
                 {
-                    Name: "ReturnToDeck"
-                },
-
-                Selector: 
-                {
-                    Source: "board",
-                    Single: false,
-                    Predicate: (unit) => unit.Power >= 0
+                    Name: "Return" @ "ToDeck"
                 },
             }
         },
 
         {
-            Effect: "Draw"
+            Effect: 
+            {
+                Name: "Draw"
+            },
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
         }
     ]
 }
+
 card 
 {
-	Type: "Unit" @ "Card",
+	Type: "UnitCard",
 	Name: "Beluga3",
 	Faction: "FireNation",
 	Power: 90,
@@ -204,23 +166,26 @@ card
             {
                 Effect: 
                 {
-                    Name: "ReturnToDeck"
-                },
-
-                Selector: 
-                {
-                    Source: "board",
-                    Single: false,
-                    Predicate: (unit) => unit.Power >= 0
+                    Name: "Return" @ "ToDeck"
                 },
             }
         },
 
         {
-            Effect: "Draw"
+            Effect: 
+            {
+                Name: "Draw"
+            },
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
         }
     ]
 }
+
 card 
 {
 	Type: "UnitCard",
@@ -248,23 +213,26 @@ card
             {
                 Effect: 
                 {
-                    Name: "ReturnToDeck"
-                },
-
-                Selector: 
-                {
-                    Source: "board",
-                    Single: false,
-                    Predicate: (unit) => unit.Power >= 0
+                    Name: "Return" @ "ToDeck"
                 },
             }
         },
 
         {
-            Effect: "Draw"
+            Effect: 
+            {
+                Name: "Draw"
+            },
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
         }
     ]
 }
+
 card 
 {
 	Type: "UnitCard",
@@ -292,20 +260,69 @@ card
             {
                 Effect: 
                 {
-                    Name: "ReturnToDeck"
-                },
-
-                Selector: 
-                {
-                    Source: "board",
-                    Single: false,
-                    Predicate: (unit) => unit.Power >= 0
+                    Name: "Return" @ "ToDeck"
                 },
             }
         },
 
         {
-            Effect: "Draw"
+            Effect: 
+            {
+                Name: "Draw"
+            },
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "UnitCard",
+	Name: "Beluga6",
+	Faction: "FireNation",
+	Power: 90,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Damage",
+                Amount: 1 
+            },
+
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            },
+
+            PostAction: 
+            {
+                Effect: 
+                {
+                    Name: "Return" @ "ToDeck"
+                },
+            }
+        },
+
+        {
+            Effect: 
+            {
+                Name: "Draw"
+            },
+            Selector:
+            {
+                Source: "board",
+                Single: false,
+                Predicate: (unit) => unit.Power >= 0
+            }
         }
     ]
 }

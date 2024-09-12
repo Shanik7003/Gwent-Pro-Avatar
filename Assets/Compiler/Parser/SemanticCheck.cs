@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Net.Http.Headers;
 using System.Timers;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 public class Symbol
 {
@@ -778,6 +779,28 @@ public class SemanticVisitor : IASTVisitor
 
     public void Visit(EffectInvocationNode node)
     {
+        if (node.Selector == null)//si no tiene selector usa el mismo del padre
+        {
+            if (node.Parent == null) //?primero verifica que tenga padre 
+            {
+                AddSemanticError(node.Location, "Es obligatorio definir un Selector para un efecto que no posee algun efecto padre");
+            }
+            else
+            {
+               node.Selector = node.Parent?.Selector;
+            }
+        }
+        else if(node.Selector.Source == Source.parent)// si tiene selector y la Source es parent 
+        {
+            if (node.Parent == null)//?verifica que tenga padre 
+            {
+                AddSemanticError(node.Location, "no es posible usar la source parent con un effecto que no posee un padre (solamente funciona con PostActions)");
+            }
+            else
+            {
+                node.Selector.Source = node.Parent.Selector.Source; 
+            }
+        }
         node.EffectField.Accept(this);
         if (node.Selector != null)
         {
@@ -919,7 +942,6 @@ public enum Source
     otherDeck,
     field,
     otherField,
-
 }
 
 public delegate bool MyDelegate(int x);

@@ -31,7 +31,6 @@ public class GameManagerWrapper : MonoBehaviour
     {
         if (Game.GameInstance.Player1 == null || Game.GameInstance.Player2 == null)
         {
-
             return;
         }
         Game.GameInstance.Player1.Name = Player1Name;

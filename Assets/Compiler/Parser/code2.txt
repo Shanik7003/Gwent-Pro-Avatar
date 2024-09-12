@@ -1,0 +1,350 @@
+effect 
+{
+    Name: "Dam"@"age",
+    Params: 
+    {
+        Amount: Number
+    },
+    Action: (targets, context) => 
+    {
+        for target in targets 
+        {
+            i = 0;
+            while (i < Amount)
+            {
+                target.Power = 0;
+                i ++;
+            }
+        };
+    }
+}
+
+effect 
+{
+    Name: "Power" @@ "Duplicate"¨,
+    
+    Action: (targets, context) => 
+    {
+        for target in targets 
+        {
+            target.Power += 2;
+        };
+    }
+}
+
+effect 
+{
+    Name: "Dr"@"aw",
+    Action: (targets, context) => 
+    {
+        topCard = context.Deck.Pop();
+        context.Board.SendBottom(topCard);
+        context.Hand.Shuffle();
+    }
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: (2+1)-2	
+            },
+
+            Selector:
+            {
+                Source: "boa" @ "rd",
+                Predicate: (unit) => unit.Faction == "Water"@"Tribe"
+            },
+
+            PostAction:
+            {
+                Effect:
+                {
+                    Name: "Damage Reverse"
+                }, 
+                Selector:
+                {
+                    Source: "board", 
+                    Predicate: (sos) => sos.Faction == "WaterTribe"
+                },	             
+            }
+        }
+    ]
+}
+
+

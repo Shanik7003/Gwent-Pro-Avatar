@@ -278,20 +278,20 @@ public void Visit(EffectInvocationNode node)
         {
             case "+=":
             value = (double)variable + (double)value;
-            
             break;
+
             case "-=":
             value = (double)variable - (double)value;
-            
             break;
+
             case "*=":
             value = (double)variable * (double)value;
-            
             break;
+
             case "/=":
             value = (double)variable / (double)value;
-            
             break;
+
             default:
             ErrorManager.Instance.ShowError("There was a problem in CompoundAssignment Evaluation");
             break;
@@ -304,15 +304,18 @@ public void Visit(EffectInvocationNode node)
             {
                 if (((PropertyAccessNode)node.Variable).Property.Name == "Power")
                 {
+                    double points = Math.Max(0,(double)value);
                     if (((Card)vari).player.Field.Contains((Card)vari)) // si la carta esta en el field tienes que actualizar los puntos del player de la carta
                     {
-                        if(((Card)vari).points > (double)value)
+                        if(((Card)vari).points > points)//si  quitaste
                         {
-                            ((Card)vari).player.Points -= ((Card)vari).points - (double)value;
+                           ((Card)vari).player.Points -= ((Card)vari).points - points;
+                            // ((Card)vari).player.Points -=  points;
                         }
-                        else if(((Card)vari).points < (double)value)
+                        else if(((Card)vari).points < points)//si diste 
                         {
-                            ((Card)vari).player.Points += (double)value - ((Card)vari).points;
+                            ((Card)vari).player.Points += points - ((Card)vari).points;
+                            // ((Card)vari).player.Points +=  points;
                         }
                     }
                     //y ademas cambiar los puntos de la carta, si no estaba en el Field de todas formas  esto hay que hacerlo 

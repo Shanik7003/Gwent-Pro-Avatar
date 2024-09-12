@@ -204,6 +204,7 @@ class Parser
         {
             selector = ParseSelectorField();
             postAction = ParsePostAction();
+            
             if (Tokens.End)
             {
                 AddParsingError(Tokens.LookAhead().Location,  " Expected '}' ");
@@ -212,6 +213,10 @@ class Parser
         }
         Tokens.Expect("}");
         EffectInvocationNode effect = NodeFactory.CreateEffectInvocationNode(effectfield,selector,postAction);
+        if (postAction != null)//!este es el if nuevo para agregar el padre 
+        {
+            postAction.Parent = effect;
+        }
         return effect;
     }
 

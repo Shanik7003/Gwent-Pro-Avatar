@@ -30,7 +30,8 @@ namespace Engine
             get => points;
             set
             {
-                points = value;
+                points = Math.Max(0,value);
+                //points = value;
                 NotifyObservers(EventType.PlayerPointsChanged, this); // Notifica que los puntos del jugador han cambiado
             }
         }

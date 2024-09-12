@@ -1,0 +1,201 @@
+effect 
+{
+    Name: "Damage",
+    Params: 
+    {
+        Amount: Number
+    },
+    Action: (targets, context) => 
+    {
+        for target in targets 
+        {
+            i = 0;
+            while (i < Amount)
+            {
+                target.Power -= 1;
+                i++;
+            }
+        };
+    }
+}
+
+effect 
+{
+    Name: "Power" @@ "Duplicate",
+    
+    Action: (targets, context) => 
+    {
+        for target in targets 
+        {
+            target.Power += 2;
+        };
+    }
+}
+
+effect 
+{
+    Name: "Dr"@"aw",
+    Action: (targets, context) => 
+    {
+        topCard = context.Deck.Pop();
+        context.Board.SendBottom(topCard);
+        context.Hand.Shuffle();
+    }
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: 1	
+            },
+
+            Selector:
+            {
+                Source: "otherHand",
+                Single:false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik2",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: 1	
+            },
+
+            Selector:
+            {
+                Source: "otherHand",
+                Single:false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik3",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: 1	
+            },
+
+            Selector:
+            {
+                Source: "otherHand",
+                Single:false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik4",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: 1	
+            },
+
+            Selector:
+            {
+                Source: "otherHand",
+                Single:false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik5",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: 1
+            },
+
+            Selector:
+            {
+                Source: "otherHand",
+                Single:false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+
+card 
+{
+	Type: "Unit"@"Card",
+	Name: "Shanik6",
+	Faction: "FireNa"@"tion",
+	Power: 3+7,
+	Range: ["M", "R"],
+	OnActivation: 
+	[
+	    {
+            Effect: 
+            {
+                Name: "Da" @ "mage",
+                Amount: 1	
+            },
+
+            Selector:
+            {
+                Source: "otherHand",
+                Single:false,
+                Predicate: (unit) => unit.Power >= 0
+            }
+        }
+    ]
+}
+

@@ -32,7 +32,8 @@ namespace Engine
             get => Points;
             set
             {
-                Points = value;
+                //Points = value;
+                Points = Math.Max(0,value);
                 NotifyObservers(EventType.CardPointsChanged, this); // Notifica que los puntos de la carta han cambiado
             }
         }

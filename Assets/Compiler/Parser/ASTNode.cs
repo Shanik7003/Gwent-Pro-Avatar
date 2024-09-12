@@ -355,15 +355,20 @@ public class CardNode : ASTNode, IVisitable
 public class EffectInvocationNode : ASTNode, IVisitable
 {
     public EffectField EffectField { get; }
-    public SelectorNode? Selector { get; }
-    public EffectInvocationNode? PostAction { get; }
+    public SelectorNode? Selector { get; set;}
+    public EffectInvocationNode? PostAction { get; set;}//hijo
+    public EffectInvocationNode Parent { get; set;}//padre
 
-    public EffectInvocationNode(EffectField effectField, SelectorNode? selector, EffectInvocationNode? postAction,CodeLocation location)
+    public EffectInvocationNode(EffectField effectField, SelectorNode selector, EffectInvocationNode postAction,CodeLocation location,EffectInvocationNode Parent = null)
     {
         EffectField = effectField;
         Selector = selector;
         PostAction = postAction;
         Location = location;
+        if (Parent != null)
+        {
+            Parent.PostAction = this;
+        }
     }
 
     public  override void Accept(IASTVisitor visitor)
@@ -417,7 +422,7 @@ public class CardParam : ASTNode, IVisitable
 
 public class SelectorNode : ASTNode, IVisitable
 {
-    public Source Source { get; }
+    public Source Source { get; set; }
     public bool Single { get; }
     public MyPredicate? Predicate { get; }
 

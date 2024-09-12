@@ -92,9 +92,9 @@ public class ASTNodeFactory
         return new CardNode(name, type, faction, power, positions, effects, name.Location);
     }
 
-    public EffectInvocationNode CreateEffectInvocationNode(EffectField effectField, SelectorNode? selector, EffectInvocationNode? postAction)
+    public EffectInvocationNode CreateEffectInvocationNode(EffectField effectField, SelectorNode selector, EffectInvocationNode postAction, EffectInvocationNode parent = null)
     {
-        return new EffectInvocationNode(effectField, selector, postAction, _tokens.LookAhead().Location);
+        return new EffectInvocationNode(effectField, selector, postAction,_tokens.LookAhead().Location,parent);
     }
 
     public EffectField CreateEffectFieldNode(IdentifierNode name, List<CardParam> parameters)
